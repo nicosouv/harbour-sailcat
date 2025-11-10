@@ -41,7 +41,7 @@ Page {
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Version 1.0.0"
+                text: "Version 1.1.1"
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
             }
