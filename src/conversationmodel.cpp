@@ -96,6 +96,11 @@ void ConversationModel::clearConversation()
     emit countChanged();
 }
 
+QVariant ConversationModel::getMessagesForApi() const
+{
+    return QVariant::fromValue(toJsonArray());
+}
+
 QJsonArray ConversationModel::toJsonArray() const
 {
     QJsonArray messages;

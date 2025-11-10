@@ -21,7 +21,7 @@ public:
 
     Q_INVOKABLE void sendMessage(const QString &apiKey,
                                    const QString &modelName,
-                                   const QJsonArray &messages);
+                                   const QVariant &messages);
     Q_INVOKABLE void cancelRequest();
     Q_INVOKABLE void clearError();
 

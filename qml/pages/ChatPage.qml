@@ -493,7 +493,7 @@ Page {
         // Prepare API call
         var apiKey = settingsManager.apiKey
         var modelName = settingsManager.modelName
-        var messages = conversationModel.toJsonArray()
+        var messages = conversationModel.getMessagesForApi()
 
         // Add empty assistant message
         conversationModel.addAssistantMessage("")

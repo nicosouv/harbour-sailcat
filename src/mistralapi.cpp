@@ -24,7 +24,7 @@ QString MistralAPI::error() const
 
 void MistralAPI::sendMessage(const QString &apiKey,
                                const QString &modelName,
-                               const QJsonArray &messages)
+                               const QVariant &messagesVariant)
 {
     if (m_isBusy) {
         qWarning() << "Request already in progress";
@@ -33,6 +33,14 @@ void MistralAPI::sendMessage(const QString &apiKey,
 
     if (apiKey.isEmpty()) {
         setError(tr("Missing API key. Please configure your API key in settings."));
+        return;
+    }
+
+    // Convert QVariant to QJsonArray
+    QJsonArray messages = messagesVariant.toJsonArray();
+    if (messages.isEmpty()) {
+        qWarning() << "Messages array is empty or invalid";
+        setError(tr("Failed to prepare messages for API"));
         return;
     }
 
