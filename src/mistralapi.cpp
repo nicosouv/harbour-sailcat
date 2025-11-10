@@ -62,8 +62,8 @@ void MistralAPI::sendMessage(const QString &apiKey,
             this, &MistralAPI::onReadyRead);
     connect(m_currentReply, &QNetworkReply::finished,
             this, &MistralAPI::onFinished);
-    connect(m_currentReply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
-            this, &MistralAPI::onError);
+    connect(m_currentReply, SIGNAL(error(QNetworkReply::NetworkError)),
+            this, SLOT(onError(QNetworkReply::NetworkError)));
 
     emit messageSent();
 }
