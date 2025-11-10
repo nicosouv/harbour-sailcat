@@ -77,7 +77,11 @@ Pour proposer une nouvelle fonctionnalité :
 
 #### Build automatique
 
-Les GitHub Actions builderont automatiquement votre PR pour `armv7hl` et `aarch64`. Assurez-vous que les builds passent avant de demander une review.
+Le workflow **pr-build.yml** validera automatiquement votre PR en buildant pour `armv7hl`.
+
+✅ Assurez-vous que le build passe avant de demander une review.
+
+Vous pouvez voir le statut du build dans l'onglet "Checks" de votre PR.
 
 ## Standards de code
 

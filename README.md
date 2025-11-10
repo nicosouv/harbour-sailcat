@@ -140,6 +140,35 @@ POST https://api.mistral.ai/v1/chat/completions
 - ✅ Pas de serveur intermédiaire
 - ⚠️ Votre clé API donne accès à votre compte Mistral - gardez-la secrète
 
+## 🚀 Releases & CI/CD
+
+SailCat utilise GitHub Actions pour builder et publier automatiquement les releases.
+
+### Build automatique
+
+Chaque tag `vX.Y.Z` déclenche un build multi-architecture :
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Le workflow **build-docker.yml** :
+- ✅ Build pour armv7hl, aarch64, et i486
+- ✅ Génère un changelog depuis les commits
+- ✅ Crée une release GitHub avec les RPM
+- ✅ Publie automatiquement
+
+Les RPM compilés sont disponibles dans [Releases](https://github.com/nicosouv/harbour-sailcat/releases).
+
+### Validation des PRs
+
+Les Pull Requests sont automatiquement validées avec le workflow **pr-build.yml** qui build pour armv7hl.
+
+### Pour les mainteneurs
+
+Voir [RELEASE.md](RELEASE.md) pour le guide complet de release.
+
 ## 🤝 Contribution
 
 Les contributions sont les bienvenues ! Voici comment participer :

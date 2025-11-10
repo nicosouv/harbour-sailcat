@@ -127,14 +127,25 @@ mb2 -t SailfishOS-5.0.0.43-armv7hl build
 
 ### Avec GitHub Actions
 
-```bash
-# Créer un tag et pusher
-git tag v0.1.0
-git push origin v0.1.0
+Le plus simple ! Poussez un tag et laissez CI/CD faire le travail :
 
-# Les workflows vont builder automatiquement
-# RPMs disponibles dans Releases
+```bash
+# Créer un tag avec versioning sémantique
+git tag v1.0.0
+git push origin v1.0.0
+
+# Les workflows vont :
+# 1. Builder pour armv7hl, aarch64, i486
+# 2. Générer un changelog depuis les commits
+# 3. Créer une release GitHub avec les 3 RPMs
+# 4. Publier automatiquement
 ```
+
+Les RPM seront disponibles dans [Releases](https://github.com/nicosouv/harbour-sailcat/releases) quelques minutes après.
+
+**Note:** Le tag DOIT être au format `vX.Y.Z` (avec `v` en préfixe) pour déclencher le build.
+
+Voir [RELEASE.md](RELEASE.md) pour le guide complet de release.
 
 ## Développement
 
