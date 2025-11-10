@@ -10,6 +10,7 @@
 #include "mistralapi.h"
 #include "conversationmodel.h"
 #include "settingsmanager.h"
+#include "updatechecker.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,12 +24,14 @@ int main(int argc, char *argv[])
     MistralAPI mistralApi;
     ConversationModel conversationModel;
     SettingsManager settingsManager;
+    UpdateChecker updateChecker;
 
     // Exposer les objets au contexte QML
     QQmlContext *context = view->rootContext();
     context->setContextProperty("mistralApi", &mistralApi);
     context->setContextProperty("conversationModel", &conversationModel);
     context->setContextProperty("settingsManager", &settingsManager);
+    context->setContextProperty("updateChecker", &updateChecker);
 
     // Charger le QML principal
     view->setSource(SailfishApp::pathTo("qml/harbour-sailcat.qml"));

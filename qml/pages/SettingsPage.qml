@@ -135,6 +135,53 @@ Dialog {
             }
 
             SectionHeader {
+                text: "Mises à jour"
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: "Version actuelle: " + updateChecker.currentVersion
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.secondaryColor
+            }
+
+            BackgroundItem {
+                width: parent.width
+                height: updateLabel.height + 2 * Theme.paddingMedium
+                visible: updateChecker.updateAvailable
+
+                onClicked: Qt.openUrlExternally(updateChecker.releaseUrl)
+
+                Label {
+                    id: updateLabel
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: Theme.horizontalPageMargin
+                    width: parent.width - 2 * Theme.horizontalPageMargin
+                    text: "Mise à jour disponible: v" + updateChecker.latestVersion
+                    color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor
+                    font.pixelSize: Theme.fontSizeMedium
+                }
+
+                Image {
+                    anchors {
+                        right: parent.right
+                        rightMargin: Theme.horizontalPageMargin
+                        verticalCenter: parent.verticalCenter
+                    }
+                    source: "image://theme/icon-m-link"
+                    opacity: 0.6
+                }
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: updateChecker.checking ? "Vérification..." : "Vérifier les mises à jour"
+                enabled: !updateChecker.checking
+                onClicked: updateChecker.checkForUpdates()
+            }
+
+            SectionHeader {
                 text: "Informations"
             }
 

@@ -26,7 +26,11 @@ jobs:
       - name: Extract version
         id: version
         run: |
-          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="0.1.0-dev"
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION"
 
@@ -68,7 +72,11 @@ jobs:
       - name: Extract version
         id: version
         run: |
-          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="0.1.0-dev"
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Download artifacts

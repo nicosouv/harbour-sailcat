@@ -5,11 +5,13 @@ CONFIG += sailfishapp
 SOURCES += src/harbour-sailcat.cpp \
     src/mistralapi.cpp \
     src/conversationmodel.cpp \
-    src/settingsmanager.cpp
+    src/settingsmanager.cpp \
+    src/updatechecker.cpp
 
 HEADERS += src/mistralapi.h \
     src/conversationmodel.h \
-    src/settingsmanager.h
+    src/settingsmanager.h \
+    src/updatechecker.h
 
 DISTFILES += qml/harbour-sailcat.qml \
     qml/cover/CoverPage.qml \
