@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <QUuid>
 #include <QJsonDocument>
+#include <QDebug>
 
 ConversationManager::ConversationManager(QObject *parent)
     : QObject(parent)
@@ -219,7 +220,9 @@ void ConversationManager::saveAllConversations()
 
 QString ConversationManager::generateConversationId() const
 {
-    return QUuid::createUuid().toString(QUuid::WithoutBraces);
+    // Qt 5.6 doesn't have QUuid::WithoutBraces, so we manually remove braces
+    QString uuid = QUuid::createUuid().toString();
+    return uuid.mid(1, uuid.length() - 2);  // Remove { and }
 }
 
 QString ConversationManager::generateConversationTitle(const QList<Message> &messages) const
