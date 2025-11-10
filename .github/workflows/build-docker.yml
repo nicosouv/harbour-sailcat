@@ -96,9 +96,12 @@ jobs:
 
       - name: Create release body
         id: release_body
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
         run: |
-          cat > release_notes.md << 'EOF'
-          # SailCat ${{ steps.version.outputs.version }}
+          cat > release_notes.md << EOF
+          # SailCat ${VERSION}
 
           ## 🐱⛵ Installation
 
@@ -110,17 +113,17 @@ jobs:
           - **i486**: Sailfish OS Emulator
 
           ### Install on Device
-          ```bash
+          \`\`\`bash
           # Transfer the RPM to your device, then:
           devel-su
           pkcon install-local harbour-sailcat-*.rpm
-          ```
+          \`\`\`
 
           Or use File Browser to tap on the RPM file.
 
           ## 📝 What's New
 
-          ${{ steps.changelog.outputs.changelog }}
+          ${CHANGELOG}
 
           ## 🚀 Quick Start
 
