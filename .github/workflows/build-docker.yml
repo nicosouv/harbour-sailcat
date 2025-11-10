@@ -1,0 +1,155 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+env:
+  SAILFISH_RELEASE: '4.5.0.18'
+
+jobs:
+  build:
+    name: "Build RPM for ${{ matrix.arch }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [armv7hl, i486, aarch64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Update spec version
+        run: |
+          sed -i "s/^Version:.*/Version:    ${{ steps.version.outputs.version }}/" rpm/harbour-sailcat.spec
+          cat rpm/harbour-sailcat.spec | grep "^Version:"
+
+      - name: Build RPM
+        uses: R1tschY/sailfish-build-rpm@v1
+        with:
+          arch: ${{ matrix.arch }}
+          release: ${{ env.SAILFISH_RELEASE }}
+          fix-version: false
+          validate: true
+
+      - name: List built packages
+        run: ls -lh RPMS/
+
+      - name: Upload RPM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-${{ matrix.arch }}
+          path: RPMS/*.rpm
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: rpms
+
+      - name: List downloaded packages
+        run: |
+          ls -lhR rpms/
+          find rpms/ -name "*.rpm" ! -name "*-debuginfo-*" ! -name "*-debugsource-*"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --reverse)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create release body
+        id: release_body
+        run: |
+          cat > release_notes.md << 'EOF'
+          # SailCat ${{ steps.version.outputs.version }}
+
+          ## 🐱⛵ Installation
+
+          Download the RPM package for your device:
+
+          ### Supported Architectures
+          - **armv7hl**: Jolla 1, Jolla C, Xperia X, Xperia XA2
+          - **aarch64**: Xperia 10, Xperia 10 II, Xperia 10 III, Xperia 10 IV
+          - **i486**: Sailfish OS Emulator
+
+          ### Install on Device
+          ```bash
+          # Transfer the RPM to your device, then:
+          devel-su
+          pkcon install-local harbour-sailcat-*.rpm
+          ```
+
+          Or use File Browser to tap on the RPM file.
+
+          ## 📝 What's New
+
+          ${{ steps.changelog.outputs.changelog }}
+
+          ## 🚀 Quick Start
+
+          1. Launch **SailCat** from your app drawer
+          2. Pull down and select **Settings**
+          3. Enter your Mistral AI API key (get one free at [console.mistral.ai](https://console.mistral.ai))
+          4. Choose your preferred model (Small/Large/Pixtral)
+          5. Start chatting with AI! 💬
+
+          ## ℹ️ About
+
+          SailCat is a native Sailfish OS client for Le Chat de Mistral AI with:
+          - Real-time streaming responses
+          - Native Silica UI
+          - Multiple model support
+          - Conversation history
+          - Secure local API key storage
+
+          For more info, see the [README](https://github.com/nicosouv/harbour-sailcat/blob/main/README.md).
+          EOF
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          files: |
+            rpms/rpm-armv7hl/*.rpm
+            rpms/rpm-i486/*.rpm
+            rpms/rpm-aarch64/*.rpm
+          draft: false
+          prerelease: false
