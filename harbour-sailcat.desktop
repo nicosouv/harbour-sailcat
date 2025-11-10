@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Name=SailCat
+Icon=harbour-sailcat
+Exec=harbour-sailcat
+Comment=Le Chat de Mistral AI
+Categories=Network;Chat;
