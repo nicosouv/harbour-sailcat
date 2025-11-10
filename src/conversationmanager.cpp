@@ -249,3 +249,63 @@ Conversation* ConversationManager::findConversation(const QString &id)
     }
     return nullptr;
 }
+
+QJsonObject ConversationManager::getConversationDetails(const QString &conversationId) const
+{
+    QJsonObject details;
+
+    for (const Conversation &conv : m_conversations) {
+        if (conv.id == conversationId) {
+            details["id"] = conv.id;
+            details["title"] = conv.title;
+            details["createdAt"] = conv.createdAt;
+            details["updatedAt"] = conv.updatedAt;
+
+            QJsonArray messagesArray;
+            for (const Message &msg : conv.messages) {
+                QJsonObject msgObj;
+                msgObj["role"] = msg.role;
+                msgObj["content"] = msg.content;
+                msgObj["timestamp"] = msg.timestamp;
+                messagesArray.append(msgObj);
+            }
+            details["messages"] = messagesArray;
+            details["messageCount"] = conv.messages.count();
+
+            break;
+        }
+    }
+
+    return details;
+}
+
+qint64 ConversationManager::getStorageSize() const
+{
+    QByteArray data = m_settings.value("conversations").toByteArray();
+    return data.size();
+}
+
+QString ConversationManager::getStorageSizeFormatted() const
+{
+    qint64 bytes = getStorageSize();
+
+    if (bytes < 1024) {
+        return QString("%1 B").arg(bytes);
+    } else if (bytes < 1024 * 1024) {
+        return QString("%1 KB").arg(bytes / 1024.0, 0, 'f', 2);
+    } else {
+        return QString("%1 MB").arg(bytes / (1024.0 * 1024.0), 0, 'f', 2);
+    }
+}
+
+void ConversationManager::purgeAllConversations()
+{
+    m_conversations.clear();
+    m_settings.remove("conversations");
+    m_settings.remove("lastConversationId");
+
+    // Create a new empty conversation
+    createNewConversation();
+
+    emit conversationCountChanged();
+}
