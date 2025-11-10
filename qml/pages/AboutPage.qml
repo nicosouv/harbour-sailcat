@@ -16,7 +16,7 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: "À propos"
+                title: qsTr("About")
             }
 
             Item {
@@ -41,29 +41,29 @@ Page {
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Version 1.1.1"
+                text: qsTr("Version %1").arg("1.2.1")
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
             }
 
             SectionHeader {
-                text: "Description"
+                text: qsTr("Description")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "SailCat est un client élégant pour Le Chat de Mistral AI, " +
-                      "spécialement conçu pour Sailfish OS. Profitez de conversations " +
-                      "intelligentes avec les modèles d'IA les plus avancés de Mistral, " +
-                      "directement depuis votre appareil Sailfish."
+                text: qsTr("SailCat is an elegant client for Mistral AI Chat, " +
+                      "specifically designed for Sailfish OS. Enjoy intelligent " +
+                      "conversations with Mistral's most advanced AI models, " +
+                      "directly from your Sailfish device.")
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor
             }
 
             SectionHeader {
-                text: "Fonctionnalités"
+                text: qsTr("Features")
             }
 
             Column {
@@ -73,7 +73,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: "• Support du free tier de Mistral AI"
+                    text: qsTr("• Mistral AI free tier support")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -82,7 +82,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: "• Streaming en temps réel des réponses"
+                    text: qsTr("• Real-time streaming responses")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -91,7 +91,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: "• Interface native Sailfish avec Silica"
+                    text: qsTr("• Native Sailfish interface with Silica")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -100,7 +100,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: "• Historique des conversations"
+                    text: qsTr("• Conversation history")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -109,7 +109,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: "• Choix entre plusieurs modèles Mistral"
+                    text: qsTr("• Choice between multiple Mistral models")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -117,13 +117,13 @@ Page {
             }
 
             SectionHeader {
-                text: "Développement"
+                text: qsTr("Development")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "Développé avec ❤️ pour Sailfish OS"
+                text: qsTr("Developed with ❤️ for Sailfish OS")
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor
@@ -131,35 +131,32 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Code source sur GitHub"
+                text: qsTr("Source code on GitHub")
                 onClicked: Qt.openUrlExternally("https://github.com/nicosouv/harbour-sailcat")
             }
 
             SectionHeader {
-                text: "Crédits"
+                text: qsTr("Credits")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "Propulsé par l'API Mistral AI\n" +
-                      "Interface: Sailfish Silica\n" +
-                      "Framework: Qt 5.6"
+                text: qsTr("Powered by Mistral AI API\nInterface: Sailfish Silica\nFramework: Qt 5.6")
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
             }
 
             SectionHeader {
-                text: "Licence"
+                text: qsTr("License")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "MIT License\n\n" +
-                      "Cette application est un logiciel libre. Vous êtes libre de l'utiliser, " +
-                      "de la modifier et de la distribuer selon les termes de la licence MIT."
+                text: qsTr("MIT License\n\nThis application is free software. You are free to use, " +
+                      "modify, and distribute it under the terms of the MIT license.")
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor

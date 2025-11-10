@@ -22,19 +22,26 @@ Page {
 
             PullDownMenu {
                 MenuItem {
-                    text: "À propos"
+                    text: qsTr("About")
                     onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
                 }
                 MenuItem {
-                    text: "Paramètres"
+                    text: qsTr("Settings")
                     onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
                 }
                 MenuItem {
-                    text: "Nouvelle conversation"
+                    text: qsTr("Conversations")
+                    onClicked: {
+                        conversationManager.saveCurrentConversation()
+                        pageStack.push(Qt.resolvedUrl("ConversationListPage.qml"))
+                    }
+                }
+                MenuItem {
+                    text: qsTr("New conversation")
                     enabled: conversationModel.count > 0
                     onClicked: {
-                        remorse.execute("Effacement de la conversation", function() {
-                            conversationModel.clearConversation()
+                        remorse.execute(qsTr("New conversation"), function() {
+                            conversationManager.createNewConversation()
                             streamingContent = ""
                         })
                     }
@@ -52,8 +59,8 @@ Page {
 
                 ViewPlaceholder {
                     enabled: firstUse && conversationModel.count === 0
-                    text: "Bienvenue sur SailCat"
-                    hintText: "Configurez votre clé API Mistral pour commencer"
+                    text: qsTr("Welcome to SailCat")
+                    hintText: qsTr("Configure your Mistral API key to get started")
                 }
 
                 Item {
@@ -63,7 +70,7 @@ Page {
 
                     Button {
                         anchors.centerIn: parent
-                        text: "Configurer"
+                        text: qsTr("Configure")
                         onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
                     }
                 }
@@ -105,30 +112,31 @@ Page {
             model: conversationModel
             verticalLayoutDirection: ListView.BottomToTop
 
-            delegate: ListItem {
+            delegate: Item {
                 id: messageItem
                 width: parent.width
-                contentHeight: contentColumn.height + Theme.paddingMedium
+                height: messageBubble.height + Theme.paddingMedium
 
-                Column {
-                    id: contentColumn
-                    width: parent.width - 2 * Theme.horizontalPageMargin
+                Rectangle {
+                    id: messageBubble
+                    width: Math.min(messageLabel.implicitWidth + Theme.paddingLarge * 2, parent.width * 0.8)
+                    height: messageLabel.height + Theme.paddingMedium * 2
+                    radius: Theme.paddingMedium
+                    color: model.role === "user" ? Theme.rgba(Theme.highlightBackgroundColor, 0.2) : Theme.rgba(Theme.secondaryHighlightColor, 0.15)
+
                     anchors {
-                        left: parent.left
-                        leftMargin: Theme.horizontalPageMargin
-                        verticalCenter: parent.verticalCenter
-                    }
-                    spacing: Theme.paddingSmall
-
-                    Label {
-                        width: parent.width
-                        text: model.role === "user" ? "Vous" : "Assistant"
-                        color: model.role === "user" ? Theme.highlightColor : Theme.secondaryHighlightColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
+                        right: model.role === "user" ? parent.right : undefined
+                        left: model.role === "assistant" ? parent.left : undefined
+                        rightMargin: model.role === "user" ? Theme.horizontalPageMargin : 0
+                        leftMargin: model.role === "assistant" ? Theme.horizontalPageMargin : 0
                     }
 
                     Label {
-                        width: parent.width
+                        id: messageLabel
+                        anchors {
+                            fill: parent
+                            margins: Theme.paddingMedium
+                        }
                         text: model.content
                         wrapMode: Text.Wrap
                         font.pixelSize: Theme.fontSizeSmall
@@ -171,7 +179,7 @@ Page {
                         id: messageInput
                         width: parent.width - sendButton.width - Theme.paddingMedium
                         anchors.verticalCenter: parent.verticalCenter
-                        placeholderText: "Votre message..."
+                        placeholderText: qsTr("Your message...")
                         enabled: !mistralApi.isBusy && settingsManager.hasApiKey()
                         labelVisible: false
 
@@ -246,5 +254,8 @@ Page {
         conversationModel.addAssistantMessage("")
 
         messageListView.positionViewAtBeginning()
+
+        // Sauvegarder la conversation après chaque envoi
+        conversationManager.saveCurrentConversation()
     }
 }

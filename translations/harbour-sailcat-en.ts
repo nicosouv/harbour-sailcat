@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr">
+<TS version="2.1" language="en">
 <context>
     <name>AboutPage</name>
     <message>
         <source>About</source>
-        <translation>À propos</translation>
+        <translation>About</translation>
     </message>
     <message>
         <source>Version %1</source>
@@ -17,74 +17,74 @@
     </message>
     <message>
         <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.</source>
-        <translation>SailCat est un client élégant pour Le Chat de Mistral AI, spécialement conçu pour Sailfish OS. Profitez de conversations intelligentes avec les modèles d'IA les plus avancés de Mistral, directement depuis votre appareil Sailfish.</translation>
+        <translation>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.</translation>
     </message>
     <message>
         <source>Features</source>
-        <translation>Fonctionnalités</translation>
+        <translation>Features</translation>
     </message>
     <message>
         <source>• Mistral AI free tier support</source>
-        <translation>• Support du free tier de Mistral AI</translation>
+        <translation>• Mistral AI free tier support</translation>
     </message>
     <message>
         <source>• Real-time streaming responses</source>
-        <translation>• Streaming en temps réel des réponses</translation>
+        <translation>• Real-time streaming responses</translation>
     </message>
     <message>
         <source>• Native Sailfish interface with Silica</source>
-        <translation>• Interface native Sailfish avec Silica</translation>
+        <translation>• Native Sailfish interface with Silica</translation>
     </message>
     <message>
         <source>• Conversation history</source>
-        <translation>• Historique des conversations</translation>
+        <translation>• Conversation history</translation>
     </message>
     <message>
         <source>• Choice between multiple Mistral models</source>
-        <translation>• Choix entre plusieurs modèles Mistral</translation>
+        <translation>• Choice between multiple Mistral models</translation>
     </message>
     <message>
         <source>Development</source>
-        <translation>Développement</translation>
+        <translation>Development</translation>
     </message>
     <message>
         <source>Developed with ❤️ for Sailfish OS</source>
-        <translation>Développé avec ❤️ pour Sailfish OS</translation>
+        <translation>Developed with ❤️ for Sailfish OS</translation>
     </message>
     <message>
         <source>Source code on GitHub</source>
-        <translation>Code source sur GitHub</translation>
+        <translation>Source code on GitHub</translation>
     </message>
     <message>
         <source>Credits</source>
-        <translation>Crédits</translation>
+        <translation>Credits</translation>
     </message>
     <message>
         <source>Powered by Mistral AI API\nInterface: Sailfish Silica\nFramework: Qt 5.6</source>
-        <translation>Propulsé par l'API Mistral AI
+        <translation>Powered by Mistral AI API
 Interface: Sailfish Silica
 Framework: Qt 5.6</translation>
     </message>
     <message>
         <source>License</source>
-        <translation>Licence</translation>
+        <translation>License</translation>
     </message>
     <message>
         <source>MIT License\n\nThis application is free software. You are free to use, modify, and distribute it under the terms of the MIT license.</source>
-        <translation>Licence MIT
+        <translation>MIT License
 
-Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la modifier et de la distribuer selon les termes de la licence MIT.</translation>
+This application is free software. You are free to use, modify, and distribute it under the terms of the MIT license.</translation>
     </message>
 </context>
 <context>
     <name>ChatPage</name>
     <message>
         <source>About</source>
-        <translation>À propos</translation>
+        <translation>About</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation>Paramètres</translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <source>Conversations</source>
@@ -92,30 +92,30 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     </message>
     <message>
         <source>New conversation</source>
-        <translation>Nouvelle conversation</translation>
+        <translation>New conversation</translation>
     </message>
     <message>
         <source>Welcome to SailCat</source>
-        <translation>Bienvenue sur SailCat</translation>
+        <translation>Welcome to SailCat</translation>
     </message>
     <message>
         <source>Configure your Mistral API key to get started</source>
-        <translation>Configurez votre clé API Mistral pour commencer</translation>
+        <translation>Configure your Mistral API key to get started</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation>Configurer</translation>
+        <translation>Configure</translation>
     </message>
     <message>
         <source>Your message...</source>
-        <translation>Votre message...</translation>
+        <translation>Your message...</translation>
     </message>
 </context>
 <context>
     <name>ConversationListPage</name>
     <message>
         <source>New conversation</source>
-        <translation>Nouvelle conversation</translation>
+        <translation>New conversation</translation>
     </message>
     <message>
         <source>Conversations</source>
@@ -123,11 +123,11 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     </message>
     <message>
         <source>Delete</source>
-        <translation>Supprimer</translation>
+        <translation>Delete</translation>
     </message>
     <message>
         <source>Deleting</source>
-        <translation>Suppression</translation>
+        <translation>Deleting</translation>
     </message>
     <message numerus="yes">
         <source>%n message(s)</source>
@@ -138,92 +138,92 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     </message>
     <message>
         <source>No conversations</source>
-        <translation>Aucune conversation</translation>
+        <translation>No conversations</translation>
     </message>
     <message>
         <source>Create a new conversation using the menu</source>
-        <translation>Créez une nouvelle conversation avec le menu</translation>
+        <translation>Create a new conversation using the menu</translation>
     </message>
 </context>
 <context>
     <name>ConversationManager</name>
     <message>
         <source>New conversation</source>
-        <translation>Nouvelle conversation</translation>
+        <translation>New conversation</translation>
     </message>
 </context>
 <context>
     <name>MistralAPI</name>
     <message>
         <source>Missing API key. Please configure your API key in settings.</source>
-        <translation>Clé API manquante. Veuillez configurer votre clé API dans les paramètres.</translation>
+        <translation>Missing API key. Please configure your API key in settings.</translation>
     </message>
     <message>
         <source>API Error: %1</source>
-        <translation>Erreur API: %1</translation>
+        <translation>API Error: %1</translation>
     </message>
 </context>
 <context>
     <name>SettingsPage</name>
     <message>
         <source>Settings</source>
-        <translation>Paramètres</translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Enregistrer</translation>
+        <translation>Save</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Annuler</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <source>API Configuration</source>
-        <translation>Configuration de l'API</translation>
+        <translation>API Configuration</translation>
     </message>
     <message>
         <source>Use my own API key</source>
-        <translation>Utiliser ma propre clé API</translation>
+        <translation>Use my own API key</translation>
     </message>
     <message>
         <source>Enable this option to use your personal Mistral API key</source>
-        <translation>Activez cette option pour utiliser votre clé API personnelle Mistral</translation>
+        <translation>Enable this option to use your personal Mistral API key</translation>
     </message>
     <message>
         <source>To get a free API key, visit console.mistral.ai</source>
-        <translation>Pour obtenir une clé API gratuite, visitez console.mistral.ai</translation>
+        <translation>To get a free API key, visit console.mistral.ai</translation>
     </message>
     <message>
         <source>Mistral API Key</source>
-        <translation>Clé API Mistral</translation>
+        <translation>Mistral API Key</translation>
     </message>
     <message>
         <source>Enter your API key</source>
-        <translation>Entrez votre clé API</translation>
+        <translation>Enter your API key</translation>
     </message>
     <message>
         <source>Clear API key</source>
-        <translation>Effacer la clé API</translation>
+        <translation>Clear API key</translation>
     </message>
     <message>
         <source>Clearing API key</source>
-        <translation>Effacement de la clé API</translation>
+        <translation>Clearing API key</translation>
     </message>
     <message>
         <source>Model</source>
-        <translation>Modèle</translation>
+        <translation>Model</translation>
     </message>
     <message>
         <source>Mistral Model</source>
-        <translation>Modèle Mistral</translation>
+        <translation>Mistral Model</translation>
     </message>
     <message>
         <source>Select the model to use</source>
-        <translation>Sélectionnez le modèle à utiliser</translation>
+        <translation>Select the model to use</translation>
     </message>
     <message>
         <source>Mistral Small (Recommended)</source>
-        <translation>Mistral Small (Recommandé)</translation>
+        <translation>Mistral Small (Recommended)</translation>
     </message>
     <message>
         <source>Mistral Large</source>
@@ -235,43 +235,43 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     </message>
     <message>
         <source>Balanced model between performance and speed. Ideal for most conversations.</source>
-        <translation>Modèle équilibré entre performance et rapidité. Idéal pour la plupart des conversations.</translation>
+        <translation>Balanced model between performance and speed. Ideal for most conversations.</translation>
     </message>
     <message>
         <source>Most powerful model for complex tasks. Requires more API credits.</source>
-        <translation>Modèle le plus puissant pour les tâches complexes. Nécessite plus de crédits API.</translation>
+        <translation>Most powerful model for complex tasks. Requires more API credits.</translation>
     </message>
     <message>
         <source>Model with image support. Can analyze and understand images.</source>
-        <translation>Modèle avec support d'images. Peut analyser et comprendre des images.</translation>
+        <translation>Model with image support. Can analyze and understand images.</translation>
     </message>
     <message>
         <source>Updates</source>
-        <translation>Mises à jour</translation>
+        <translation>Updates</translation>
     </message>
     <message>
         <source>Current version: %1</source>
-        <translation>Version actuelle: %1</translation>
+        <translation>Current version: %1</translation>
     </message>
     <message>
         <source>Update available: v%1</source>
-        <translation>Mise à jour disponible: v%1</translation>
+        <translation>Update available: v%1</translation>
     </message>
     <message>
         <source>Checking...</source>
-        <translation>Vérification...</translation>
+        <translation>Checking...</translation>
     </message>
     <message>
         <source>Check for updates</source>
-        <translation>Vérifier les mises à jour</translation>
+        <translation>Check for updates</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>Informations</translation>
+        <translation>Information</translation>
     </message>
     <message>
         <source>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</source>
-        <translation>SailCat utilise l'API de Mistral AI pour fournir des conversations intelligentes. Le free tier de Mistral offre un accès gratuit avec des limites de requêtes adaptées à l'expérimentation et au développement.</translation>
+        <translation>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</translation>
     </message>
 </context>
 </TS>

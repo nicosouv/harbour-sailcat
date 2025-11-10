@@ -35,26 +35,26 @@ Dialog {
             spacing: Theme.paddingLarge
 
             DialogHeader {
-                title: "Paramètres"
-                acceptText: "Enregistrer"
-                cancelText: "Annuler"
+                title: qsTr("Settings")
+                acceptText: qsTr("Save")
+                cancelText: qsTr("Cancel")
             }
 
             SectionHeader {
-                text: "Configuration de l'API"
+                text: qsTr("API Configuration")
             }
 
             TextSwitch {
                 id: useCustomKeySwitch
-                text: "Utiliser ma propre clé API"
-                description: "Activez cette option pour utiliser votre clé API personnelle Mistral"
+                text: qsTr("Use my own API key")
+                description: qsTr("Enable this option to use your personal Mistral API key")
                 checked: settingsManager.useCustomKey
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "Pour obtenir une clé API gratuite, visitez console.mistral.ai"
+                text: qsTr("To get a free API key, visit console.mistral.ai")
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
@@ -64,8 +64,8 @@ Dialog {
             TextField {
                 id: apiKeyField
                 width: parent.width
-                label: "Clé API Mistral"
-                placeholderText: "Entrez votre clé API"
+                label: qsTr("Mistral API Key")
+                placeholderText: qsTr("Enter your API key")
                 text: settingsManager.apiKey
                 visible: useCustomKeySwitch.checked
                 enabled: useCustomKeySwitch.checked
@@ -78,10 +78,10 @@ Dialog {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Effacer la clé API"
+                text: qsTr("Clear API key")
                 visible: settingsManager.hasApiKey() && useCustomKeySwitch.checked
                 onClicked: {
-                    remorse.execute("Effacement de la clé API", function() {
+                    remorse.execute(qsTr("Clearing API key"), function() {
                         apiKeyField.text = ""
                         settingsManager.clearApiKey()
                     })
@@ -89,21 +89,21 @@ Dialog {
             }
 
             SectionHeader {
-                text: "Modèle"
+                text: qsTr("Model")
             }
 
             ComboBox {
                 id: modelComboBox
-                label: "Modèle Mistral"
-                description: "Sélectionnez le modèle à utiliser"
+                label: qsTr("Mistral Model")
+                description: qsTr("Select the model to use")
                 width: parent.width
 
                 menu: ContextMenu {
                     Repeater {
                         model: [
-                            { name: "Mistral Small (Recommandé)", value: "mistral-small-latest" },
-                            { name: "Mistral Large", value: "mistral-large-latest" },
-                            { name: "Pixtral 12B (Vision)", value: "pixtral-12b-latest" }
+                            { name: qsTr("Mistral Small (Recommended)"), value: "mistral-small-latest" },
+                            { name: qsTr("Mistral Large"), value: "mistral-large-latest" },
+                            { name: qsTr("Pixtral 12B (Vision)"), value: "pixtral-12b-latest" }
                         ]
 
                         MenuItem {
@@ -135,13 +135,13 @@ Dialog {
             }
 
             SectionHeader {
-                text: "Mises à jour"
+                text: qsTr("Updates")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "Version actuelle: " + updateChecker.currentVersion
+                text: qsTr("Current version: %1").arg(updateChecker.currentVersion)
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
             }
@@ -158,7 +158,7 @@ Dialog {
                     anchors.verticalCenter: parent.verticalCenter
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: "Mise à jour disponible: v" + updateChecker.latestVersion
+                    text: qsTr("Update available: v%1").arg(updateChecker.latestVersion)
                     color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor
                     font.pixelSize: Theme.fontSizeMedium
                 }
@@ -176,21 +176,21 @@ Dialog {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: updateChecker.checking ? "Vérification..." : "Vérifier les mises à jour"
+                text: updateChecker.checking ? qsTr("Checking...") : qsTr("Check for updates")
                 enabled: !updateChecker.checking
                 onClicked: updateChecker.checkForUpdates()
             }
 
             SectionHeader {
-                text: "Informations"
+                text: qsTr("Information")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: "SailCat utilise l'API de Mistral AI pour fournir des conversations intelligentes. " +
-                      "Le free tier de Mistral offre un accès gratuit avec des limites de requêtes adaptées " +
-                      "à l'expérimentation et au développement."
+                text: qsTr("SailCat uses Mistral AI API to provide intelligent conversations. " +
+                      "Mistral's free tier offers free access with request limits suitable " +
+                      "for experimentation and development.")
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
@@ -208,11 +208,11 @@ Dialog {
         var index = modelComboBox.currentIndex
         switch(index) {
         case 0:
-            return "Modèle équilibré entre performance et rapidité. Idéal pour la plupart des conversations."
+            return qsTr("Balanced model between performance and speed. Ideal for most conversations.")
         case 1:
-            return "Modèle le plus puissant pour les tâches complexes. Nécessite plus de crédits API."
+            return qsTr("Most powerful model for complex tasks. Requires more API credits.")
         case 2:
-            return "Modèle avec support d'images. Peut analyser et comprendre des images."
+            return qsTr("Model with image support. Can analyze and understand images.")
         default:
             return ""
         }

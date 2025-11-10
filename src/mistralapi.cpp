@@ -32,7 +32,7 @@ void MistralAPI::sendMessage(const QString &apiKey,
     }
 
     if (apiKey.isEmpty()) {
-        setError("Clé API manquante. Veuillez configurer votre clé API dans les paramètres.");
+        setError(tr("Missing API key. Please configure your API key in settings."));
         return;
     }
 
@@ -133,7 +133,7 @@ void MistralAPI::onError(QNetworkReply::NetworkError error)
         }
     }
 
-    setError(QString("Erreur API: %1").arg(errorString));
+    setError(tr("API Error: %1").arg(errorString));
     qWarning() << "API Error:" << errorString;
 }
 

@@ -9,6 +9,7 @@
 
 #include "mistralapi.h"
 #include "conversationmodel.h"
+#include "conversationmanager.h"
 #include "settingsmanager.h"
 #include "updatechecker.h"
 
@@ -22,14 +23,15 @@ int main(int argc, char *argv[])
 
     // Créer les instances des classes C++
     MistralAPI mistralApi;
-    ConversationModel conversationModel;
+    ConversationManager conversationManager;
     SettingsManager settingsManager;
     UpdateChecker updateChecker;
 
     // Exposer les objets au contexte QML
     QQmlContext *context = view->rootContext();
     context->setContextProperty("mistralApi", &mistralApi);
-    context->setContextProperty("conversationModel", &conversationModel);
+    context->setContextProperty("conversationManager", &conversationManager);
+    context->setContextProperty("conversationModel", conversationManager.currentConversation());
     context->setContextProperty("settingsManager", &settingsManager);
     context->setContextProperty("updateChecker", &updateChecker);
 
