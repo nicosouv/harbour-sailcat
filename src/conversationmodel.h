@@ -34,9 +34,7 @@ public:
     Q_INVOKABLE void addAssistantMessage(const QString &content);
     Q_INVOKABLE void updateLastAssistantMessage(const QString &content);
     Q_INVOKABLE void clearConversation();
-
-    // Pour l'API Mistral
-    QJsonArray toJsonArray() const;
+    Q_INVOKABLE QJsonArray toJsonArray() const;
 
 signals:
     void countChanged();

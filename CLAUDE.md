@@ -199,3 +199,4 @@ curl -X POST https://api.mistral.ai/v1/chat/completions \
   -d '{"model":"mistral-small-latest","messages":[{"role":"user","content":"Test"}],"stream":true}'
 ```
 - memory message de commit, tag, commentaaire, code, tout doit etre en anglais
+- memory Sailfish utilise Qt 5.6

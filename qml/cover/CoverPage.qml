@@ -9,11 +9,12 @@ CoverBackground {
         spacing: Theme.paddingMedium
         width: parent.width - 2 * Theme.horizontalPageMargin
 
-        Image {
+        Icon {
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "image://theme/icon-l-chat"
+            source: "image://theme/icon-l-message"
             width: Theme.iconSizeLarge
             height: Theme.iconSizeLarge
+            color: Theme.primaryColor
         }
 
         Label {

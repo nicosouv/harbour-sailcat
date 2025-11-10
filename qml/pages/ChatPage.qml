@@ -183,7 +183,7 @@ Page {
                     verticalCenter: parent.verticalCenter
                     rightMargin: Theme.paddingMedium
                 }
-                icon.source: "image://theme/icon-s-clear"
+                icon.source: "image://theme/icon-m-clear"
                 onClicked: mistralApi.clearError()
             }
         }
@@ -411,7 +411,7 @@ Page {
 
                 Icon {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "image://theme/icon-l-chat"
+                    source: "image://theme/icon-l-message"
                     color: Theme.highlightColor
                 }
 

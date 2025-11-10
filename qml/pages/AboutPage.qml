@@ -25,7 +25,7 @@ Page {
 
                 Icon {
                     anchors.centerIn: parent
-                    source: "image://theme/icon-l-chat"
+                    source: "image://theme/icon-l-message"
                     width: Theme.iconSizeExtraLarge
                     height: Theme.iconSizeExtraLarge
                     color: Theme.highlightColor
