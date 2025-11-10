@@ -64,17 +64,17 @@ Page {
             contentHeight: Theme.itemSizeLarge
 
             onClicked: {
-                pageStack.push(Qt.resolvedUrl("ConversationDetailPage.qml"), {
-                    conversationId: model.id
-                })
+                conversationManager.loadConversation(model.id)
+                pageStack.pop()
             }
 
             menu: ContextMenu {
                 MenuItem {
-                    text: qsTr("Load")
+                    text: qsTr("View details")
                     onClicked: {
-                        conversationManager.loadConversation(model.id)
-                        pageStack.pop()
+                        pageStack.push(Qt.resolvedUrl("ConversationDetailPage.qml"), {
+                            conversationId: model.id
+                        })
                     }
                 }
                 MenuItem {
