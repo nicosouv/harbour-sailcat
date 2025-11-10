@@ -130,7 +130,7 @@ Page {
                 // Show match preview when searching
                 Loader {
                     width: parent.width
-                    active: searchQuery.length > 0 && model.matchPreview
+                    active: searchQuery.length > 0 && (model.matchPreview ? true : false)
                     sourceComponent: Label {
                         width: parent.width
                         text: model.matchPreview || ""
