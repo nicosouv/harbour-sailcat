@@ -6,6 +6,7 @@ Page {
     allowedOrientations: Orientation.All
 
     property string storageSize: conversationManager.getStorageSizeFormatted()
+    property string searchQuery: ""
 
     SilicaListView {
         id: conversationsList
@@ -17,6 +18,20 @@ Page {
 
             PageHeader {
                 title: qsTr("Conversation History")
+            }
+
+            SearchField {
+                id: searchField
+                width: parent.width
+                placeholderText: qsTr("Search in conversations...")
+
+                onTextChanged: {
+                    searchQuery = text
+                    performSearch()
+                }
+
+                EnterKey.iconSource: "image://theme/icon-m-enter-close"
+                EnterKey.onClicked: focus = false
             }
 
             // Storage info section
@@ -106,6 +121,18 @@ Page {
                     truncationMode: TruncationMode.Fade
                 }
 
+                // Show match preview when searching
+                Label {
+                    width: parent.width
+                    text: model.matchPreview || ""
+                    visible: searchQuery.length > 0 && model.matchPreview
+                    color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeExtraSmall
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                }
+
                 Row {
                     spacing: Theme.paddingMedium
 
@@ -126,6 +153,20 @@ Page {
                         color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeExtraSmall
                     }
+
+                    Label {
+                        text: "•"
+                        visible: searchQuery.length > 0 && model.matchCount > 0
+                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                    }
+
+                    Label {
+                        text: qsTr("%n match(es)", "", model.matchCount || 0)
+                        visible: searchQuery.length > 0 && model.matchCount > 0
+                        color: conversationItem.highlighted ? Theme.highlightColor : Theme.highlightColor
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                    }
                 }
             }
         }
@@ -144,8 +185,8 @@ Page {
 
         ViewPlaceholder {
             enabled: conversationsListModel.count === 0
-            text: qsTr("No conversations")
-            hintText: qsTr("Start chatting to create conversations")
+            text: searchQuery.length > 0 ? qsTr("No results") : qsTr("No conversations")
+            hintText: searchQuery.length > 0 ? qsTr("Try different search terms") : qsTr("Start chatting to create conversations")
         }
 
         VerticalScrollDecorator {}
@@ -166,5 +207,21 @@ Page {
             conversationsListModel.append(conversations[i])
         }
         storageSize = conversationManager.getStorageSizeFormatted()
+    }
+
+    function performSearch() {
+        conversationsListModel.clear()
+
+        if (searchQuery.trim().length === 0) {
+            // No search query, show all conversations
+            refreshList()
+            return
+        }
+
+        // Perform search
+        var results = conversationManager.searchConversations(searchQuery)
+        for (var i = 0; i < results.length; i++) {
+            conversationsListModel.append(results[i])
+        }
     }
 }

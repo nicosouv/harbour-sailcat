@@ -375,3 +375,59 @@ QVariantMap ConversationManager::getStatistics() const
 
     return stats;
 }
+
+QVariantList ConversationManager::searchConversations(const QString &query) const
+{
+    QVariantList results;
+
+    if (query.trimmed().isEmpty()) {
+        return results;
+    }
+
+    QString searchQuery = query.trimmed().toLower();
+
+    for (const Conversation &conv : m_conversations) {
+        bool titleMatch = conv.title.toLower().contains(searchQuery);
+        int matchCount = 0;
+        QString matchPreview;
+
+        // Search in messages
+        for (const Message &msg : conv.messages) {
+            if (msg.content.toLower().contains(searchQuery)) {
+                matchCount++;
+
+                // Get preview of first match if we don't have one yet
+                if (matchPreview.isEmpty()) {
+                    int pos = msg.content.toLower().indexOf(searchQuery);
+                    int start = qMax(0, pos - 40);
+                    int length = qMin(100, msg.content.length() - start);
+                    matchPreview = msg.content.mid(start, length);
+
+                    if (start > 0) {
+                        matchPreview = "..." + matchPreview;
+                    }
+                    if (start + length < msg.content.length()) {
+                        matchPreview = matchPreview + "...";
+                    }
+                }
+            }
+        }
+
+        // If we have matches or title match, add to results
+        if (titleMatch || matchCount > 0) {
+            QVariantMap result;
+            result["id"] = conv.id;
+            result["title"] = conv.title.isEmpty() ? tr("Untitled") : conv.title;
+            result["createdAt"] = conv.createdAt;
+            result["updatedAt"] = conv.updatedAt;
+            result["messageCount"] = conv.messages.count();
+            result["matchCount"] = matchCount;
+            result["matchPreview"] = matchPreview.isEmpty() ? tr("Match in title") : matchPreview;
+            result["titleMatch"] = titleMatch;
+
+            results.append(result);
+        }
+    }
+
+    return results;
+}
