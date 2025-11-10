@@ -30,15 +30,11 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("About")
-                onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
-            }
-            MenuItem {
                 text: qsTr("Conversation History")
                 onClicked: pageStack.push(Qt.resolvedUrl("ConversationHistoryPage.qml"))
             }
             MenuItem {
-                text: qsTr("Settings")
+                text: qsTr("Settings & About")
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
             MenuItem {

@@ -8,14 +8,14 @@ Dialog {
 
     canAccept: apiKeyField.text.trim().length > 0 || !useCustomKeySwitch.checked
 
+    property var stats: conversationManager.getStatistics()
+
     onAccepted: {
         if (useCustomKeySwitch.checked) {
             settingsManager.apiKey = apiKeyField.text.trim()
             settingsManager.useCustomKey = true
         } else {
             settingsManager.useCustomKey = false
-            // Note: Dans une vraie app, vous mettriez ici votre clé API free tier
-            // Pour le moment, l'utilisateur doit entrer sa propre clé
             settingsManager.apiKey = ""
         }
 
@@ -35,11 +35,98 @@ Dialog {
             spacing: Theme.paddingLarge
 
             DialogHeader {
-                title: qsTr("Settings")
+                title: qsTr("Settings & About")
                 acceptText: qsTr("Save")
                 cancelText: qsTr("Cancel")
             }
 
+            // App Info Section
+            Item {
+                width: parent.width
+                height: Theme.itemSizeLarge
+
+                Icon {
+                    anchors.centerIn: parent
+                    source: "image://theme/icon-l-message"
+                    width: Theme.iconSizeLarge
+                    height: Theme.iconSizeLarge
+                    color: Theme.highlightColor
+                }
+            }
+
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "SailCat"
+                font.pixelSize: Theme.fontSizeExtraLarge
+                color: Theme.highlightColor
+            }
+
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Version %1").arg(updateChecker.currentVersion)
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.secondaryColor
+            }
+
+            // Statistics Section
+            SectionHeader {
+                text: qsTr("Statistics")
+            }
+
+            Column {
+                width: parent.width
+                spacing: Theme.paddingSmall
+
+                DetailItem {
+                    label: qsTr("Total messages")
+                    value: stats.totalMessages || "0"
+                }
+
+                DetailItem {
+                    label: qsTr("Messages sent")
+                    value: stats.totalUserMessages || "0"
+                }
+
+                DetailItem {
+                    label: qsTr("Messages received")
+                    value: stats.totalAssistantMessages || "0"
+                }
+
+                DetailItem {
+                    label: qsTr("Conversations")
+                    value: stats.totalConversations || "0"
+                }
+
+                DetailItem {
+                    label: qsTr("Estimated tokens used")
+                    value: (stats.estimatedTokens || 0).toLocaleString(Qt.locale(), 'f', 0)
+                    visible: stats.estimatedTokens > 0
+                }
+
+                DetailItem {
+                    label: qsTr("Longest conversation")
+                    value: stats.longestConvTitle ? stats.longestConvTitle + " (" + stats.longestConvMessages + ")" : qsTr("None")
+                    visible: stats.longestConvMessages > 0
+                }
+
+                DetailItem {
+                    label: qsTr("Longest message")
+                    value: qsTr("%n character(s)", "", stats.longestMessageLength || 0)
+                    visible: stats.longestMessageLength > 0
+                }
+
+                DetailItem {
+                    label: qsTr("First message")
+                    value: stats.firstMessageDate > 0 ? Qt.formatDateTime(new Date(stats.firstMessageDate), "dd/MM/yyyy") : qsTr("Never")
+                }
+
+                DetailItem {
+                    label: qsTr("Storage used")
+                    value: conversationManager.getStorageSizeFormatted()
+                }
+            }
+
+            // API Configuration Section
             SectionHeader {
                 text: qsTr("API Configuration")
             }
@@ -88,6 +175,7 @@ Dialog {
                 }
             }
 
+            // Model Selection Section
             SectionHeader {
                 text: qsTr("Model")
             }
@@ -134,16 +222,9 @@ Dialog {
                 wrapMode: Text.WordWrap
             }
 
+            // Updates Section
             SectionHeader {
                 text: qsTr("Updates")
-            }
-
-            Label {
-                x: Theme.horizontalPageMargin
-                width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("Current version: %1").arg(updateChecker.currentVersion)
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.secondaryColor
             }
 
             BackgroundItem {
@@ -181,19 +262,40 @@ Dialog {
                 onClicked: updateChecker.checkForUpdates()
             }
 
+            // About Section
             SectionHeader {
-                text: qsTr("Information")
+                text: qsTr("About")
             }
 
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("SailCat uses Mistral AI API to provide intelligent conversations. " +
-                      "Mistral's free tier offers free access with request limits suitable " +
-                      "for experimentation and development.")
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.secondaryColor
+                text: qsTr("SailCat is an elegant client for Mistral AI Chat, " +
+                      "specifically designed for Sailfish OS.")
                 wrapMode: Text.WordWrap
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.primaryColor
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Source code on GitHub")
+                onClicked: Qt.openUrlExternally("https://github.com/nicosouv/harbour-sailcat")
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: qsTr("Powered by Mistral AI • MIT License")
+                wrapMode: Text.WordWrap
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Item {
+                width: parent.width
+                height: Theme.paddingLarge
             }
         }
 

@@ -318,3 +318,60 @@ void ConversationManager::purgeAllConversations()
 
     emit conversationCountChanged();
 }
+
+QVariantMap ConversationManager::getStatistics() const
+{
+    QVariantMap stats;
+
+    int totalMessages = 0;
+    int totalUserMessages = 0;
+    int totalAssistantMessages = 0;
+    int longestConvMessages = 0;
+    int longestMessageLength = 0;
+    qint64 estimatedTokens = 0;
+    qint64 firstMessageDate = 0;
+    QString longestConvTitle;
+
+    for (const Conversation &conv : m_conversations) {
+        int convMessageCount = conv.messages.count();
+        totalMessages += convMessageCount;
+
+        if (convMessageCount > longestConvMessages) {
+            longestConvMessages = convMessageCount;
+            longestConvTitle = conv.title.isEmpty() ? tr("Untitled") : conv.title;
+        }
+
+        for (const Message &msg : conv.messages) {
+            if (msg.role == "user") {
+                totalUserMessages++;
+            } else if (msg.role == "assistant") {
+                totalAssistantMessages++;
+            }
+
+            // Find longest message
+            if (msg.content.length() > longestMessageLength) {
+                longestMessageLength = msg.content.length();
+            }
+
+            // Estimate tokens (rough approximation: ~4 chars per token)
+            estimatedTokens += msg.content.length() / 4;
+
+            // Track first message date
+            if (firstMessageDate == 0 || msg.timestamp < firstMessageDate) {
+                firstMessageDate = msg.timestamp;
+            }
+        }
+    }
+
+    stats["totalMessages"] = totalMessages;
+    stats["totalUserMessages"] = totalUserMessages;
+    stats["totalAssistantMessages"] = totalAssistantMessages;
+    stats["totalConversations"] = m_conversations.count();
+    stats["longestConvMessages"] = longestConvMessages;
+    stats["longestConvTitle"] = longestConvTitle;
+    stats["longestMessageLength"] = longestMessageLength;
+    stats["estimatedTokens"] = estimatedTokens;
+    stats["firstMessageDate"] = firstMessageDate;
+
+    return stats;
+}
