@@ -23,6 +23,7 @@ public:
                                    const QString &modelName,
                                    const QJsonArray &messages);
     Q_INVOKABLE void cancelRequest();
+    Q_INVOKABLE void clearError();
 
 signals:
     void isBusyChanged();

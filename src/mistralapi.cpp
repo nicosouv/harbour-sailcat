@@ -75,6 +75,11 @@ void MistralAPI::cancelRequest()
     }
 }
 
+void MistralAPI::clearError()
+{
+    setError(QString());
+}
+
 void MistralAPI::onReadyRead()
 {
     if (!m_currentReply)

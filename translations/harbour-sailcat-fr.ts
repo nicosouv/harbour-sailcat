@@ -110,6 +110,34 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
         <source>Your message...</source>
         <translation>Votre message...</translation>
     </message>
+    <message>
+        <source>Start a conversation</source>
+        <translation>Démarrer une conversation</translation>
+    </message>
+    <message>
+        <source>Type a message below</source>
+        <translation>Tapez un message ci-dessous</translation>
+    </message>
+    <message>
+        <source>Type a message...</source>
+        <translation>Tapez un message...</translation>
+    </message>
+    <message>
+        <source>Welcome</source>
+        <translation>Bienvenue</translation>
+    </message>
+    <message>
+        <source>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</source>
+        <translation>Bienvenue sur SailCat ! Pour commencer, vous devez configurer votre clé API Mistral AI dans les Paramètres.</translation>
+    </message>
+    <message>
+        <source>Open Settings</source>
+        <translation>Ouvrir les Paramètres</translation>
+    </message>
+    <message>
+        <source>Skip for now</source>
+        <translation>Ignorer pour le moment</translation>
+    </message>
 </context>
 <context>
     <name>ConversationListPage</name>
@@ -143,6 +171,10 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     <message>
         <source>Create a new conversation using the menu</source>
         <translation>Créez une nouvelle conversation avec le menu</translation>
+    </message>
+    <message>
+        <source>Start chatting to create conversations</source>
+        <translation>Commencez à discuter pour créer des conversations</translation>
     </message>
 </context>
 <context>

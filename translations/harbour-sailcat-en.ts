@@ -110,6 +110,34 @@ This application is free software. You are free to use, modify, and distribute i
         <source>Your message...</source>
         <translation>Your message...</translation>
     </message>
+    <message>
+        <source>Start a conversation</source>
+        <translation>Start a conversation</translation>
+    </message>
+    <message>
+        <source>Type a message below</source>
+        <translation>Type a message below</translation>
+    </message>
+    <message>
+        <source>Type a message...</source>
+        <translation>Type a message...</translation>
+    </message>
+    <message>
+        <source>Welcome</source>
+        <translation>Welcome</translation>
+    </message>
+    <message>
+        <source>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</source>
+        <translation>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</translation>
+    </message>
+    <message>
+        <source>Open Settings</source>
+        <translation>Open Settings</translation>
+    </message>
+    <message>
+        <source>Skip for now</source>
+        <translation>Skip for now</translation>
+    </message>
 </context>
 <context>
     <name>ConversationListPage</name>
@@ -143,6 +171,10 @@ This application is free software. You are free to use, modify, and distribute i
     <message>
         <source>Create a new conversation using the menu</source>
         <translation>Create a new conversation using the menu</translation>
+    </message>
+    <message>
+        <source>Start chatting to create conversations</source>
+        <translation>Start chatting to create conversations</translation>
     </message>
 </context>
 <context>
