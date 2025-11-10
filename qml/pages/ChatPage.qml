@@ -20,7 +20,6 @@ Page {
         clip: true
 
         model: conversationModel
-        verticalLayoutDirection: ListView.BottomToTop
         spacing: Theme.paddingMedium
 
         header: PageHeader {
@@ -361,7 +360,7 @@ Page {
 
         onResponseCompleted: {
             streamingContent = ""
-            messageListView.positionViewAtBeginning()
+            messageListView.positionViewAtEnd()
             conversationManager.saveCurrentConversation()
         }
     }
@@ -391,7 +390,7 @@ Page {
 
         conversationModel.addAssistantMessage("")
         mistralApi.sendMessage(apiKey, modelName, messages)
-        messageListView.positionViewAtBeginning()
+        messageListView.positionViewAtEnd()
     }
 
     function refreshConversationsList() {
