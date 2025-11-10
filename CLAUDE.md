@@ -200,3 +200,4 @@ curl -X POST https://api.mistral.ai/v1/chat/completions \
 ```
 - memory message de commit, tag, commentaaire, code, tout doit etre en anglais
 - memory Sailfish utilise Qt 5.6
+- memory quand on fait des modifications, fait le plus possible de version patch

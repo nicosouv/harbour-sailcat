@@ -49,6 +49,11 @@ void MistralAPI::sendMessage(const QString &apiKey,
     QJsonDocument doc(requestBody);
     QByteArray jsonData = doc.toJson();
 
+    qDebug() << "Sending request to Mistral API";
+    qDebug() << "Model:" << modelName;
+    qDebug() << "Messages count:" << messages.count();
+    qDebug() << "Request body:" << QString::fromUtf8(jsonData);
+
     // Configurer la requête HTTP
     QNetworkRequest request(QUrl("https://api.mistral.ai/v1/chat/completions"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -86,6 +91,8 @@ void MistralAPI::onReadyRead()
         return;
 
     QByteArray data = m_currentReply->readAll();
+    qDebug() << "Received data from API:" << data.size() << "bytes";
+    qDebug() << "Data preview:" << QString::fromUtf8(data.left(200));
     processStreamData(data);
 }
 
@@ -94,12 +101,18 @@ void MistralAPI::onFinished()
     if (!m_currentReply)
         return;
 
+    qDebug() << "Request finished with status:" << m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "Error code:" << m_currentReply->error();
+
     // Traiter les données restantes
     if (m_currentReply->error() == QNetworkReply::NoError) {
         QByteArray remaining = m_currentReply->readAll();
         if (!remaining.isEmpty()) {
+            qDebug() << "Processing remaining data:" << remaining.size() << "bytes";
             processStreamData(remaining);
         }
+    } else {
+        qDebug() << "Request failed:" << m_currentReply->errorString();
     }
 
     m_currentReply->deleteLater();
@@ -178,6 +191,7 @@ void MistralAPI::parseStreamLine(const QString &line)
 {
     // Le format SSE (Server-Sent Events) utilise "data: " comme préfixe
     if (!line.startsWith("data: ")) {
+        qDebug() << "Line doesn't start with 'data: ':" << line.left(50);
         return;
     }
 
@@ -185,12 +199,14 @@ void MistralAPI::parseStreamLine(const QString &line)
 
     // Vérifier si c'est le marqueur de fin
     if (jsonData == "[DONE]") {
+        qDebug() << "Received [DONE] marker";
         return;
     }
 
     // Parser le JSON
     QJsonDocument doc = QJsonDocument::fromJson(jsonData.toUtf8());
     if (!doc.isObject()) {
+        qDebug() << "Failed to parse JSON:" << jsonData.left(100);
         return;
     }
 
@@ -205,8 +221,11 @@ void MistralAPI::parseStreamLine(const QString &line)
         if (delta.contains("content")) {
             QString content = delta["content"].toString();
             if (!content.isEmpty()) {
+                qDebug() << "Emitting content:" << content;
                 emit streamingResponse(content);
             }
         }
+    } else {
+        qDebug() << "No choices in response:" << QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
     }
 }
