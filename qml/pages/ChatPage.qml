@@ -203,48 +203,54 @@ Page {
                 opacity: 0.3
             }
 
-            Row {
+            Item {
                 width: parent.width
-                height: Math.max(messageInput.height, Theme.itemSizeSmall)
-                spacing: Theme.paddingMedium
-                padding: Theme.paddingMedium
+                height: Math.max(messageInput.height, Theme.itemSizeSmall) + Theme.paddingMedium * 2
 
-                TextArea {
-                    id: messageInput
-                    width: parent.width - sendButton.width - parent.spacing - parent.padding * 2
-                    placeholderText: qsTr("Type a message...")
-                    labelVisible: false
-                    enabled: !mistralApi.isBusy && settingsManager.hasApiKey()
-
-                    font.pixelSize: Theme.fontSizeSmall
-
-                    // Limit height to 5 lines max
-                    property int maxLines: 5
-                    height: Math.min(implicitHeight, Theme.itemSizeSmall * maxLines / 2)
-
-                    EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
-                    EnterKey.iconSource: "image://theme/icon-m-enter-accept"
-                    EnterKey.onClicked: {
-                        sendMessage()
+                Row {
+                    anchors {
+                        fill: parent
+                        margins: Theme.paddingMedium
                     }
-                }
+                    spacing: Theme.paddingMedium
 
-                IconButton {
-                    id: sendButton
-                    anchors.verticalCenter: parent.verticalCenter
-                    icon.source: mistralApi.isBusy
-                        ? "image://theme/icon-m-pause"
-                        : "image://theme/icon-m-message"
-                    icon.color: (!mistralApi.isBusy && messageInput.text.trim().length > 0)
-                        ? Theme.highlightColor
-                        : Theme.primaryColor
-                    enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey()) || mistralApi.isBusy
+                    TextArea {
+                        id: messageInput
+                        width: parent.width - sendButton.width - parent.spacing
+                        placeholderText: qsTr("Type a message...")
+                        labelVisible: false
+                        enabled: !mistralApi.isBusy && settingsManager.hasApiKey()
 
-                    onClicked: {
-                        if (mistralApi.isBusy) {
-                            mistralApi.cancelRequest()
-                        } else {
+                        font.pixelSize: Theme.fontSizeSmall
+
+                        // Limit height to 5 lines max
+                        property int maxLines: 5
+                        height: Math.min(implicitHeight, Theme.itemSizeSmall * maxLines / 2)
+
+                        EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
+                        EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                        EnterKey.onClicked: {
                             sendMessage()
+                        }
+                    }
+
+                    IconButton {
+                        id: sendButton
+                        anchors.verticalCenter: parent.verticalCenter
+                        icon.source: mistralApi.isBusy
+                            ? "image://theme/icon-m-pause"
+                            : "image://theme/icon-m-message"
+                        icon.color: (!mistralApi.isBusy && messageInput.text.trim().length > 0)
+                            ? Theme.highlightColor
+                            : Theme.primaryColor
+                        enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey()) || mistralApi.isBusy
+
+                        onClicked: {
+                            if (mistralApi.isBusy) {
+                                mistralApi.cancelRequest()
+                            } else {
+                                sendMessage()
+                            }
                         }
                     }
                 }
