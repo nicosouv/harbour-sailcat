@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "../components"
 
 Page {
     id: chatPage
@@ -8,18 +9,10 @@ Page {
     property bool firstUse: !settingsManager.hasApiKey()
     property string streamingContent: ""
 
-    // Header
-    PageHeader {
-        id: pageHeader
-        title: "SailCat"
-        description: settingsManager.modelName
-    }
-
-    // Main content area with messages
     SilicaListView {
         id: messageListView
         anchors {
-            top: pageHeader.bottom
+            top: parent.top
             left: parent.left
             right: parent.right
             bottom: inputArea.top
@@ -30,90 +23,10 @@ Page {
         verticalLayoutDirection: ListView.BottomToTop
         spacing: Theme.paddingMedium
 
-        ViewPlaceholder {
-            enabled: conversationModel.count === 0
-            text: firstUse ? qsTr("Welcome to SailCat") : qsTr("Start a conversation")
-            hintText: firstUse ? qsTr("Configure your Mistral API key to get started") : qsTr("Type a message below")
+        header: PageHeader {
+            title: "SailCat"
+            description: settingsManager.modelName
         }
-
-        delegate: Item {
-            id: messageDelegate
-            width: messageListView.width
-            height: messageBubble.height + Theme.paddingMedium
-
-            Item {
-                id: messageBubble
-                width: parent.width
-                height: bubbleBackground.height
-
-                // Background bubble
-                Rectangle {
-                    id: bubbleBackground
-                    width: Math.min(messageText.implicitWidth + Theme.paddingLarge * 2, parent.width * 0.85)
-                    height: messageText.height + Theme.paddingMedium * 2
-                    radius: Theme.paddingSmall
-                    color: model.role === "user"
-                        ? Theme.rgba(Theme.highlightBackgroundColor, 0.3)
-                        : Theme.rgba(Theme.secondaryColor, 0.1)
-
-                    anchors {
-                        right: model.role === "user" ? parent.right : undefined
-                        left: model.role === "assistant" ? parent.left : undefined
-                        rightMargin: model.role === "user" ? Theme.horizontalPageMargin : 0
-                        leftMargin: model.role === "assistant" ? Theme.horizontalPageMargin : 0
-                    }
-
-                    // Triangle pointer
-                    Canvas {
-                        id: pointer
-                        width: Theme.paddingSmall
-                        height: Theme.paddingSmall
-                        anchors {
-                            top: parent.top
-                            topMargin: Theme.paddingMedium
-                            right: model.role === "user" ? parent.right : undefined
-                            rightMargin: model.role === "user" ? -width + 1 : 0
-                            left: model.role === "assistant" ? parent.left : undefined
-                            leftMargin: model.role === "assistant" ? -width + 1 : 0
-                        }
-
-                        onPaint: {
-                            var ctx = getContext("2d")
-                            ctx.reset()
-                            ctx.fillStyle = bubbleBackground.color
-
-                            if (model.role === "user") {
-                                // Triangle pointing right
-                                ctx.moveTo(0, 0)
-                                ctx.lineTo(width, height / 2)
-                                ctx.lineTo(0, height)
-                            } else {
-                                // Triangle pointing left
-                                ctx.moveTo(width, 0)
-                                ctx.lineTo(0, height / 2)
-                                ctx.lineTo(width, height)
-                            }
-                            ctx.closePath()
-                            ctx.fill()
-                        }
-                    }
-
-                    Label {
-                        id: messageText
-                        anchors {
-                            fill: parent
-                            margins: Theme.paddingMedium
-                        }
-                        text: model.content
-                        wrapMode: Text.Wrap
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: model.role === "user" ? Theme.primaryColor : Theme.primaryColor
-                    }
-                }
-            }
-        }
-
-        VerticalScrollDecorator {}
 
         PullDownMenu {
             MenuItem {
@@ -135,26 +48,35 @@ Page {
                 }
             }
         }
+
+        ViewPlaceholder {
+            enabled: conversationModel.count === 0
+            text: firstUse ? qsTr("Welcome to SailCat") : qsTr("Start a conversation")
+            hintText: firstUse ? qsTr("Configure your Mistral API key to get started") : qsTr("Type a message below")
+        }
+
+        delegate: MessageBubble {
+            width: messageListView.width
+            role: model.role
+            content: model.content
+        }
+
+        VerticalScrollDecorator {}
     }
 
     // Footer with input area
-    Item {
+    Column {
         id: inputArea
         anchors {
             left: parent.left
             right: parent.right
             bottom: parent.bottom
         }
-        height: inputColumn.height
+        spacing: 0
 
         // Error banner
         Rectangle {
-            id: errorBanner
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: inputColumn.top
-            }
+            width: parent.width
             height: mistralApi.error !== "" ? errorLabel.height + Theme.paddingMedium * 2 : 0
             color: Theme.rgba(Theme.errorColor, 0.2)
             visible: height > 0
@@ -188,85 +110,67 @@ Page {
             }
         }
 
-        Column {
-            id: inputColumn
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            spacing: 0
+        Separator {
+            width: parent.width
+            color: Theme.highlightColor
+            opacity: 0.3
+        }
 
-            Separator {
-                width: parent.width
-                color: Theme.highlightColor
-                opacity: 0.3
-            }
+        // Input row
+        Item {
+            width: parent.width
+            height: Math.max(messageInput.height, Theme.itemSizeSmall) + Theme.paddingMedium * 2
 
-            Item {
-                width: parent.width
-                height: Math.max(messageInput.height, Theme.itemSizeSmall) + Theme.paddingMedium * 2
+            Row {
+                anchors {
+                    fill: parent
+                    margins: Theme.paddingMedium
+                }
+                spacing: Theme.paddingMedium
 
-                Row {
-                    anchors {
-                        fill: parent
-                        margins: Theme.paddingMedium
-                    }
-                    spacing: Theme.paddingMedium
+                TextArea {
+                    id: messageInput
+                    width: parent.width - sendButton.width - parent.spacing
+                    height: Math.min(implicitHeight, Theme.itemSizeSmall * 2.5)
+                    placeholderText: qsTr("Type a message...")
+                    labelVisible: false
+                    enabled: !mistralApi.isBusy && settingsManager.hasApiKey()
+                    font.pixelSize: Theme.fontSizeSmall
 
-                    TextArea {
-                        id: messageInput
-                        width: parent.width - sendButton.width - parent.spacing
-                        placeholderText: qsTr("Type a message...")
-                        labelVisible: false
-                        enabled: !mistralApi.isBusy && settingsManager.hasApiKey()
+                    EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
+                    EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                    EnterKey.onClicked: sendMessage()
+                }
 
-                        font.pixelSize: Theme.fontSizeSmall
+                IconButton {
+                    id: sendButton
+                    anchors.verticalCenter: parent.verticalCenter
+                    icon.source: mistralApi.isBusy
+                        ? "image://theme/icon-m-pause"
+                        : "image://theme/icon-m-message"
+                    enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey()) || mistralApi.isBusy
 
-                        // Limit height to 5 lines max
-                        property int maxLines: 5
-                        height: Math.min(implicitHeight, Theme.itemSizeSmall * maxLines / 2)
-
-                        EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
-                        EnterKey.iconSource: "image://theme/icon-m-enter-accept"
-                        EnterKey.onClicked: {
+                    onClicked: {
+                        if (mistralApi.isBusy) {
+                            mistralApi.cancelRequest()
+                        } else {
                             sendMessage()
                         }
                     }
-
-                    IconButton {
-                        id: sendButton
-                        anchors.verticalCenter: parent.verticalCenter
-                        icon.source: mistralApi.isBusy
-                            ? "image://theme/icon-m-pause"
-                            : "image://theme/icon-m-message"
-                        icon.color: (!mistralApi.isBusy && messageInput.text.trim().length > 0)
-                            ? Theme.highlightColor
-                            : Theme.primaryColor
-                        enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey()) || mistralApi.isBusy
-
-                        onClicked: {
-                            if (mistralApi.isBusy) {
-                                mistralApi.cancelRequest()
-                            } else {
-                                sendMessage()
-                            }
-                        }
-                    }
                 }
             }
+        }
 
-            // Busy indicator
-            Item {
-                width: parent.width
-                height: mistralApi.isBusy ? Theme.itemSizeExtraSmall : 0
-                visible: height > 0
+        // Busy indicator
+        Item {
+            width: parent.width
+            height: mistralApi.isBusy ? Theme.itemSizeExtraSmall : 0
+            visible: height > 0
 
-                BusyIndicator {
-                    anchors.centerIn: parent
-                    running: mistralApi.isBusy
-                    size: BusyIndicatorSize.Small
-                }
+            BusyIndicator {
+                anchors.centerIn: parent
+                running: mistralApi.isBusy
+                size: BusyIndicatorSize.Small
             }
         }
     }
@@ -276,7 +180,6 @@ Page {
         id: conversationPanel
         width: parent.width
         height: parent.height
-
         dock: Dock.Left
         open: false
 
@@ -364,7 +267,6 @@ Page {
             VerticalScrollDecorator {}
         }
 
-        // New conversation button at the bottom
         IconButton {
             anchors {
                 horizontalCenter: parent.horizontalCenter
@@ -372,20 +274,11 @@ Page {
                 bottomMargin: Theme.paddingLarge
             }
             icon.source: "image://theme/icon-m-add"
-            icon.color: Theme.highlightColor
             onClicked: {
                 conversationManager.createNewConversation()
                 conversationPanel.hide()
                 streamingContent = ""
             }
-        }
-    }
-
-    // Show first use dialog
-    Component.onCompleted: {
-        refreshConversationsList()
-        if (firstUse) {
-            firstUseDialog.open()
         }
     }
 
@@ -473,35 +366,31 @@ Page {
         }
     }
 
+    Component.onCompleted: {
+        refreshConversationsList()
+        if (firstUse) {
+            firstUseDialog.open()
+        }
+    }
+
     function sendMessage() {
         var message = messageInput.text.trim()
-        if (message.length === 0) {
-            return
-        }
+        if (message.length === 0) return
 
         if (!settingsManager.hasApiKey()) {
             pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             return
         }
 
-        // Clear input immediately
         messageInput.text = ""
-
-        // Add user message
         conversationModel.addUserMessage(message)
 
-        // Prepare API call
         var apiKey = settingsManager.apiKey
         var modelName = settingsManager.modelName
         var messages = conversationModel.getMessagesForApi()
 
-        // Add empty assistant message
         conversationModel.addAssistantMessage("")
-
-        // Send to API
         mistralApi.sendMessage(apiKey, modelName, messages)
-
-        // Scroll to bottom
         messageListView.positionViewAtBeginning()
     }
 

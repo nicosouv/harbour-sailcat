@@ -21,6 +21,7 @@ DISTFILES += qml/harbour-sailcat.qml \
     qml/pages/ConversationListPage.qml \
     qml/pages/SettingsPage.qml \
     qml/pages/AboutPage.qml \
+    qml/components/MessageBubble.qml \
     rpm/harbour-sailcat.spec \
     harbour-sailcat.desktop
 
