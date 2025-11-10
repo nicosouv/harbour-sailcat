@@ -110,6 +110,16 @@ QVariant ConversationModel::getMessagesForApi() const
     return messagesList;
 }
 
+QString ConversationModel::getFirstUserMessage() const
+{
+    for (const Message &msg : m_messages) {
+        if (msg.role == "user") {
+            return msg.content;
+        }
+    }
+    return QString();
+}
+
 QJsonArray ConversationModel::toJsonArray() const
 {
     QJsonArray messages;

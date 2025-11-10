@@ -35,6 +35,7 @@ public:
     Q_INVOKABLE void updateLastAssistantMessage(const QString &content);
     Q_INVOKABLE void clearConversation();
     Q_INVOKABLE QVariant getMessagesForApi() const;
+    Q_INVOKABLE QString getFirstUserMessage() const;
 
     QJsonArray toJsonArray() const;
 

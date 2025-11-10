@@ -90,6 +90,48 @@ void MistralAPI::sendMessage(const QString &apiKey,
     emit messageSent();
 }
 
+void MistralAPI::generateTitle(const QString &apiKey,
+                                 const QString &modelName,
+                                 const QString &firstUserMessage)
+{
+    if (apiKey.isEmpty() || firstUserMessage.isEmpty()) {
+        return;
+    }
+
+    // Build request for title generation (non-streaming)
+    QJsonArray messages;
+    QJsonObject systemMsg;
+    systemMsg["role"] = "system";
+    systemMsg["content"] = "Generate a short conversation title (max 50 characters) based on the user's first message. Reply with ONLY the title, no explanation.";
+    messages.append(systemMsg);
+
+    QJsonObject userMsg;
+    userMsg["role"] = "user";
+    userMsg["content"] = firstUserMessage;
+    messages.append(userMsg);
+
+    QJsonObject requestBody;
+    requestBody["model"] = modelName;
+    requestBody["messages"] = messages;
+    requestBody["stream"] = false;  // Non-streaming for title generation
+
+    QJsonDocument doc(requestBody);
+    QByteArray jsonData = doc.toJson();
+
+    qDebug() << "Generating title for first message:" << firstUserMessage.left(50);
+
+    // Configure HTTP request
+    QNetworkRequest request(QUrl("https://api.mistral.ai/v1/chat/completions"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
+
+    // Send request
+    QNetworkReply *reply = m_networkManager->post(request, jsonData);
+
+    connect(reply, &QNetworkReply::finished,
+            this, &MistralAPI::onTitleGenerationFinished);
+}
+
 void MistralAPI::cancelRequest()
 {
     if (m_currentReply) {
@@ -202,6 +244,46 @@ void MistralAPI::processStreamData(const QByteArray &data)
             parseStreamLine(line);
         }
     }
+}
+
+void MistralAPI::onTitleGenerationFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply)
+        return;
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray responseData = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(responseData);
+
+        if (doc.isObject()) {
+            QJsonObject obj = doc.object();
+            QJsonArray choices = obj["choices"].toArray();
+
+            if (!choices.isEmpty()) {
+                QJsonObject choice = choices.at(0).toObject();
+                QJsonObject message = choice["message"].toObject();
+                QString title = message["content"].toString().trimmed();
+
+                // Remove quotes if present
+                if (title.startsWith("\"") && title.endsWith("\"")) {
+                    title = title.mid(1, title.length() - 2);
+                }
+
+                // Truncate if too long
+                if (title.length() > 50) {
+                    title = title.left(47) + "...";
+                }
+
+                qDebug() << "Generated title:" << title;
+                emit titleGenerated(title);
+            }
+        }
+    } else {
+        qDebug() << "Title generation failed:" << reply->errorString();
+    }
+
+    reply->deleteLater();
 }
 
 void MistralAPI::parseStreamLine(const QString &line)

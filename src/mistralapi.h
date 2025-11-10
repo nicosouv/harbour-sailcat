@@ -22,6 +22,9 @@ public:
     Q_INVOKABLE void sendMessage(const QString &apiKey,
                                    const QString &modelName,
                                    const QVariant &messages);
+    Q_INVOKABLE void generateTitle(const QString &apiKey,
+                                     const QString &modelName,
+                                     const QString &firstUserMessage);
     Q_INVOKABLE void cancelRequest();
     Q_INVOKABLE void clearError();
 
@@ -31,11 +34,13 @@ signals:
     void streamingResponse(const QString &content);
     void responseCompleted();
     void messageSent();
+    void titleGenerated(const QString &title);
 
 private slots:
     void onReadyRead();
     void onFinished();
     void onError(QNetworkReply::NetworkError error);
+    void onTitleGenerationFinished();
 
 private:
     QNetworkAccessManager *m_networkManager;

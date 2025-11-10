@@ -367,6 +367,18 @@ Page {
             streamingContent = ""
             messageListView.positionViewAtEnd()
             conversationManager.saveCurrentConversation()
+
+            // Generate title after first exchange (2 messages: user + assistant)
+            if (conversationModel.count === 2) {
+                var firstMessage = conversationModel.getFirstUserMessage()
+                if (firstMessage) {
+                    mistralApi.generateTitle(settingsManager.apiKey, settingsManager.modelName, firstMessage)
+                }
+            }
+        }
+
+        onTitleGenerated: {
+            conversationManager.updateCurrentConversationTitle(title)
         }
     }
 

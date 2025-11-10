@@ -109,6 +109,15 @@ void ConversationManager::renameConversation(const QString &conversationId, cons
     }
 }
 
+void ConversationManager::updateCurrentConversationTitle(const QString &newTitle)
+{
+    if (m_currentConversationId.isEmpty() || newTitle.isEmpty()) {
+        return;
+    }
+
+    renameConversation(m_currentConversationId, newTitle);
+}
+
 QJsonArray ConversationManager::getConversationsList() const
 {
     QJsonArray list;
@@ -250,9 +259,9 @@ Conversation* ConversationManager::findConversation(const QString &id)
     return nullptr;
 }
 
-QJsonObject ConversationManager::getConversationDetails(const QString &conversationId) const
+QVariant ConversationManager::getConversationDetails(const QString &conversationId) const
 {
-    QJsonObject details;
+    QVariantMap details;
 
     for (const Conversation &conv : m_conversations) {
         if (conv.id == conversationId) {
@@ -261,15 +270,15 @@ QJsonObject ConversationManager::getConversationDetails(const QString &conversat
             details["createdAt"] = conv.createdAt;
             details["updatedAt"] = conv.updatedAt;
 
-            QJsonArray messagesArray;
+            QVariantList messagesList;
             for (const Message &msg : conv.messages) {
-                QJsonObject msgObj;
-                msgObj["role"] = msg.role;
-                msgObj["content"] = msg.content;
-                msgObj["timestamp"] = msg.timestamp;
-                messagesArray.append(msgObj);
+                QVariantMap msgMap;
+                msgMap["role"] = msg.role;
+                msgMap["content"] = msg.content;
+                msgMap["timestamp"] = msg.timestamp;
+                messagesList.append(msgMap);
             }
-            details["messages"] = messagesArray;
+            details["messages"] = messagesList;
             details["messageCount"] = conv.messages.count();
 
             break;

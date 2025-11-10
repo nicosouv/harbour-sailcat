@@ -31,8 +31,9 @@ public:
     Q_INVOKABLE void loadConversation(const QString &conversationId);
     Q_INVOKABLE void deleteConversation(const QString &conversationId);
     Q_INVOKABLE void renameConversation(const QString &conversationId, const QString &newTitle);
+    Q_INVOKABLE void updateCurrentConversationTitle(const QString &newTitle);
     Q_INVOKABLE QJsonArray getConversationsList() const;
-    Q_INVOKABLE QJsonObject getConversationDetails(const QString &conversationId) const;
+    Q_INVOKABLE QVariant getConversationDetails(const QString &conversationId) const;
     Q_INVOKABLE qint64 getStorageSize() const;
     Q_INVOKABLE QString getStorageSizeFormatted() const;
     Q_INVOKABLE void purgeAllConversations();
