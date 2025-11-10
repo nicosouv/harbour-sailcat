@@ -36,12 +36,21 @@ void MistralAPI::sendMessage(const QString &apiKey,
         return;
     }
 
-    // Convert QVariant to QJsonArray
-    QJsonArray messages = messagesVariant.toJsonArray();
-    if (messages.isEmpty()) {
-        qWarning() << "Messages array is empty or invalid";
+    // Convert QVariant (QVariantList) to QJsonArray
+    QVariantList messagesList = messagesVariant.toList();
+    if (messagesList.isEmpty()) {
+        qWarning() << "Messages list is empty or invalid";
         setError(tr("Failed to prepare messages for API"));
         return;
+    }
+
+    QJsonArray messages;
+    for (const QVariant &msgVariant : messagesList) {
+        QVariantMap msgMap = msgVariant.toMap();
+        QJsonObject msgObj;
+        msgObj["role"] = msgMap["role"].toString();
+        msgObj["content"] = msgMap["content"].toString();
+        messages.append(msgObj);
     }
 
     setIsBusy(true);

@@ -1,47 +1,40 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Item {
-    id: bubble
+BackgroundItem {
+    id: messageItem
     width: parent.width
-    height: bubbleRect.height + Theme.paddingMedium
+    height: messageLabel.height + Theme.paddingLarge
+    highlighted: false
 
     property string role: "user"
     property string content: ""
 
     Rectangle {
-        id: bubbleRect
-        width: Math.min(messageLabel.contentWidth + Theme.paddingLarge * 2, bubble.width * 0.85)
-        height: messageLabel.height + Theme.paddingLarge
-        radius: Theme.paddingMedium
+        anchors.fill: parent
         color: role === "user"
-            ? Theme.rgba(Theme.highlightBackgroundColor, 0.3)
-            : Theme.rgba(Theme.secondaryColor, 0.15)
+            ? Theme.rgba(Theme.highlightBackgroundColor, 0.15)
+            : "transparent"
+    }
 
+    Label {
+        id: messageLabel
         anchors {
-            right: role === "user" ? parent.right : undefined
-            left: role === "assistant" ? parent.left : undefined
-            rightMargin: role === "user" ? Theme.horizontalPageMargin : 0
-            leftMargin: role === "assistant" ? Theme.horizontalPageMargin : 0
+            left: parent.left
+            right: parent.right
+            verticalCenter: parent.verticalCenter
+            leftMargin: role === "user" ? Theme.horizontalPageMargin * 2 : Theme.horizontalPageMargin
+            rightMargin: role === "assistant" ? Theme.horizontalPageMargin * 2 : Theme.horizontalPageMargin
         }
+        text: formatMarkdown(content)
+        textFormat: Text.StyledText
+        wrapMode: Text.Wrap
+        font.pixelSize: Theme.fontSizeSmall
+        color: Theme.primaryColor
+        linkColor: Theme.highlightColor
+        horizontalAlignment: role === "user" ? Text.AlignRight : Text.AlignLeft
 
-        Label {
-            id: messageLabel
-            anchors {
-                fill: parent
-                margins: Theme.paddingMedium
-                topMargin: Theme.paddingSmall
-                bottomMargin: Theme.paddingSmall
-            }
-            text: formatMarkdown(content)
-            textFormat: Text.StyledText
-            wrapMode: Text.Wrap
-            font.pixelSize: Theme.fontSizeSmall
-            color: Theme.primaryColor
-            linkColor: Theme.highlightColor
-
-            onLinkActivated: Qt.openUrlExternally(link)
-        }
+        onLinkActivated: Qt.openUrlExternally(link)
     }
 
     function formatMarkdown(text) {

@@ -98,7 +98,16 @@ void ConversationModel::clearConversation()
 
 QVariant ConversationModel::getMessagesForApi() const
 {
-    return QVariant::fromValue(toJsonArray());
+    QVariantList messagesList;
+
+    for (const Message &msg : m_messages) {
+        QVariantMap msgMap;
+        msgMap["role"] = msg.role;
+        msgMap["content"] = msg.content;
+        messagesList.append(msgMap);
+    }
+
+    return messagesList;
 }
 
 QJsonArray ConversationModel::toJsonArray() const
