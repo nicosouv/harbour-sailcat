@@ -27,11 +27,17 @@ Page {
 
                 onTextChanged: {
                     searchQuery = text
-                    performSearch()
+                    searchTimer.restart()
                 }
 
                 EnterKey.iconSource: "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: focus = false
+            }
+
+            Timer {
+                id: searchTimer
+                interval: 300
+                onTriggered: performSearch()
             }
 
             // Storage info section
@@ -122,15 +128,18 @@ Page {
                 }
 
                 // Show match preview when searching
-                Label {
+                Loader {
                     width: parent.width
-                    text: model.matchPreview || ""
-                    visible: searchQuery.length > 0 && model.matchPreview
-                    color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    wrapMode: Text.Wrap
-                    maximumLineCount: 2
-                    elide: Text.ElideRight
+                    active: searchQuery.length > 0 && model.matchPreview
+                    sourceComponent: Label {
+                        width: parent.width
+                        text: model.matchPreview || ""
+                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
+                    }
                 }
 
                 Row {
