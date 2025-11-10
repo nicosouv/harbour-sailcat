@@ -1,0 +1,35 @@
+name: PR Build Check
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [armv7hl, aarch64]
+
+    container:
+      image: coderus/sailfishos-platform-sdk:5.0.0.43
+      options: --privileged
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build RPM with mb2
+        run: |
+          mb2 -t SailfishOS-5.0.0.43-${{ matrix.arch }} build
+
+      - name: Verify RPM created
+        run: |
+          if [ -z "$(find RPMS -name '*.rpm' -type f)" ]; then
+            echo "Error: No RPM package was created"
+            exit 1
+          fi
+          echo "✅ Build successful for ${{ matrix.arch }}"
+          ls -lh RPMS/*.rpm
