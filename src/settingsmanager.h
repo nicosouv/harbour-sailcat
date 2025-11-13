@@ -12,6 +12,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString modelName READ modelName WRITE setModelName NOTIFY modelNameChanged)
     Q_PROPERTY(bool useCustomKey READ useCustomKey WRITE setUseCustomKey NOTIFY useCustomKeyChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
+    Q_PROPERTY(bool hasApiKey READ hasApiKey NOTIFY hasApiKeyChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
@@ -28,16 +29,18 @@ public:
     QString language() const;
     void setLanguage(const QString &lang);
 
+    bool hasApiKey() const;
+
     Q_INVOKABLE QStringList availableModels() const;
     Q_INVOKABLE QStringList availableLanguages() const;
     Q_INVOKABLE void clearApiKey();
-    Q_INVOKABLE bool hasApiKey() const;
 
 signals:
     void apiKeyChanged();
     void modelNameChanged();
     void useCustomKeyChanged();
     void languageChanged();
+    void hasApiKeyChanged();
 
 private:
     QSettings m_settings;

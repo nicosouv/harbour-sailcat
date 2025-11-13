@@ -132,7 +132,7 @@ Page {
                     height: Math.min(implicitHeight, Theme.itemSizeSmall * 2.5)
                     placeholderText: qsTr("Type a message...")
                     labelVisible: false
-                    enabled: !mistralApi.isBusy && settingsManager.hasApiKey()
+                    enabled: !mistralApi.isBusy && settingsManager.hasApiKey
                     font.pixelSize: Theme.fontSizeSmall
 
                     EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
@@ -146,7 +146,7 @@ Page {
                     icon.source: mistralApi.isBusy
                         ? "image://theme/icon-m-pause"
                         : "image://theme/icon-m-message"
-                    enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey()) || mistralApi.isBusy
+                    enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey) || mistralApi.isBusy
 
                     onClicked: {
                         if (mistralApi.isBusy) {
@@ -380,12 +380,12 @@ Page {
         target: settingsManager
 
         onApiKeyChanged: {
-            firstUse = !settingsManager.hasApiKey()
+            firstUse = !settingsManager.hasApiKey
         }
     }
 
     Component.onCompleted: {
-        firstUse = !settingsManager.hasApiKey()
+        firstUse = !settingsManager.hasApiKey
         refreshConversationsList()
         if (firstUse) {
             firstUseDialog.open()
@@ -396,7 +396,7 @@ Page {
         var message = messageInput.text.trim()
         if (message.length === 0) return
 
-        if (!settingsManager.hasApiKey()) {
+        if (!settingsManager.hasApiKey) {
             pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             return
         }

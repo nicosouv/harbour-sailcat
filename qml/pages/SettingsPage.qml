@@ -166,7 +166,7 @@ Dialog {
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Clear API key")
-                visible: settingsManager.hasApiKey() && useCustomKeySwitch.checked
+                visible: settingsManager.hasApiKey && useCustomKeySwitch.checked
                 onClicked: {
                     remorse.execute(qsTr("Clearing API key"), function() {
                         apiKeyField.text = ""

@@ -16,9 +16,14 @@ QString SettingsManager::apiKey() const
 void SettingsManager::setApiKey(const QString &key)
 {
     if (m_apiKey != key) {
+        bool hadKey = !m_apiKey.isEmpty();
         m_apiKey = key;
+        bool hasKey = !m_apiKey.isEmpty();
         saveSettings();
         emit apiKeyChanged();
+        if (hadKey != hasKey) {
+            emit hasApiKeyChanged();
+        }
     }
 }
 
