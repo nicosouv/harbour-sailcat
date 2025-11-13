@@ -6,3 +6,4 @@ Icon=harbour-sailcat
 Exec=harbour-sailcat
 Comment=Le Chat de Mistral AI
 Categories=Network;Chat;
+X-Sailjail-Permissions=Internet

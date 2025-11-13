@@ -411,16 +411,26 @@ Page {
         firstUse = !settingsManager.hasApiKey
         refreshConversationsList()
 
-        // Show first launch dialog
+        // Show first launch dialog after a short delay to let PageStack settle
         console.log("ChatPage.onCompleted: Checking if first launch...")
         var shouldShow = settingsManager.isFirstLaunch()
         console.log("ChatPage.onCompleted: isFirstLaunch returned:", shouldShow)
 
         if (shouldShow) {
-            console.log("ChatPage.onCompleted: Opening first launch dialog")
-            firstLaunchDialog.open()
+            console.log("ChatPage.onCompleted: Will open first launch dialog after delay")
+            firstLaunchTimer.start()
         } else {
             console.log("ChatPage.onCompleted: Not showing first launch dialog")
+        }
+    }
+
+    Timer {
+        id: firstLaunchTimer
+        interval: 500
+        repeat: false
+        onTriggered: {
+            console.log("Timer: Opening first launch dialog now")
+            firstLaunchDialog.open()
         }
     }
 
