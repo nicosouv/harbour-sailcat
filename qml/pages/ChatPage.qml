@@ -412,8 +412,15 @@ Page {
         refreshConversationsList()
 
         // Show first launch dialog
-        if (settingsManager.isFirstLaunch()) {
+        console.log("ChatPage.onCompleted: Checking if first launch...")
+        var shouldShow = settingsManager.isFirstLaunch()
+        console.log("ChatPage.onCompleted: isFirstLaunch returned:", shouldShow)
+
+        if (shouldShow) {
+            console.log("ChatPage.onCompleted: Opening first launch dialog")
             firstLaunchDialog.open()
+        } else {
+            console.log("ChatPage.onCompleted: Not showing first launch dialog")
         }
     }
 
