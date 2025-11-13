@@ -7,7 +7,7 @@ Page {
     objectName: "chatPage"
     allowedOrientations: Orientation.All
 
-    property bool firstUse: !settingsManager.hasApiKey()
+    property bool firstUse: false
     property string streamingContent: ""
 
     SilicaListView {
@@ -378,7 +378,16 @@ Page {
         }
     }
 
+    Connections {
+        target: settingsManager
+
+        onApiKeyChanged: {
+            firstUse = !settingsManager.hasApiKey()
+        }
+    }
+
     Component.onCompleted: {
+        firstUse = !settingsManager.hasApiKey()
         refreshConversationsList()
         if (firstUse) {
             firstUseDialog.open()
@@ -395,6 +404,7 @@ Page {
         }
 
         messageInput.text = ""
+        messageInput.focus = false
         conversationModel.addUserMessage(message)
 
         var apiKey = settingsManager.apiKey
