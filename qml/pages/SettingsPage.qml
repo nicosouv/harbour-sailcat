@@ -284,6 +284,15 @@ Dialog {
                 color: Theme.primaryColor
             }
 
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: qsTr("• Conversations stored locally\n• No sync with Mistral web\n• Requires personal API key")
+                wrapMode: Text.WordWrap
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+            }
+
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Source code on GitHub")

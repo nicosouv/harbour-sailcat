@@ -131,6 +131,34 @@ This application is free software. You are free to use, modify, and distribute i
         <translation>Welcome</translation>
     </message>
     <message>
+        <source>Get Started</source>
+        <translation>Get Started</translation>
+    </message>
+    <message>
+        <source>What is Mistral AI?</source>
+        <translation>What is Mistral AI?</translation>
+    </message>
+    <message>
+        <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
+        <translation>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</translation>
+    </message>
+    <message>
+        <source>Privacy &amp; Storage</source>
+        <translation>Privacy &amp; Storage</translation>
+    </message>
+    <message>
+        <source>• Your conversations are stored locally on your device\n• No sync with Mistral's web interface\n• You need your own API key to use the app\n• Your data stays on your phone</source>
+        <translation>• Your conversations are stored locally on your device\n• No sync with Mistral's web interface\n• You need your own API key to use the app\n• Your data stays on your phone</translation>
+    </message>
+    <message>
+        <source>Getting Started</source>
+        <translation>Getting Started</translation>
+    </message>
+    <message>
+        <source>1. Get a free API key from console.mistral.ai\n2. Configure it in Settings\n3. Start chatting!</source>
+        <translation>1. Get a free API key from console.mistral.ai\n2. Configure it in Settings\n3. Start chatting!</translation>
+    </message>
+    <message>
         <source>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</source>
         <translation>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</translation>
     </message>
@@ -332,6 +360,10 @@ This application is free software. You are free to use, modify, and distribute i
     <message>
         <source>Made with &lt;3 for Sailfish OS</source>
         <translation>Made with &lt;3 for Sailfish OS</translation>
+    </message>
+    <message>
+        <source>• Conversations stored locally\n• No sync with Mistral web\n• Requires personal API key</source>
+        <translation>• Conversations stored locally\n• No sync with Mistral web\n• Requires personal API key</translation>
     </message>
 </context>
 </TS>

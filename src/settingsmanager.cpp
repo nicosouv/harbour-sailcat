@@ -98,6 +98,17 @@ bool SettingsManager::hasApiKey() const
     return !m_apiKey.isEmpty();
 }
 
+bool SettingsManager::isFirstLaunch() const
+{
+    return m_settings.value("firstLaunchComplete", false).toBool() == false;
+}
+
+void SettingsManager::setFirstLaunchComplete()
+{
+    m_settings.setValue("firstLaunchComplete", true);
+    m_settings.sync();
+}
+
 void SettingsManager::loadSettings()
 {
     m_apiKey = m_settings.value("apiKey", "").toString();

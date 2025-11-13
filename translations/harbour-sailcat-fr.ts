@@ -131,6 +131,34 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
         <translation>Bienvenue</translation>
     </message>
     <message>
+        <source>Get Started</source>
+        <translation>Commencer</translation>
+    </message>
+    <message>
+        <source>What is Mistral AI?</source>
+        <translation>Qu'est-ce que Mistral AI ?</translation>
+    </message>
+    <message>
+        <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
+        <translation>Mistral AI est une entreprise européenne d'IA fournissant des modèles de langage de pointe. SailCat utilise leur API pour apporter des conversations intelligentes à Sailfish OS.</translation>
+    </message>
+    <message>
+        <source>Privacy &amp; Storage</source>
+        <translation>Confidentialité &amp; Stockage</translation>
+    </message>
+    <message>
+        <source>• Your conversations are stored locally on your device\n• No sync with Mistral's web interface\n• You need your own API key to use the app\n• Your data stays on your phone</source>
+        <translation>• Vos conversations sont stockées localement sur votre appareil\n• Aucune synchronisation avec l'interface web de Mistral\n• Vous avez besoin de votre propre clé API pour utiliser l'app\n• Vos données restent sur votre téléphone</translation>
+    </message>
+    <message>
+        <source>Getting Started</source>
+        <translation>Démarrage</translation>
+    </message>
+    <message>
+        <source>1. Get a free API key from console.mistral.ai\n2. Configure it in Settings\n3. Start chatting!</source>
+        <translation>1. Obtenez une clé API gratuite sur console.mistral.ai\n2. Configurez-la dans les Paramètres\n3. Commencez à discuter !</translation>
+    </message>
+    <message>
         <source>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</source>
         <translation>Bienvenue sur SailCat ! Pour commencer, vous devez configurer votre clé API Mistral AI dans les Paramètres.</translation>
     </message>
@@ -332,6 +360,10 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     <message>
         <source>Made with &lt;3 for Sailfish OS</source>
         <translation>Fait avec &lt;3 pour Sailfish OS</translation>
+    </message>
+    <message>
+        <source>• Conversations stored locally\n• No sync with Mistral web\n• Requires personal API key</source>
+        <translation>• Conversations stockées localement\n• Pas de sync avec le web Mistral\n• Nécessite une clé API personnelle</translation>
     </message>
 </context>
 </TS>

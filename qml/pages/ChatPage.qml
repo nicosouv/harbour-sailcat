@@ -280,11 +280,12 @@ Page {
         }
     }
 
-    // First use dialog
+    // First launch dialog
     Dialog {
-        id: firstUseDialog
+        id: firstLaunchDialog
         allowedOrientations: Orientation.All
-        canAccept: false
+        canAccept: true
+        onAccepted: settingsManager.setFirstLaunchComplete()
 
         SilicaFlickable {
             anchors.fill: parent
@@ -296,45 +297,67 @@ Page {
                 spacing: Theme.paddingLarge
 
                 DialogHeader {
-                    title: qsTr("Welcome")
-                    acceptText: ""
+                    title: qsTr("Welcome to SailCat")
+                    acceptText: qsTr("Get Started")
                 }
 
                 Icon {
                     anchors.horizontalCenter: parent.horizontalCenter
                     source: "image://theme/icon-l-message"
+                    width: Theme.iconSizeExtraLarge
+                    height: Theme.iconSizeExtraLarge
                     color: Theme.highlightColor
                 }
 
                 Label {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "SailCat"
-                    font.pixelSize: Theme.fontSizeExtraLarge
+                    font.pixelSize: Theme.fontSizeHuge
                     color: Theme.highlightColor
+                }
+
+                SectionHeader {
+                    text: qsTr("What is Mistral AI?")
                 }
 
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: qsTr("Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.")
+                    text: qsTr("Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
                 }
 
-                Button {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Open Settings")
-                    onClicked: {
-                        firstUseDialog.close()
-                        pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
-                    }
+                SectionHeader {
+                    text: qsTr("Privacy & Storage")
                 }
 
-                Button {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Skip for now")
-                    onClicked: firstUseDialog.close()
+                Label {
+                    x: Theme.horizontalPageMargin
+                    width: parent.width - 2 * Theme.horizontalPageMargin
+                    text: qsTr("• Your conversations are stored locally on your device\n• No sync with Mistral's web interface\n• You need your own API key to use the app\n• Your data stays on your phone")
+                    wrapMode: Text.WordWrap
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.primaryColor
+                }
+
+                SectionHeader {
+                    text: qsTr("Getting Started")
+                }
+
+                Label {
+                    x: Theme.horizontalPageMargin
+                    width: parent.width - 2 * Theme.horizontalPageMargin
+                    text: qsTr("1. Get a free API key from console.mistral.ai\n2. Configure it in Settings\n3. Start chatting!")
+                    wrapMode: Text.WordWrap
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.primaryColor
+                }
+
+                Item {
+                    width: parent.width
+                    height: Theme.paddingLarge
                 }
             }
         }
@@ -387,8 +410,10 @@ Page {
     Component.onCompleted: {
         firstUse = !settingsManager.hasApiKey
         refreshConversationsList()
-        if (firstUse) {
-            firstUseDialog.open()
+
+        // Show first launch dialog only once
+        if (settingsManager.isFirstLaunch()) {
+            firstLaunchDialog.open()
         }
     }
 
