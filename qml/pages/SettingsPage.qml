@@ -222,46 +222,6 @@ Dialog {
                 wrapMode: Text.WordWrap
             }
 
-            // Updates Section
-            SectionHeader {
-                text: qsTr("Updates")
-            }
-
-            BackgroundItem {
-                width: parent.width
-                height: updateLabel.height + 2 * Theme.paddingMedium
-                visible: updateChecker.updateAvailable
-
-                onClicked: Qt.openUrlExternally(updateChecker.releaseUrl)
-
-                Label {
-                    id: updateLabel
-                    anchors.verticalCenter: parent.verticalCenter
-                    x: Theme.horizontalPageMargin
-                    width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: qsTr("Update available: v%1").arg(updateChecker.latestVersion)
-                    color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor
-                    font.pixelSize: Theme.fontSizeMedium
-                }
-
-                Image {
-                    anchors {
-                        right: parent.right
-                        rightMargin: Theme.horizontalPageMargin
-                        verticalCenter: parent.verticalCenter
-                    }
-                    source: "image://theme/icon-m-link"
-                    opacity: 0.6
-                }
-            }
-
-            Button {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: updateChecker.checking ? qsTr("Checking...") : qsTr("Check for updates")
-                enabled: !updateChecker.checking
-                onClicked: updateChecker.checkForUpdates()
-            }
-
             // About Section
             SectionHeader {
                 text: qsTr("About")
