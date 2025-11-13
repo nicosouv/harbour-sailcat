@@ -41,10 +41,8 @@ Page {
                 text: qsTr("New conversation")
                 enabled: conversationModel.count > 0
                 onClicked: {
-                    remorse.execute(qsTr("New conversation"), function() {
-                        conversationManager.createNewConversation()
-                        streamingContent = ""
-                    })
+                    conversationManager.createNewConversation()
+                    streamingContent = ""
                 }
             }
         }

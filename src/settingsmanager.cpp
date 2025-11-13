@@ -50,12 +50,37 @@ void SettingsManager::setUseCustomKey(bool use)
     }
 }
 
+QString SettingsManager::language() const
+{
+    return m_language;
+}
+
+void SettingsManager::setLanguage(const QString &lang)
+{
+    if (m_language != lang) {
+        m_language = lang;
+        saveSettings();
+        emit languageChanged();
+    }
+}
+
 QStringList SettingsManager::availableModels() const
 {
     return QStringList()
         << "mistral-small-latest"
         << "mistral-large-latest"
         << "pixtral-12b-latest";
+}
+
+QStringList SettingsManager::availableLanguages() const
+{
+    return QStringList()
+        << "en"
+        << "fr"
+        << "de"
+        << "es"
+        << "fi"
+        << "it";
 }
 
 void SettingsManager::clearApiKey()
@@ -73,6 +98,7 @@ void SettingsManager::loadSettings()
     m_apiKey = m_settings.value("apiKey", "").toString();
     m_modelName = m_settings.value("modelName", "mistral-small-latest").toString();
     m_useCustomKey = m_settings.value("useCustomKey", false).toBool();
+    m_language = m_settings.value("language", "en").toString();
 }
 
 void SettingsManager::saveSettings()
@@ -80,5 +106,6 @@ void SettingsManager::saveSettings()
     m_settings.setValue("apiKey", m_apiKey);
     m_settings.setValue("modelName", m_modelName);
     m_settings.setValue("useCustomKey", m_useCustomKey);
+    m_settings.setValue("language", m_language);
     m_settings.sync();
 }

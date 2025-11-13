@@ -175,6 +175,53 @@ Dialog {
                 }
             }
 
+            // Language Selection Section
+            SectionHeader {
+                text: qsTr("Language")
+            }
+
+            ComboBox {
+                id: languageComboBox
+                label: qsTr("Application Language")
+                description: qsTr("Select the language for the interface")
+                width: parent.width
+
+                menu: ContextMenu {
+                    Repeater {
+                        model: [
+                            { name: "English", value: "en" },
+                            { name: "Français", value: "fr" },
+                            { name: "Deutsch", value: "de" },
+                            { name: "Español", value: "es" },
+                            { name: "Suomi", value: "fi" },
+                            { name: "Italiano", value: "it" }
+                        ]
+
+                        MenuItem {
+                            text: modelData.name
+                            property string langValue: modelData.value
+                        }
+                    }
+                }
+
+                Component.onCompleted: {
+                    var currentLang = settingsManager.language
+                    var languages = ["en", "fr", "de", "es", "fi", "it"]
+                    var index = languages.indexOf(currentLang)
+                    if (index >= 0) {
+                        currentIndex = index
+                    } else {
+                        currentIndex = 0
+                    }
+                }
+
+                onCurrentItemChanged: {
+                    if (currentItem) {
+                        settingsManager.language = currentItem.langValue
+                    }
+                }
+            }
+
             // Model Selection Section
             SectionHeader {
                 text: qsTr("Model")
