@@ -411,9 +411,8 @@ Page {
         firstUse = !settingsManager.hasApiKey
         refreshConversationsList()
 
-        // Show first launch dialog only for brand new installations
-        var convCount = conversationManager.getConversationsList().length
-        if (settingsManager.isFirstLaunch(convCount)) {
+        // Show first launch dialog
+        if (settingsManager.isFirstLaunch()) {
             firstLaunchDialog.open()
         }
     }

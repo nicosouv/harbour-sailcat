@@ -7,7 +7,7 @@
 UpdateChecker::UpdateChecker(QObject *parent)
     : QObject(parent)
     , m_networkManager(new QNetworkAccessManager(this))
-    , m_currentVersion("1.9.2")
+    , m_currentVersion("1.9.3")
     , m_updateAvailable(false)
     , m_checking(false)
 {

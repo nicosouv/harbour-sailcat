@@ -98,21 +98,19 @@ bool SettingsManager::hasApiKey() const
     return !m_apiKey.isEmpty();
 }
 
-bool SettingsManager::isFirstLaunch(int conversationCount) const
+bool SettingsManager::isFirstLaunch() const
 {
     // Show first launch only if:
-    // - firstLaunchComplete flag is not set
-    // - AND no API key configured
-    // - AND no conversations exist
+    // - firstLaunchComplete flag is not set (or false)
+    // - OR no API key configured
+
+    // If flag is set and true, never show again
     if (m_settings.contains("firstLaunchComplete") && m_settings.value("firstLaunchComplete").toBool()) {
         return false;
     }
 
-    bool hasApiKey = !m_apiKey.isEmpty();
-    bool hasConversations = conversationCount > 0;
-
-    // Only show for truly new installations
-    return !hasApiKey && !hasConversations;
+    // Show if no API key (regardless of conversations)
+    return m_apiKey.isEmpty();
 }
 
 void SettingsManager::setFirstLaunchComplete()

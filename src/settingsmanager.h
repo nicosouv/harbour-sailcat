@@ -34,7 +34,7 @@ public:
     Q_INVOKABLE QStringList availableModels() const;
     Q_INVOKABLE QStringList availableLanguages() const;
     Q_INVOKABLE void clearApiKey();
-    Q_INVOKABLE bool isFirstLaunch(int conversationCount) const;
+    Q_INVOKABLE bool isFirstLaunch() const;
     Q_INVOKABLE void setFirstLaunchComplete();
 
 signals:
