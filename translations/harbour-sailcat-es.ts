@@ -196,6 +196,14 @@ This application is free software. You are free to use, modify, and distribute i
     </message>
 </context>
 <context>
+<context>
+    <name>MessageBubble</name>
+    <message>
+        <source>Copy</source>
+        <translation>Copy</translation>
+    </message>
+</context>
+
     <name>SettingsPage</name>
     <message>
         <source>Settings</source>

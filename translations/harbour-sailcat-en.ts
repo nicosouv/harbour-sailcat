@@ -217,6 +217,13 @@ This application is free software. You are free to use, modify, and distribute i
     </message>
 </context>
 <context>
+    <name>MessageBubble</name>
+    <message>
+        <source>Copy</source>
+        <translation>Copy</translation>
+    </message>
+</context>
+<context>
     <name>MistralAPI</name>
     <message>
         <source>Missing API key. Please configure your API key in settings.</source>

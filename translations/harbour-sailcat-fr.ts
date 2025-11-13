@@ -217,6 +217,13 @@ Cette application est un logiciel libre. Vous êtes libre de l'utiliser, de la m
     </message>
 </context>
 <context>
+    <name>MessageBubble</name>
+    <message>
+        <source>Copy</source>
+        <translation>Copier</translation>
+    </message>
+</context>
+<context>
     <name>MistralAPI</name>
     <message>
         <source>Missing API key. Please configure your API key in settings.</source>

@@ -1,14 +1,22 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-BackgroundItem {
+ListItem {
     id: messageItem
     width: parent.width
-    height: messageLabel.height + Theme.paddingLarge
-    highlighted: false
+    contentHeight: messageLabel.height + Theme.paddingLarge
 
     property string role: "user"
     property string content: ""
+
+    menu: ContextMenu {
+        MenuItem {
+            text: qsTr("Copy")
+            onClicked: {
+                Clipboard.text = messageItem.content
+            }
+        }
+    }
 
     Rectangle {
         anchors.fill: parent
