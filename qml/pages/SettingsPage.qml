@@ -300,6 +300,16 @@ Dialog {
                 horizontalAlignment: Text.AlignHCenter
             }
 
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: qsTr("Made with <3 for Sailfish OS")
+                wrapMode: Text.WordWrap
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                horizontalAlignment: Text.AlignHCenter
+            }
+
             Item {
                 width: parent.width
                 height: Theme.paddingLarge

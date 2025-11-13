@@ -79,6 +79,10 @@ This application is free software. You are free to use, modify, and distribute i
 <context>
     <name>ChatPage</name>
     <message>
+        <source>Settings &amp; About</source>
+        <translation>Settings &amp; About</translation>
+    </message>
+    <message>
         <source>About</source>
         <translation>About</translation>
     </message>
@@ -198,6 +202,10 @@ This application is free software. You are free to use, modify, and distribute i
 <context>
     <name>SettingsPage</name>
     <message>
+        <source>Settings &amp; About</source>
+        <translation>Settings &amp; About</translation>
+    </message>
+    <message>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
@@ -240,6 +248,18 @@ This application is free software. You are free to use, modify, and distribute i
     <message>
         <source>Clearing API key</source>
         <translation>Clearing API key</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Language</translation>
+    </message>
+    <message>
+        <source>Application Language</source>
+        <translation>Application Language</translation>
+    </message>
+    <message>
+        <source>Select the language for the interface</source>
+        <translation>Select the language for the interface</translation>
     </message>
     <message>
         <source>Model</source>
@@ -304,6 +324,14 @@ This application is free software. You are free to use, modify, and distribute i
     <message>
         <source>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</source>
         <translation>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</translation>
+    </message>
+    <message>
+        <source>Powered by Mistral AI • MIT License</source>
+        <translation>Powered by Mistral AI • MIT License</translation>
+    </message>
+    <message>
+        <source>Made with &lt;3 for Sailfish OS</source>
+        <translation>Made with &lt;3 for Sailfish OS</translation>
     </message>
 </context>
 </TS>
