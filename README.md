@@ -4,216 +4,220 @@
   <img src="icons/172x172/harbour-sailcat.png" alt="SailCat Logo" width="172"/>
 </p>
 
-**SailCat** est un client élégant pour **Le Chat de Mistral AI**, spécialement conçu pour **Sailfish OS**. Profitez de conversations intelligentes avec les modèles d'IA les plus avancés de Mistral, directement depuis votre appareil Sailfish.
+**SailCat** is an elegant client for **Mistral AI Chat**, specifically designed for **Sailfish OS**. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-- 🆓 **Support du free tier de Mistral AI** - Commencez gratuitement
-- 🔑 **Clé API personnelle** - Utilisez votre propre clé pour un accès illimité
-- ⚡ **Streaming en temps réel** - Réponses instantanées et fluides
-- 🎨 **Interface native Sailfish** - Intégration parfaite avec Silica
-- 💬 **Historique des conversations** - Gardez le contexte de vos échanges
-- 🧠 **Choix de modèles** - Mistral Small, Large, ou Pixtral (vision)
-- 🌐 **Respecte l'UI/UX Sailfish** - Pulley menu, cover actions, et plus
+- 🆓 **Mistral AI free tier support** - Start for free
+- 🔑 **Personal API key** - Use your own key for unlimited access
+- ⚡ **Real-time streaming** - Instant and smooth responses
+- 🎨 **Native Sailfish interface** - Perfect integration with Silica
+- 💬 **Conversation history** - Keep context of your exchanges
+- 🧠 **Model selection** - Mistral Small, Large, or Pixtral (vision)
+- 🌐 **Respects Sailfish UI/UX** - Pulley menu, cover actions, and more
+- 🌍 **Multilingual** - English, French, German, Spanish, Finnish, Italian
 
 ## 🚀 Installation
 
-### Prérequis
+### Prerequisites
 
-- Sailfish OS 3.0+ ou supérieur
-- Connexion Internet
-- Clé API Mistral (gratuite sur [console.mistral.ai](https://console.mistral.ai))
+- Sailfish OS 3.0+ or higher
+- Internet connection
+- Mistral API key (free at [console.mistral.ai](https://console.mistral.ai))
 
-### Construction depuis les sources
+### Build from source
 
 ```bash
-# Cloner le repo
+# Clone the repo
 git clone https://github.com/nicosouv/harbour-sailcat.git
 cd harbour-sailcat
 
-# Compiler avec Sailfish SDK
+# Build with Sailfish SDK
 sfdk build
 
-# Installer le RPM généré
+# Install the generated RPM
 sfdk deploy --manual
 ```
 
-### Installation du RPM
+### RPM Installation
 
-Téléchargez le fichier `.rpm` depuis les [releases](https://github.com/nicosouv/harbour-sailcat/releases) et installez-le sur votre appareil Sailfish.
+Download the `.rpm` file from [releases](https://github.com/nicosouv/harbour-sailcat/releases) and install it on your Sailfish device.
 
 ## 🔧 Configuration
 
-### Obtenir une clé API Mistral
+### Get a Mistral API Key
 
-1. Créez un compte sur [console.mistral.ai](https://console.mistral.ai)
-2. Sélectionnez le plan "Experiment" (gratuit)
-3. Générez une clé API dans la section "API Keys"
-4. Copiez votre clé API
+1. Create an account on [console.mistral.ai](https://console.mistral.ai)
+2. Select the "Experiment" plan (free)
+3. Generate an API key in the "API Keys" section
+4. Copy your API key
 
-### Configurer SailCat
+### Configure SailCat
 
-1. Lancez SailCat
-2. Accédez aux **Paramètres** via le pulley menu
-3. Activez **"Utiliser ma propre clé API"**
-4. Collez votre clé API Mistral
-5. Choisissez votre modèle préféré
-6. Enregistrez et commencez à chatter !
+1. Launch SailCat
+2. Access **Settings** via the pulley menu
+3. Enable **"Use my own API key"**
+4. Paste your Mistral API key
+5. Choose your preferred model
+6. Save and start chatting!
 
-## 📖 Utilisation
+## 📖 Usage
 
-### Démarrer une conversation
+### Start a conversation
 
-1. Ouvrez SailCat
-2. Tapez votre message dans le champ de saisie
-3. Appuyez sur le bouton d'envoi ou sur Entrée
-4. Regardez la réponse apparaître en temps réel grâce au streaming
+1. Open SailCat
+2. Type your message in the input field
+3. Press the send button or Enter
+4. Watch the response appear in real-time thanks to streaming
 
-### Nouvelle conversation
+### New conversation
 
-Utilisez le pulley menu et sélectionnez **"Nouvelle conversation"** pour effacer l'historique et recommencer.
+Use the pulley menu and select **"New conversation"** to clear history and start fresh.
 
-### Modèles disponibles
+### Available models
 
-- **Mistral Small** (Recommandé) - Équilibré entre performance et rapidité
-- **Mistral Large** - Le plus puissant pour les tâches complexes
-- **Pixtral 12B** - Support d'images et vision
+- **Mistral Small** (Recommended) - Balanced between performance and speed
+- **Mistral Large** - Most powerful for complex tasks
+- **Pixtral 12B** - Image support and vision
 
-## 🏗️ Architecture technique
+## 🏗️ Technical Architecture
 
-### Backend Qt C++
+### Qt C++ Backend
 
-- **MistralAPI** - Gestion des requêtes HTTP avec streaming SSE (Server-Sent Events)
-- **ConversationModel** - QAbstractListModel pour l'affichage des messages
-- **SettingsManager** - Persistance des paramètres avec QSettings
+- **MistralAPI** - HTTP request management with SSE (Server-Sent Events) streaming
+- **ConversationModel** - QAbstractListModel for message display
+- **ConversationManager** - Conversation persistence and management
+- **SettingsManager** - Settings persistence with QSettings
 
-### Frontend QML
+### QML Frontend
 
-- **ChatPage** - Interface principale de conversation avec SilicaListView
-- **SettingsPage** - Configuration de l'API et choix du modèle
-- **AboutPage** - Informations sur l'application
-- **CoverPage** - Couverture active avec statistiques
+- **ChatPage** - Main conversation interface with SilicaListView
+- **SettingsPage** - API configuration and model selection
+- **ConversationHistoryPage** - Browse past conversations
+- **CoverPage** - Active cover with statistics
 
-### Technologies utilisées
+### Technologies used
 
 - Qt 5.6 (QtCore, QtNetwork, QtQuick, QtQml)
 - Sailfish Silica UI Components
 - Mistral AI API (REST + Streaming)
-- QML + JavaScript pour l'interface
+- QML + JavaScript for the interface
 
-## 🎯 Fonctionnalités de l'API Mistral
+## 🎯 Mistral API Features
 
-### Ce qui est possible
+### What's possible
 
-SailCat exploite pleinement les capacités de l'API Mistral :
+SailCat fully leverages Mistral API capabilities:
 
-- **Chat Completions** - Conversations contextuelles
-- **Streaming** - Réponses en temps réel (SSE)
-- **Modèles multiples** - Accès à Small, Large, et Pixtral
-- **Historique** - Gestion manuelle du contexte de conversation
-- **Free Tier** - Rate limits adaptés à l'expérimentation
+- **Chat Completions** - Contextual conversations
+- **Streaming** - Real-time responses (SSE)
+- **Multiple models** - Access to Small, Large, and Pixtral
+- **History** - Manual conversation context management
+- **Free Tier** - Rate limits suitable for experimentation
 
-### Endpoint utilisé
+### Endpoint used
 
 ```
 POST https://api.mistral.ai/v1/chat/completions
 ```
 
-### Format de requête
+### Request format
 
 ```json
 {
   "model": "mistral-small-latest",
   "messages": [
-    {"role": "user", "content": "Bonjour!"},
-    {"role": "assistant", "content": "Bonjour! Comment puis-je vous aider?"}
+    {"role": "user", "content": "Hello!"},
+    {"role": "assistant", "content": "Hello! How can I help you?"}
   ],
   "stream": true
 }
 ```
 
-## 🔒 Sécurité & Confidentialité
+## 🔒 Security & Privacy
 
-- ✅ Les clés API sont stockées localement avec QSettings
-- ✅ Pas de télémétrie ou d'analyse
-- ✅ Communication directe avec l'API Mistral (HTTPS)
-- ✅ Pas de serveur intermédiaire
-- ⚠️ Votre clé API donne accès à votre compte Mistral - gardez-la secrète
+- ✅ API keys are stored locally with QSettings
+- ✅ No telemetry or analytics
+- ✅ Direct communication with Mistral API (HTTPS)
+- ✅ No intermediate server
+- ✅ Conversations stored locally on your device
+- ✅ No sync with Mistral's web interface
+- ⚠️ Your API key gives access to your Mistral account - keep it secret
 
 ## 🚀 Releases & CI/CD
 
-SailCat utilise GitHub Actions pour builder et publier automatiquement les releases.
+SailCat uses GitHub Actions to automatically build and publish releases.
 
-### Build automatique
+### Automatic build
 
-Chaque tag `vX.Y.Z` déclenche un build multi-architecture :
+Each `vX.Y.Z` tag triggers a multi-architecture build:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-Le workflow **build-docker.yml** :
-- ✅ Build pour armv7hl, aarch64, et i486
-- ✅ Génère un changelog depuis les commits
-- ✅ Crée une release GitHub avec les RPM
-- ✅ Publie automatiquement
+The **build-docker.yml** workflow:
+- ✅ Builds for armv7hl, aarch64, and i486
+- ✅ Generates changelog from commits
+- ✅ Creates GitHub release with RPMs
+- ✅ Publishes automatically
 
-Les RPM compilés sont disponibles dans [Releases](https://github.com/nicosouv/harbour-sailcat/releases).
+Compiled RPMs are available in [Releases](https://github.com/nicosouv/harbour-sailcat/releases).
 
-### Validation des PRs
+### PR Validation
 
-Les Pull Requests sont automatiquement validées avec le workflow **pr-build.yml** qui build pour armv7hl.
+Pull Requests are automatically validated with the **pr-build.yml** workflow that builds for armv7hl.
 
-### Pour les mainteneurs
+### For maintainers
 
-Voir [RELEASE.md](RELEASE.md) pour le guide complet de release.
+See [RELEASE.md](RELEASE.md) for the complete release guide.
 
-## 🤝 Contribution
+## 🤝 Contributing
 
-Les contributions sont les bienvenues ! Voici comment participer :
+Contributions are welcome! Here's how to participate:
 
-1. Fork le projet
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## 📝 TODO / Roadmap
 
-- [ ] Support d'images avec Pixtral (upload depuis la galerie)
-- [ ] Sauvegarde persistante des conversations
-- [ ] Export des conversations (texte, markdown)
-- [ ] Support de plusieurs conversations simultanées
-- [ ] Paramètres avancés (température, max_tokens)
-- [ ] Traductions (anglais, finnois, etc.)
-- [ ] Thèmes de couleurs personnalisés
-- [ ] Support des agents Mistral
+- [ ] Image support with Pixtral (upload from gallery)
+- [x] Persistent conversation saving
+- [ ] Conversation export (text, markdown)
+- [x] Multiple simultaneous conversations
+- [ ] Advanced settings (temperature, max_tokens)
+- [x] Translations (English, French, German, Spanish, Finnish, Italian)
+- [ ] Custom color themes
+- [ ] Mistral agents support
 
-## 🐛 Problèmes connus
+## 🐛 Known Issues
 
-- Les rate limits du free tier peuvent être restrictifs pour un usage intensif
-- Le streaming peut parfois être lent selon la connexion réseau
-- Pas de support hors-ligne (nécessite une connexion Internet)
+- Free tier rate limits can be restrictive for intensive usage
+- Streaming can sometimes be slow depending on network connection
+- No offline support (requires Internet connection)
 
-## 📄 Licence
+## 📄 License
 
-MIT License - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Remerciements
+## 🙏 Acknowledgments
 
-- **Mistral AI** pour leur excellente API et leur free tier généreux
-- **Jolla** pour Sailfish OS et le framework Silica
-- **La communauté Sailfish** pour leur support et leurs retours
+- **Mistral AI** for their excellent API and generous free tier
+- **Jolla** for Sailfish OS and the Silica framework
+- **The Sailfish community** for their support and feedback
 
 ## 📧 Contact
 
 Nicolas Souv - [@nicosouv](https://github.com/nicosouv)
 
-Lien du projet: [https://github.com/nicosouv/harbour-sailcat](https://github.com/nicosouv/harbour-sailcat)
+Project link: [https://github.com/nicosouv/harbour-sailcat](https://github.com/nicosouv/harbour-sailcat)
 
 ---
 
 <p align="center">
-  Fait avec ❤️ pour Sailfish OS
+  Made with ❤️ for Sailfish OS
 </p>

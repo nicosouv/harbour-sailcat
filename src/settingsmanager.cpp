@@ -100,7 +100,10 @@ bool SettingsManager::hasApiKey() const
 
 bool SettingsManager::isFirstLaunch() const
 {
-    return m_settings.value("firstLaunchComplete", false).toBool() == false;
+    // Check if user already has an API key or conversations = existing user
+    // Only show first launch for brand new installations
+    bool hasExistingData = m_settings.contains("apiKey") || m_settings.contains("firstLaunchComplete");
+    return !hasExistingData;
 }
 
 void SettingsManager::setFirstLaunchComplete()
