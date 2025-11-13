@@ -6,6 +6,7 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlContext>
+#include <QQmlEngine>
 #include <QTranslator>
 #include <QLocale>
 
@@ -46,7 +47,11 @@ int main(int argc, char *argv[])
         if (translator->load(translationFile, SailfishApp::pathTo("translations").toLocalFile())) {
             app->installTranslator(translator);
         }
-        view->engine()->retranslate();
+        // Reload the QML to apply translations
+        QUrl source = view->source();
+        view->engine()->clearComponentCache();
+        view->setSource(QUrl());
+        view->setSource(source);
     };
 
     // Connect language change signal
