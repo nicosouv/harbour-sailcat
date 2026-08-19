@@ -10,7 +10,7 @@
 
 // Injected by qmake from the spec file version
 #ifndef APP_VERSION
-#define APP_VERSION "2.1.1"
+#define APP_VERSION "2.2.0"
 #endif
 
 namespace {

@@ -5,29 +5,56 @@ import "../components/Categories.js" as Categories
 
 // Per-conversation overrides: title, category, model and system prompt.
 // Anything left empty falls back to the global setting.
-Dialog {
+//
+// This is a Page, not a Dialog: it is attached to the chat (one swipe forward)
+// and follows the current conversation. Changes are written when leaving it,
+// the way Silica settings pages behave.
+Page {
     id: conversationSettings
     allowedOrientations: Orientation.All
 
+    // Empty means "whatever conversation is currently open". The history
+    // pushes this page with an explicit id instead.
     property string conversationId: ""
 
-    property var overrides: conversationManager.getConversationOverrides(conversationId)
-    property var modelOptions: [""].concat(settingsManager.availableModels())
-    property var categoryOptions: Categories.all()
+    // Conversation the fields were last loaded from, and the one changes are
+    // written back to. Keeping it separate matters: the current conversation
+    // can change while this page is alive.
+    property string loadedId: ""
     property bool suggestingTitle: false
 
-    canAccept: true
+    // Values as loaded, so leaving the page without touching anything does not
+    // rewrite the conversation file and bump its position in the history.
+    property string loadedTitle: ""
+    property string loadedPrompt: ""
+    property string loadedCategory: ""
+    property string loadedModel: ""
 
-    onAccepted: {
-        conversationManager.renameConversation(conversationId, titleField.text)
+    property var modelOptions: [""].concat(settingsManager.availableModels())
+    property var categoryOptions: Categories.all()
 
-        var selectedModel = modelCombo.currentItem ? modelCombo.currentItem.modelValue : ""
-        var prompt = usePromptSwitch.checked ? promptArea.text : ""
-        conversationManager.setConversationOverrides(conversationId, selectedModel, prompt)
+    onStatusChanged: {
+        if (status === PageStatus.Activating) {
+            reload()
+        } else if (status === PageStatus.Deactivating) {
+            apply()
+        }
+    }
 
-        if (categoryCombo.currentItem) {
-            conversationManager.setConversationCategory(conversationId,
-                                                        categoryCombo.currentItem.categoryValue)
+    Component.onCompleted: reload()
+    Component.onDestruction: apply()
+
+    Connections {
+        target: conversationManager
+        onCurrentConversationChanged: {
+            if (conversationSettings.conversationId !== "") {
+                return
+            }
+            // Write to the conversation the fields belong to before adopting
+            // the new one.
+            conversationSettings.apply()
+            conversationSettings.loadedId = ""
+            conversationSettings.reload()
         }
     }
 
@@ -40,10 +67,8 @@ Dialog {
             width: parent.width
             spacing: Theme.paddingMedium
 
-            DialogHeader {
+            PageHeader {
                 title: qsTr("Conversation settings")
-                acceptText: qsTr("Save")
-                cancelText: qsTr("Cancel")
             }
 
             TextField {
@@ -51,7 +76,6 @@ Dialog {
                 width: parent.width
                 label: qsTr("Title")
                 placeholderText: qsTr("Conversation title")
-                text: conversationSettings.overrides.title || ""
 
                 EnterKey.iconSource: "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: focus = false
@@ -69,7 +93,7 @@ Dialog {
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.")
+                text: qsTr("Reads the conversation and proposes a title and a category.")
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
@@ -95,13 +119,6 @@ Dialog {
                         }
                     }
                 }
-
-                Component.onCompleted: {
-                    var current = conversationSettings.overrides.category || "other"
-                    var index = conversationSettings.categoryOptions.indexOf(current)
-                    currentIndex = index >= 0 ? index
-                                              : conversationSettings.categoryOptions.length - 1
-                }
             }
 
             SectionHeader {
@@ -125,12 +142,6 @@ Dialog {
                         }
                     }
                 }
-
-                Component.onCompleted: {
-                    var current = conversationSettings.overrides.model || ""
-                    var index = conversationSettings.modelOptions.indexOf(current)
-                    currentIndex = index >= 0 ? index : 0
-                }
             }
 
             SectionHeader {
@@ -141,7 +152,6 @@ Dialog {
                 id: usePromptSwitch
                 text: qsTr("Custom system prompt")
                 description: qsTr("Replaces the global system prompt for this conversation only")
-                checked: (conversationSettings.overrides.systemPrompt || "") !== ""
             }
 
             TextArea {
@@ -150,7 +160,6 @@ Dialog {
                 visible: usePromptSwitch.checked
                 label: qsTr("Instruction")
                 placeholderText: qsTr("Enter a system prompt...")
-                text: conversationSettings.overrides.systemPrompt || ""
             }
 
             Item {
@@ -166,7 +175,7 @@ Dialog {
         target: mistralApi
 
         onTitleGenerated: {
-            if (targetId !== conversationSettings.conversationId) {
+            if (targetId !== conversationSettings.loadedId) {
                 return
             }
             conversationSettings.suggestingTitle = false
@@ -179,14 +188,68 @@ Dialog {
         }
 
         onTitleGenerationFailed: {
-            if (targetId === conversationSettings.conversationId) {
+            if (targetId === conversationSettings.loadedId) {
                 conversationSettings.suggestingTitle = false
             }
         }
     }
 
+    function reload() {
+        var id = conversationId !== "" ? conversationId
+                                       : conversationManager.currentConversationId()
+        if (id === "" || id === loadedId) {
+            return
+        }
+        loadedId = id
+
+        var overrides = conversationManager.getConversationOverrides(id)
+
+        loadedTitle = overrides.title || ""
+        loadedPrompt = overrides.systemPrompt || ""
+        loadedCategory = overrides.category || "other"
+        loadedModel = overrides.model || ""
+
+        titleField.text = loadedTitle
+        usePromptSwitch.checked = loadedPrompt !== ""
+        promptArea.text = loadedPrompt
+
+        var categoryIndex = categoryOptions.indexOf(loadedCategory)
+        categoryCombo.currentIndex = categoryIndex >= 0 ? categoryIndex
+                                                        : categoryOptions.length - 1
+
+        var modelIndex = modelOptions.indexOf(loadedModel)
+        modelCombo.currentIndex = modelIndex >= 0 ? modelIndex : 0
+    }
+
+    function apply() {
+        if (loadedId === "") {
+            return
+        }
+
+        var title = titleField.text.trim()
+        var prompt = usePromptSwitch.checked ? promptArea.text.trim() : ""
+        var modelValue = modelCombo.currentItem ? modelCombo.currentItem.modelValue : ""
+        var category = categoryCombo.currentItem ? categoryCombo.currentItem.categoryValue : ""
+
+        if (title !== loadedTitle) {
+            conversationManager.renameConversation(loadedId, title)
+            loadedTitle = title
+        }
+
+        if (prompt !== loadedPrompt || modelValue !== loadedModel) {
+            conversationManager.setConversationOverrides(loadedId, modelValue, prompt)
+            loadedPrompt = prompt
+            loadedModel = modelValue
+        }
+
+        if (category !== "" && category !== loadedCategory) {
+            conversationManager.setConversationCategory(loadedId, category)
+            loadedCategory = category
+        }
+    }
+
     function suggestTitle() {
-        var digest = conversationManager.conversationDigest(conversationId)
+        var digest = conversationManager.conversationDigest(loadedId)
         if (digest === "") {
             return
         }
@@ -194,7 +257,9 @@ Dialog {
         suggestingTitle = true
         // Never name a local "model" in QML: it shadows too much. Use the
         // model this conversation would use for a normal message.
-        var modelId = overrides.model !== "" ? overrides.model : settingsManager.modelName
-        mistralApi.generateTitle(settingsManager.apiKey, modelId, digest, conversationId)
+        var modelId = modelCombo.currentItem && modelCombo.currentItem.modelValue !== ""
+                ? modelCombo.currentItem.modelValue
+                : settingsManager.modelName
+        mistralApi.generateTitle(settingsManager.apiKey, modelId, digest, loadedId)
     }
 }

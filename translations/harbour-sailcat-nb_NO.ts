@@ -580,10 +580,6 @@
             <translation>Ingen resultater</translation>
         </message>
         <message>
-            <source>Pinned messages</source>
-            <translation>Festede meldinger</translation>
-        </message>
-        <message>
             <source>Purge all conversations</source>
             <translation>Rens alle samtaler</translation>
         </message>
@@ -594,10 +590,6 @@
         <message>
             <source>Search in conversations...</source>
             <translation>Søk i samtaler...</translation>
-        </message>
-        <message>
-            <source>Settings &amp; About</source>
-            <translation>Innstillinger og Om</translation>
         </message>
         <message>
             <source>Start chatting to create conversations</source>
@@ -1038,14 +1030,6 @@
             <translation>Samtaleinnstillinger</translation>
         </message>
         <message>
-            <source>Save</source>
-            <translation>Lagre</translation>
-        </message>
-        <message>
-            <source>Cancel</source>
-            <translation>Avbryt</translation>
-        </message>
-        <message>
             <source>Title</source>
             <translation>Tittel</translation>
         </message>
@@ -1110,8 +1094,8 @@
             <translation>Foreslå en tittel</translation>
         </message>
         <message>
-            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
-            <translation>Leser samtalen og foreslår en tittel og en kategori. Ingenting lagres før du bekrefter.</translation>
+            <source>Reads the conversation and proposes a title and a category.</source>
+            <translation>Leser samtalen og foreslår en tittel og en kategori.</translation>
         </message>
     </context>
     <context>

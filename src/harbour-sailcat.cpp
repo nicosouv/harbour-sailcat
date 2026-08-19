@@ -31,6 +31,10 @@ int main(int argc, char *argv[])
     ConversationManager conversationManager;
     SettingsManager settingsManager;
 
+    // The manager owns the streaming lifecycle so an answer survives the chat
+    // page being popped off the stack mid-response.
+    conversationManager.bindApi(&mistralApi);
+
     // Load initial translation based on settings
     QString language = settingsManager.language();
     QString translationFile = QString("harbour-sailcat-%1").arg(language);

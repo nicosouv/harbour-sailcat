@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-08-19
+
+### Changed
+
+- **Two-sided navigation from a conversation.** The history is now the root page
+  with the chat on top of it: swipe back for the history, swipe forward for the
+  settings of the current conversation. The app still opens directly on the chat.
+- **Pulley menus split by what they act on** instead of carrying the same seven
+  entries twice. Top: history, pinned messages, prompt library, settings. Bottom:
+  conversation settings, export, new conversation. The history pulley drops the two
+  entries that duplicated the chat's.
+- **Streaming moved into C++.** `ConversationManager` now owns the accumulation and
+  the throttling, so an answer keeps landing in the conversation when the chat page
+  is popped - which is exactly what happens when you swipe back to the history
+  mid-response. Token accounting moved with it.
+- Conversation settings is a page rather than a dialog: it follows the current
+  conversation and writes changes when you leave it, only for fields you touched.
+
+### Added
+
+- **Unread indicator.** A conversation receiving an answer shows a pulsing dot in the
+  history; once the answer has landed it stays lit until you open the conversation.
+  The flag is persisted, so it survives a restart.
+
 ## [2.1.1] - 2026-08-19
 
 ### Fixed

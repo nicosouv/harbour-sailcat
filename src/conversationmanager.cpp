@@ -1,5 +1,6 @@
 #include "conversationmanager.h"
 #include "categories.h"
+#include "mistralapi.h"
 #include "securestore.h"
 
 #include <QBuffer>
@@ -35,9 +36,16 @@ ConversationManager::ConversationManager(QObject *parent)
     : QObject(parent)
     , m_currentConversation(new ConversationModel(this))
     , m_settings("harbour-sailcat", "conversations")
+    , m_streamTimer(new QTimer(this))
+    , m_streamDirty(false)
     , m_totalPromptTokens(0)
     , m_totalCompletionTokens(0)
 {
+    // Repainting the whole message on every SSE delta is what makes long
+    // answers stutter: coalesce them and write at a fixed cadence.
+    m_streamTimer->setInterval(90);
+    connect(m_streamTimer, &QTimer::timeout, this, &ConversationManager::flushStream);
+
     m_totalPromptTokens = m_settings.value("stats/totalPromptTokens", 0).toLongLong();
     m_totalCompletionTokens = m_settings.value("stats/totalCompletionTokens", 0).toLongLong();
 
@@ -54,6 +62,117 @@ ConversationManager::ConversationManager(QObject *parent)
                 ? lastId : QString(m_conversations.first().id);
         loadConversation(targetId);
     }
+}
+
+// ---------------------------------------------------------------- streaming
+
+void ConversationManager::bindApi(MistralAPI *api)
+{
+    if (!api) {
+        return;
+    }
+
+    connect(api, &MistralAPI::messageSent,
+            this, &ConversationManager::onMessageSent);
+    connect(api, &MistralAPI::streamingResponse,
+            this, &ConversationManager::onStreamingResponse);
+    connect(api, &MistralAPI::responseCompleted,
+            this, &ConversationManager::onResponseCompleted);
+    connect(api, &MistralAPI::usageReceived,
+            this, &ConversationManager::onUsageReceived);
+    connect(api, &MistralAPI::sideRequestUsage,
+            this, &ConversationManager::onSideRequestUsage);
+}
+
+void ConversationManager::setActiveModel(const QString &model)
+{
+    m_activeModel = model;
+}
+
+void ConversationManager::onMessageSent()
+{
+    m_streamBuffer.clear();
+    m_streamDirty = false;
+
+    if (m_streamingConversationId != m_currentConversationId) {
+        m_streamingConversationId = m_currentConversationId;
+        emit streamingConversationIdChanged();
+    }
+
+    // Added only once the request is actually in flight, so a rejected send
+    // never leaves an empty assistant bubble behind.
+    m_currentConversation->addAssistantMessage(QString());
+    m_streamTimer->start();
+}
+
+void ConversationManager::onStreamingResponse(const QString &content)
+{
+    m_streamBuffer += content;
+    m_streamDirty = true;
+}
+
+void ConversationManager::flushStream()
+{
+    if (!m_streamDirty) {
+        return;
+    }
+    m_streamDirty = false;
+    m_currentConversation->updateLastAssistantMessage(m_streamBuffer);
+    emit streamingUpdated();
+}
+
+void ConversationManager::onResponseCompleted()
+{
+    m_streamTimer->stop();
+    flushStream();
+    m_streamBuffer.clear();
+
+    // Drop the empty assistant bubble left behind by an error or a cancel
+    m_currentConversation->removeLastMessageIfEmpty();
+
+    // Save first: the flag below looks at the stored message list, which only
+    // catches up with the model here.
+    saveCurrentConversation();
+
+    // Flag the answer as unread. A chat page showing this conversation clears
+    // it straight away; if the user walked off to the history, the badge stays.
+    Conversation *conv = findConversation(m_streamingConversationId);
+    if (conv && !conv->messages.isEmpty()) {
+        conv->unread = true;
+        markDirty(conv->id);
+        saveDirtyConversations();
+    }
+
+    if (!m_streamingConversationId.isEmpty()) {
+        m_streamingConversationId.clear();
+        emit streamingConversationIdChanged();
+    }
+
+    emit responseFinished();
+}
+
+void ConversationManager::markConversationRead(const QString &conversationId)
+{
+    Conversation *conv = findConversation(conversationId);
+    if (!conv || !conv->unread) {
+        return;
+    }
+
+    conv->unread = false;
+    markDirty(conv->id);
+    saveDirtyConversations();
+}
+
+void ConversationManager::onUsageReceived(int promptTokens, int completionTokens)
+{
+    addTokenUsage(promptTokens, completionTokens, m_activeModel);
+    emit tokenUsageChanged(promptTokens, completionTokens);
+}
+
+void ConversationManager::onSideRequestUsage(int promptTokens, int completionTokens)
+{
+    // Billed, but not part of what the conversation banner reports
+    addTokenUsage(promptTokens, completionTokens, m_activeModel);
 }
 
 // ---------------------------------------------------------------- storage
@@ -93,6 +212,7 @@ QJsonObject ConversationManager::conversationToJson(const Conversation &conv) co
     obj["category"] = conv.category;
     obj["model"] = conv.model;
     obj["systemPrompt"] = conv.systemPrompt;
+    obj["unread"] = conv.unread;
     obj["createdAt"] = conv.createdAt;
     obj["updatedAt"] = conv.updatedAt;
     obj["totalTokens"] = conv.totalTokens;
@@ -120,6 +240,7 @@ Conversation ConversationManager::conversationFromJson(const QJsonObject &obj)
     conv.category = obj["category"].toString();
     conv.model = obj["model"].toString();
     conv.systemPrompt = obj["systemPrompt"].toString();
+    conv.unread = obj["unread"].toBool();
     conv.createdAt = obj["createdAt"].toVariant().toLongLong();
     conv.updatedAt = obj["updatedAt"].toVariant().toLongLong();
     conv.totalTokens = obj["totalTokens"].toVariant().toLongLong();
@@ -604,6 +725,7 @@ QJsonArray ConversationManager::getConversationsList() const
         obj["updatedAt"] = conv.updatedAt;
         obj["messageCount"] = conv.messages.count();
         obj["category"] = conv.category;
+        obj["unread"] = conv.unread;
         // Never add a key named "model" here: these objects are appended to a
         // ListModel, and a role called "model" shadows the delegate's own
         // model object, which silently turns model.title, model.id and every
@@ -1291,6 +1413,7 @@ QVariantList ConversationManager::searchConversations(const QString &query) cons
             result["messageCount"] = conv.messages.count();
             result["userMessageCount"] = userCount;
             result["category"] = conv.category;
+            result["unread"] = conv.unread;
             result["matchCount"] = matchCount;
             result["matchPreview"] = matchPreview.isEmpty() ? tr("Match in title") : matchPreview;
             result["titleMatch"] = titleMatch;

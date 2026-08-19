@@ -150,8 +150,7 @@ Page {
 
             onClicked: {
                 conversationManager.loadConversation(model.id)
-                // navigateBack works both when this page is attached (swipe) and when pushed
-                pageStack.navigateBack()
+                historyPage.openChat()
             }
 
             menu: ContextMenu {
@@ -198,12 +197,53 @@ Page {
                 }
                 spacing: Theme.paddingSmall
 
-                Label {
+                Row {
                     width: parent.width
-                    text: model.title || qsTr("Empty conversation")
-                    color: conversationItem.highlighted ? Theme.highlightColor : Theme.primaryColor
-                    font.pixelSize: Theme.fontSizeMedium
-                    truncationMode: TruncationMode.Fade
+                    spacing: Theme.paddingSmall
+
+                    // Pulses while an answer is still being written to this
+                    // conversation, then stays lit until it has been read.
+                    Item {
+                        id: statusDot
+                        property bool streaming: model.id === conversationManager.streamingConversationId
+                        visible: streaming || (model.unread ? true : false)
+                        width: visible ? Theme.paddingMedium : 0
+                        height: Theme.paddingMedium
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Rectangle {
+                            id: dot
+                            anchors.centerIn: parent
+                            width: Theme.paddingMedium
+                            height: width
+                            radius: width / 2
+                            color: Theme.highlightColor
+
+                            SequentialAnimation {
+                                running: statusDot.streaming
+                                loops: Animation.Infinite
+                                alwaysRunToEnd: true
+                                NumberAnimation {
+                                    target: dot; property: "opacity"
+                                    from: 1; to: 0.25; duration: 600
+                                }
+                                NumberAnimation {
+                                    target: dot; property: "opacity"
+                                    from: 0.25; to: 1; duration: 600
+                                }
+                            }
+                        }
+                    }
+
+                    Label {
+                        width: parent.width - statusDot.width
+                               - (statusDot.visible ? parent.spacing : 0)
+                        text: model.title || qsTr("Empty conversation")
+                        color: conversationItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeMedium
+                        font.bold: statusDot.visible
+                        truncationMode: TruncationMode.Fade
+                    }
                 }
 
                 // Show match preview when searching
@@ -307,25 +347,13 @@ Page {
                     refreshList()
                 }
             }
-            MenuItem {
-                text: qsTr("Settings & About")
-                onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
-            }
-            MenuItem {
-                text: qsTr("Pinned messages")
-                onClicked: {
-                    pageStack.push(Qt.resolvedUrl("PinnedMessagesPage.qml"), {
-                        chatPage: pageStack.find(function(page) {
-                            return page.objectName === "chatPage"
-                        })
-                    })
-                }
-            }
+            // Settings and pinned messages live in the chat pulley, one swipe
+            // away: duplicating them here only made this menu longer.
             MenuItem {
                 text: qsTr("New conversation")
                 onClicked: {
                     conversationManager.createNewConversation()
-                    pageStack.navigateBack()
+                    historyPage.openChat()
                 }
             }
         }
@@ -348,8 +376,26 @@ Page {
         appName: "SailCat"
     }
 
+    Connections {
+        target: conversationManager
+
+        // An answer that finished while the user was sitting here changes the
+        // message count and lights the unread dot.
+        onResponseFinished: {
+            if (historyPage.searchQuery.length === 0) {
+                historyPage.refreshList()
+            }
+        }
+    }
+
     Component.onCompleted: {
         refreshList()
+    }
+
+    // This page is the root of the stack; the chat lives on top of it and is
+    // popped whenever the user swipes back here, so it has to be pushed again.
+    function openChat() {
+        pageStack.push(Qt.resolvedUrl("ChatPage.qml"))
     }
 
     // Refresh when returning to the page (it stays alive as an attached page)

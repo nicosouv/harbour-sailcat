@@ -142,12 +142,28 @@ User sends message → ChatPage.sendMessage()
   → ListView automatically updates
 ```
 
-Two invariants worth keeping:
+Invariants worth keeping:
 
 - The empty assistant bubble is added on `messageSent()`, not before the call. A
   request the API layer rejects must not leave a placeholder behind.
 - Nothing but `buildApiMessages()` assembles a payload. Regenerate, retry and send
   all go through `dispatchRequest()`.
+- **No QML owns streaming state.** `ConversationManager::bindApi()` wires the API
+  signals and accumulates the answer, because the chat page is destroyed whenever
+  the user swipes back to the history. Anything that must survive that (accumulation,
+  throttling, token accounting, the unread flag) belongs in C++.
+
+### Page stack
+
+```
+ConversationHistoryPage   (root, initialPage)
+  └─ ChatPage             (pushed immediately at startup)
+       └─ ConversationSettingsPage   (attached, swipe forward)
+```
+
+Swiping back from the chat pops it; the history pushes a fresh one when a
+conversation is opened. Never assume a `ChatPage` instance exists — look it up by
+`objectName: "chatPage"` and handle null.
 
 ## Mistral AI Integration
 

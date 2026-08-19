@@ -545,10 +545,6 @@
             <translation>Ei tuloksia</translation>
         </message>
         <message>
-            <source>Pinned messages</source>
-            <translation>Kiinnitetyt viestit</translation>
-        </message>
-        <message>
             <source>Purge all conversations</source>
             <translation>Tyhjennä kaikki keskustelut</translation>
         </message>
@@ -559,10 +555,6 @@
         <message>
             <source>Search in conversations...</source>
             <translation>Hae keskusteluista...</translation>
-        </message>
-        <message>
-            <source>Settings &amp; About</source>
-            <translation>Asetukset ja tietoja</translation>
         </message>
         <message>
             <source>Start chatting to create conversations</source>
@@ -1003,14 +995,6 @@
             <translation>Keskustelun asetukset</translation>
         </message>
         <message>
-            <source>Save</source>
-            <translation>Save</translation>
-        </message>
-        <message>
-            <source>Cancel</source>
-            <translation>Cancel</translation>
-        </message>
-        <message>
             <source>Title</source>
             <translation>Otsikko</translation>
         </message>
@@ -1075,8 +1059,8 @@
             <translation>Ehdota otsikkoa</translation>
         </message>
         <message>
-            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
-            <translation>Lukee keskustelun ja ehdottaa otsikkoa ja luokkaa. Mitään ei tallenneta ennen kuin vahvistat.</translation>
+            <source>Reads the conversation and proposes a title and a category.</source>
+            <translation>Lukee keskustelun ja ehdottaa otsikkoa ja luokkaa.</translation>
         </message>
     </context>
     <context>

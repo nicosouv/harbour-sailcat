@@ -531,6 +531,87 @@ private slots:
                  QString("Renamed from elsewhere"));
     }
 
+    void streamingLandsWithoutAnyUi()
+    {
+        // The chat page is popped whenever the user swipes back to the
+        // history, so the whole streaming lifecycle has to work with no QML
+        // attached at all.
+        MistralAPI api;
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.bindApi(&api);
+
+        const QString id = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("question");
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "messageSent"));
+        QCOMPARE(manager.currentConversation()->rowCount(), 2);
+        QCOMPARE(manager.streamingConversationId(), id);
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                          Q_ARG(QString, "Hel")));
+        QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                          Q_ARG(QString, "lo")));
+        // Deltas are coalesced, so give the throttle timer a chance to fire
+        QTest::qWait(250);
+        QCOMPARE(manager.currentConversation()->getLastAssistantMessage(),
+                 QString("Hello"));
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "responseCompleted"));
+        QCOMPARE(manager.streamingConversationId(), QString());
+
+        QJsonObject entry = manager.getConversationsList().at(0).toObject();
+        QCOMPARE(entry["id"].toString(), id);
+        QCOMPARE(entry["messageCount"].toInt(), 2);
+        QVERIFY(entry["unread"].toBool());
+
+        manager.markConversationRead(id);
+        QVERIFY(!manager.getConversationsList().at(0).toObject()["unread"].toBool());
+
+        // Unknown ids are ignored rather than crashing
+        manager.markConversationRead("no-such-id");
+    }
+
+    void cancelledRequestLeavesNoEmptyBubble()
+    {
+        MistralAPI api;
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.bindApi(&api);
+
+        manager.currentConversation()->addUserMessage("question");
+        QVERIFY(QMetaObject::invokeMethod(&api, "messageSent"));
+        QCOMPARE(manager.currentConversation()->rowCount(), 2);
+
+        // No content ever arrives: the placeholder must go, and nothing is
+        // reported as unread
+        QVERIFY(QMetaObject::invokeMethod(&api, "responseCompleted"));
+        QCOMPARE(manager.currentConversation()->rowCount(), 1);
+
+        QJsonObject entry = manager.getConversationsList().at(0).toObject();
+        QVERIFY(entry["unread"].toBool());   // the question itself is still there
+        QCOMPARE(entry["messageCount"].toInt(), 1);
+    }
+
+    void unreadFlagSurvivesReload()
+    {
+        MistralAPI api;
+        {
+            ConversationManager manager;
+            manager.purgeAllConversations();
+            manager.bindApi(&api);
+            manager.currentConversation()->addUserMessage("question");
+            QVERIFY(QMetaObject::invokeMethod(&api, "messageSent"));
+            QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                              Q_ARG(QString, "answer")));
+            QTest::qWait(250);
+            QVERIFY(QMetaObject::invokeMethod(&api, "responseCompleted"));
+        }
+
+        ConversationManager reopened;
+        QVERIFY(reopened.getConversationsList().at(0).toObject()["unread"].toBool());
+    }
+
     void deletedConversationLeavesNoFile()
     {
         ConversationManager manager;

@@ -10,8 +10,6 @@ Page {
     allowedOrientations: Orientation.All
 
     property bool firstUse: false
-    property string streamingContent: ""
-    property bool streamPending: false
     property bool autoScroll: true
     property int lastPromptTokens: 0
     property int lastCompletionTokens: 0
@@ -36,9 +34,10 @@ Page {
 
     onStatusChanged: {
         if (status === PageStatus.Active) {
-            // Conversation history reachable by swiping forward
+            // Settings of this conversation reachable by swiping forward.
+            // The history is one swipe back: it is the page underneath.
             if (pageStack.nextPage(chatPage) === null) {
-                pageStack.pushAttached(Qt.resolvedUrl("ConversationHistoryPage.qml"))
+                pageStack.pushAttached(Qt.resolvedUrl("ConversationSettingsPage.qml"))
             }
             // Jump requested from the pinned messages page
             if (pendingScrollIndex >= 0) {
@@ -48,6 +47,9 @@ Page {
             }
             chatPage.refreshOverrides()
             chatPage.refreshTrimIndicator()
+            // Looking at it counts as reading it
+            conversationManager.markConversationRead(
+                        conversationManager.currentConversationId())
         }
     }
 
@@ -84,6 +86,9 @@ Page {
                          ? chatPage.activeModel + " *" : chatPage.activeModel
         }
 
+        // The two pulleys used to carry the same seven entries, which made both
+        // of them a wall of text. They are split by what they act on: the top
+        // one leaves this conversation, the bottom one acts on it.
         PullDownMenu {
             MenuItem {
                 text: qsTr("Conversation History")
@@ -98,46 +103,15 @@ Page {
                 onClicked: chatPage.openPromptLibrary()
             }
             MenuItem {
-                text: qsTr("Conversation settings")
-                onClicked: chatPage.openConversationSettings()
-            }
-            MenuItem {
                 text: qsTr("Settings & About")
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
-            }
-            MenuItem {
-                text: qsTr("Export conversation")
-                enabled: conversationModel.count > 0
-                onClicked: chatPage.exportCurrentConversation()
-            }
-            MenuItem {
-                text: qsTr("New conversation")
-                enabled: conversationModel.count > 0
-                onClicked: chatPage.startNewConversation()
             }
         }
 
-        // Same actions as the top pulley, reachable from the bottom of the conversation
         PushUpMenu {
-            MenuItem {
-                text: qsTr("Conversation History")
-                onClicked: chatPage.openHistory()
-            }
-            MenuItem {
-                text: qsTr("Pinned messages")
-                onClicked: chatPage.openPinned()
-            }
-            MenuItem {
-                text: qsTr("Prompt library")
-                onClicked: chatPage.openPromptLibrary()
-            }
             MenuItem {
                 text: qsTr("Conversation settings")
                 onClicked: chatPage.openConversationSettings()
-            }
-            MenuItem {
-                text: qsTr("Settings & About")
-                onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
             MenuItem {
                 text: qsTr("Export conversation")
@@ -458,16 +432,6 @@ Page {
         }
     }
 
-    // Repainting the whole message on every SSE delta is what makes long
-    // answers stutter: coalesce the deltas and update at a fixed cadence.
-    Timer {
-        id: streamFlushTimer
-        interval: 90
-        repeat: true
-        running: mistralApi.isBusy
-        onTriggered: chatPage.flushStream()
-    }
-
     // First launch dialog
     Dialog {
         id: firstLaunchDialog
@@ -573,59 +537,9 @@ Page {
     Connections {
         target: mistralApi
 
-        onStreamingResponse: {
-            chatPage.streamingContent += content
-            chatPage.streamPending = true
-        }
-
-        onMessageSent: {
-            chatPage.streamingContent = ""
-            chatPage.streamPending = false
-            // Added only once the request is actually in flight, so a rejected
-            // send never leaves an empty assistant bubble behind.
-            conversationModel.addAssistantMessage("")
-            messageListView.positionViewAtEnd()
-        }
-
-        onUsageReceived: {
-            conversationManager.addTokenUsage(promptTokens, completionTokens,
-                                              chatPage.lastUsedModel)
-            chatPage.lastPromptTokens = promptTokens
-            chatPage.lastCompletionTokens = completionTokens
-            chatPage.conversationTokens += promptTokens + completionTokens
-        }
-
-        onSideRequestUsage: {
-            // Title generation is billed too, but it is not part of what the
-            // conversation banner reports.
-            conversationManager.addTokenUsage(promptTokens, completionTokens,
-                                              chatPage.lastUsedModel)
-        }
-
-        onResponseCompleted: {
-            chatPage.flushStream()
-            chatPage.streamingContent = ""
-
-            // Drop the empty assistant bubble left behind by an error or cancel
-            conversationModel.removeLastMessageIfEmpty()
-
-            if (chatPage.autoScroll) {
-                messageListView.positionViewAtEnd()
-            }
-            conversationManager.saveCurrentConversation()
-            chatPage.refreshTrimIndicator()
-
-            // Generate title after the first exchange, once per conversation
-            if (!chatPage.titleRequested && conversationModel.count === 2) {
-                var conversationId = conversationManager.currentConversationId()
-                var digest = conversationManager.conversationDigest(conversationId)
-                if (digest) {
-                    chatPage.titleRequested = true
-                    mistralApi.generateTitle(settingsManager.apiKey,
-                                             chatPage.activeModel, digest, conversationId)
-                }
-            }
-        }
+        // Streaming itself is handled by ConversationManager, so a response
+        // keeps landing in the model even when this page has been popped.
+        onMessageSent: messageListView.positionViewAtEnd()
 
         onTitleGenerated: {
             // Another page may have asked for a title on a different
@@ -651,6 +565,45 @@ Page {
     Connections {
         target: conversationManager
 
+        onStreamingUpdated: {
+            if (chatPage.autoScroll) {
+                messageListView.positionViewAtEnd()
+            }
+        }
+
+        onTokenUsageChanged: {
+            chatPage.lastPromptTokens = promptTokens
+            chatPage.lastCompletionTokens = completionTokens
+            chatPage.conversationTokens += promptTokens + completionTokens
+        }
+
+        onResponseFinished: {
+            if (chatPage.autoScroll) {
+                messageListView.positionViewAtEnd()
+            }
+            chatPage.refreshTrimIndicator()
+
+            // The answer landed under the user's eyes: no unread badge
+            if (chatPage.status === PageStatus.Active) {
+                conversationManager.markConversationRead(
+                            conversationManager.currentConversationId())
+            }
+
+            // Generate title after the first exchange, once per conversation.
+            // Only happens while this page is alive: a conversation left before
+            // the first answer landed keeps its fallback title, and "Suggest a
+            // title" is there to fix it.
+            if (!chatPage.titleRequested && conversationModel.count === 2) {
+                var conversationId = conversationManager.currentConversationId()
+                var digest = conversationManager.conversationDigest(conversationId)
+                if (digest) {
+                    chatPage.titleRequested = true
+                    mistralApi.generateTitle(settingsManager.apiKey,
+                                             chatPage.activeModel, digest, conversationId)
+                }
+            }
+        }
+
         onCurrentConversationChanged: {
             chatPage.lastPromptTokens = 0
             chatPage.lastCompletionTokens = 0
@@ -662,6 +615,10 @@ Page {
             chatPage.conversationTokens = stats.totalTokens || 0
             chatPage.refreshOverrides()
             chatPage.refreshTrimIndicator()
+            if (chatPage.status === PageStatus.Active) {
+                conversationManager.markConversationRead(
+                            conversationManager.currentConversationId())
+            }
         }
     }
 
@@ -685,15 +642,6 @@ Page {
         interval: 500
         repeat: false
         onTriggered: firstLaunchDialog.open()
-    }
-
-    function flushStream() {
-        if (!streamPending) return
-        streamPending = false
-        conversationModel.updateLastAssistantMessage(streamingContent)
-        if (autoScroll) {
-            messageListView.positionViewAtEnd()
-        }
     }
 
     function refreshOverrides() {
@@ -722,6 +670,8 @@ Page {
 
         lastUsedModel = activeModel
         autoScroll = true
+        // Recorded before the call: the token statistics are attributed in C++
+        conversationManager.setActiveModel(lastUsedModel)
 
         mistralApi.sendMessage(settingsManager.apiKey, lastUsedModel, messages,
                                settingsManager.temperature, settingsManager.maxTokens)
@@ -783,16 +733,11 @@ Page {
 
     function startNewConversation() {
         conversationManager.createNewConversation()
-        streamingContent = ""
-        streamPending = false
     }
 
+    // The history is the page underneath, so going there is going back
     function openHistory() {
-        if (pageStack.nextPage(chatPage) !== null) {
-            pageStack.navigateForward()
-        } else {
-            pageStack.push(Qt.resolvedUrl("ConversationHistoryPage.qml"))
-        }
+        pageStack.navigateBack()
     }
 
     function openPinned() {
@@ -804,11 +749,14 @@ Page {
         pageStack.push(Qt.resolvedUrl("PromptLibraryPage.qml"), { chatPage: chatPage })
     }
 
+    // Same destination as swiping forward, kept in the pulley for discovery
     function openConversationSettings() {
         conversationManager.saveCurrentConversation()
-        pageStack.push(Qt.resolvedUrl("ConversationSettingsPage.qml"), {
-            conversationId: conversationManager.currentConversationId()
-        })
+        if (pageStack.nextPage(chatPage) !== null) {
+            pageStack.navigateForward()
+        } else {
+            pageStack.push(Qt.resolvedUrl("ConversationSettingsPage.qml"))
+        }
     }
 
     function exportCurrentConversation() {

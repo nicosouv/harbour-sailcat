@@ -6,8 +6,11 @@
 #include <QSettings>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTimer>
 #include <QVariant>
 #include "conversationmodel.h"
+
+class MistralAPI;
 
 struct Conversation {
     QString id;
@@ -15,6 +18,7 @@ struct Conversation {
     QString category;
     QString model;          // per-conversation model override, empty = global
     QString systemPrompt;   // per-conversation system prompt, empty = global
+    bool unread = false;    // an answer landed while the user was elsewhere
     qint64 createdAt;
     qint64 updatedAt;
     qint64 totalTokens = 0;
@@ -26,12 +30,16 @@ class ConversationManager : public QObject
     Q_OBJECT
     Q_PROPERTY(ConversationModel* currentConversation READ currentConversation NOTIFY currentConversationChanged)
     Q_PROPERTY(int conversationCount READ conversationCount NOTIFY conversationCountChanged)
+    // Conversation currently receiving a streamed answer, empty when idle.
+    // Lets the history show which one is still being written to.
+    Q_PROPERTY(QString streamingConversationId READ streamingConversationId NOTIFY streamingConversationIdChanged)
 
 public:
     explicit ConversationManager(QObject *parent = nullptr);
 
     ConversationModel* currentConversation() const { return m_currentConversation; }
     int conversationCount() const { return m_conversations.count(); }
+    QString streamingConversationId() const { return m_streamingConversationId; }
 
     Q_INVOKABLE void createNewConversation();
     Q_INVOKABLE void loadConversation(const QString &conversationId);
@@ -53,6 +61,9 @@ public:
     Q_INVOKABLE void addTokenUsage(int promptTokens, int completionTokens,
                                    const QString &model = QString());
     Q_INVOKABLE QString currentConversationId() const;
+    // Clears the "an answer arrived" badge. The chat page calls this for the
+    // conversation it is showing.
+    Q_INVOKABLE void markConversationRead(const QString &conversationId);
     Q_INVOKABLE QVariantList getPinnedMessages() const;
     Q_INVOKABLE QString conversationToMarkdown(const QString &conversationId) const;
     // Condensed transcript handed to the model when asking for a title.
@@ -83,11 +94,33 @@ public:
     // path, or the input unchanged on failure.
     Q_INVOKABLE QString retainImage(const QString &filePath) const;
 
+    // Takes ownership of the streaming lifecycle: the answer is accumulated
+    // and written into the model here, so it keeps arriving even when the chat
+    // page is destroyed (navigating back to the history pops it).
+    void bindApi(MistralAPI *api);
+
+    // Model the in-flight request is using, recorded for the token statistics.
+    Q_INVOKABLE void setActiveModel(const QString &model);
+
     void loadAllConversations();
 
 signals:
     void currentConversationChanged();
     void conversationCountChanged();
+    // Emitted on every throttled write of the streaming answer, so a visible
+    // chat page can follow it.
+    void streamingUpdated();
+    void responseFinished();
+    void streamingConversationIdChanged();
+    void tokenUsageChanged(int promptTokens, int completionTokens);
+
+private slots:
+    void onMessageSent();
+    void onStreamingResponse(const QString &content);
+    void onResponseCompleted();
+    void onUsageReceived(int promptTokens, int completionTokens);
+    void onSideRequestUsage(int promptTokens, int completionTokens);
+    void flushStream();
 
 private:
     ConversationModel *m_currentConversation;
@@ -95,6 +128,11 @@ private:
     QList<Conversation> m_conversations;
     QSettings m_settings;
     QSet<QString> m_dirtyIds;
+    QTimer *m_streamTimer;
+    QString m_streamBuffer;
+    QString m_activeModel;
+    QString m_streamingConversationId;
+    bool m_streamDirty;
     qint64 m_totalPromptTokens;
     qint64 m_totalCompletionTokens;
 

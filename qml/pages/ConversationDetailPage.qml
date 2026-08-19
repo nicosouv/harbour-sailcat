@@ -196,9 +196,10 @@ Page {
                 text: qsTr("Load this conversation")
                 onClicked: {
                     conversationManager.loadConversation(conversationId)
-                    pageStack.pop(pageStack.find(function(page) {
-                        return page.objectName === "chatPage"
-                    }))
+                    // This page sits on the history, which is the root: drop
+                    // back onto it and open the chat fresh.
+                    pageStack.pop(undefined, PageStackAction.Immediate)
+                    pageStack.push(Qt.resolvedUrl("ChatPage.qml"))
                 }
             }
         }

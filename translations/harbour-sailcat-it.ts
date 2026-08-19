@@ -545,10 +545,6 @@
             <translation>Nessun risultato</translation>
         </message>
         <message>
-            <source>Pinned messages</source>
-            <translation>Messaggi fissati</translation>
-        </message>
-        <message>
             <source>Purge all conversations</source>
             <translation>Elimina tutte le conversazioni</translation>
         </message>
@@ -559,10 +555,6 @@
         <message>
             <source>Search in conversations...</source>
             <translation>Cerca nelle conversazioni...</translation>
-        </message>
-        <message>
-            <source>Settings &amp; About</source>
-            <translation>Impostazioni e Info</translation>
         </message>
         <message>
             <source>Start chatting to create conversations</source>
@@ -1003,14 +995,6 @@
             <translation>Impostazioni conversazione</translation>
         </message>
         <message>
-            <source>Save</source>
-            <translation>Save</translation>
-        </message>
-        <message>
-            <source>Cancel</source>
-            <translation>Cancel</translation>
-        </message>
-        <message>
             <source>Title</source>
             <translation>Titolo</translation>
         </message>
@@ -1075,8 +1059,8 @@
             <translation>Suggerisci un titolo</translation>
         </message>
         <message>
-            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
-            <translation>Legge la conversazione e propone un titolo e una categoria. Nulla viene salvato finché non confermi.</translation>
+            <source>Reads the conversation and proposes a title and a category.</source>
+            <translation>Legge la conversazione e propone un titolo e una categoria.</translation>
         </message>
     </context>
     <context>
