@@ -39,6 +39,9 @@ signals:
     void errorChanged();
     void streamingResponse(const QString &content);
     void usageReceived(int promptTokens, int completionTokens);
+    // Tokens spent by an auxiliary call (title generation): billed, but not
+    // part of the conversation the token banner reports on.
+    void sideRequestUsage(int promptTokens, int completionTokens);
     void responseCompleted();
     void messageSent();
     void titleGenerated(const QString &title, const QString &category);

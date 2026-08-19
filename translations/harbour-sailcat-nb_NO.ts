@@ -2,93 +2,10 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="nb_NO">
     <context>
-        <name>AboutPage</name>
-        <message>
-            <source>About</source>
-            <translation>Om</translation>
-        </message>
-        <message>
-            <source>Version %1</source>
-            <translation>Versjon %1</translation>
-        </message>
-        <message>
-            <source>Description</source>
-            <translation>Beskrivelse</translation>
-        </message>
-        <message>
-            <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.</source>
-            <translation>SailCat er en elegant klient for Mistral KI-chat, spesielt utviklet for Sailfish OS. Gled deg over intelligente samtaler med Mistrals mest avanserte KI-modeller, direkte fra din Sailfish-enhet.</translation>
-        </message>
-        <message>
-            <source>Features</source>
-            <translation>Funksjoner</translation>
-        </message>
-        <message>
-            <source>• Mistral AI free tier support</source>
-            <translation>• Støtte for Mistral KI-gratisnivå</translation>
-        </message>
-        <message>
-            <source>• Real-time streaming responses</source>
-            <translation>• Svar strømmet i sanntid</translation>
-        </message>
-        <message>
-            <source>• Native Sailfish interface with Silica</source>
-            <translation>• Innebygd Sailfish-grensesnitt med Silica</translation>
-        </message>
-        <message>
-            <source>• Conversation history</source>
-            <translation>• Samtalehistorikk</translation>
-        </message>
-        <message>
-            <source>• Choice between multiple Mistral models</source>
-            <translation>• Valg mellom flere Mistral-modeller</translation>
-        </message>
-        <message>
-            <source>Development</source>
-            <translation>Utvikling</translation>
-        </message>
-        <message>
-            <source>Developed with ❤️ for Sailfish OS</source>
-            <translation>Utviklet med ❤️ for Sailfish OS</translation>
-        </message>
-        <message>
-            <source>Source code on GitHub</source>
-            <translation>Kildekode på GitHub</translation>
-        </message>
-        <message>
-            <source>Credits</source>
-            <translation>Anerkjennelse</translation>
-        </message>
-        <message>
-            <source>Powered by Mistral AI API\nInterface: Sailfish Silica\nFramework: Qt 5.6</source>
-            <translation>Drevet av Mistral AI API\nGrensesnitt: Sailfish Silica\nRammeverk: Qt 5.6</translation>
-        </message>
-        <message>
-            <source>License</source>
-            <translation>Lisens</translation>
-        </message>
-        <message>
-            <source>MIT License\n\nThis application is free software. You are free to use, modify, and distribute it under the terms of the MIT license.</source>
-            <translation>MIT-lisens\n\nDette programmet er fri programvare. Du står fritt til å bruke, endre og distribuere det under betingelsene i MIT-lisensen.</translation>
-        </message>
-    </context>
-    <context>
         <name>ChatPage</name>
         <message>
             <source>Settings &amp; About</source>
             <translation>Innstillinger og Om</translation>
-        </message>
-        <message>
-            <source>About</source>
-            <translation>Om</translation>
-        </message>
-        <message>
-            <source>Settings</source>
-            <translation>Innstillinger</translation>
-        </message>
-        <message>
-            <source>Conversations</source>
-            <translation>Samtaler</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -103,14 +20,6 @@
             <translation>Konfigurer din Mistral API-nøkkel for å komme i gang</translation>
         </message>
         <message>
-            <source>Configure</source>
-            <translation>Konfigurer</translation>
-        </message>
-        <message>
-            <source>Your message...</source>
-            <translation>Din melding...</translation>
-        </message>
-        <message>
             <source>Start a conversation</source>
             <translation>Start en samtale</translation>
         </message>
@@ -121,10 +30,6 @@
         <message>
             <source>Type a message...</source>
             <translation>Skriv en melding...</translation>
-        </message>
-        <message>
-            <source>Welcome</source>
-            <translation>Velkommen</translation>
         </message>
         <message>
             <source>Get Started</source>
@@ -143,28 +48,8 @@
             <translation>Personvern og lagring</translation>
         </message>
         <message>
-            <source>• Your conversations are stored locally on your device\n• No sync with Mistral's web interface\n• You need your own API key to use the app\n• Your data stays on your phone</source>
-            <translation>• Samtalene dine lagres lokalt på enheten din\n• Ingen synkronisering med Mistrals nettgrensesnitt\n• Du trenger din egen API-nøkkel for å bruke appen\n• Dataene dine forblir på telefonen</translation>
-        </message>
-        <message>
             <source>Getting Started</source>
             <translation>Komme i gang</translation>
-        </message>
-        <message>
-            <source>1. Get a free API key from console.mistral.ai\n2. Configure it in Settings\n3. Start chatting!</source>
-            <translation>1. Hent en gratis API-nøkkel fra console.mistral.ai\n2. Konfigurer den i Innstillinger\n3. Start chattingen!</translation>
-        </message>
-        <message>
-            <source>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</source>
-            <translation>Velkommen til SailCat! For å komme i gang må du konfigurere din Mistral AI API-nøkkel i Innstillinger.</translation>
-        </message>
-        <message>
-            <source>Open Settings</source>
-            <translation>Åpne Innstillinger</translation>
-        </message>
-        <message>
-            <source>Skip for now</source>
-            <translation>Hopp over for nå</translation>
         </message>
         <message>
             <source>1. Get a free API key from console.mistral.ai
@@ -212,43 +97,24 @@
 • Du trenger din egen API-nøkkel for å bruke appen
 • Dataene dine forblir på telefonen</translation>
         </message>
-    </context>
-    <context>
-        <name>ConversationListPage</name>
         <message>
-            <source>New conversation</source>
-            <translation>Ny samtale</translation>
+            <source>Prompt library</source>
+            <translation>Promptbibliotek</translation>
         </message>
         <message>
-            <source>Conversations</source>
-            <translation>Samtaler</translation>
-        </message>
-        <message>
-            <source>Delete</source>
-            <translation>Slett</translation>
-        </message>
-        <message>
-            <source>Deleting</source>
-            <translation>Sletter</translation>
+            <source>Conversation settings</source>
+            <translation>Samtaleinnstillinger</translation>
         </message>
         <message numerus="yes">
-            <source>%n message(s)</source>
+            <source>Context limited: %n older message(s) not sent</source>
             <translation>
-                <numerusform>%n melding</numerusform>
-                <numerusform>%n meldinger</numerusform>
+                <numerusform>Kontekst begrenset: %n eldre melding ikke sendt</numerusform>
+                <numerusform>Kontekst begrenset: %n eldre meldinger ikke sendt</numerusform>
             </translation>
         </message>
         <message>
-            <source>No conversations</source>
-            <translation>Ingen samtaler</translation>
-        </message>
-        <message>
-            <source>Create a new conversation using the menu</source>
-            <translation>Opprett en ny samtale fra menyen</translation>
-        </message>
-        <message>
-            <source>Start chatting to create conversations</source>
-            <translation>Start chatting for å opprette samtaler</translation>
+            <source>Tokens: %1 total</source>
+            <translation>Tokens: %1 totalt</translation>
         </message>
     </context>
     <context>
@@ -292,6 +158,14 @@
             <source>Unpin</source>
             <translation>Løsne</translation>
         </message>
+        <message>
+            <source>You</source>
+            <translation>Du</translation>
+        </message>
+        <message>
+            <source>Assistant</source>
+            <translation>Assistent</translation>
+        </message>
     </context>
     <context>
         <name>MistralAPI</name>
@@ -319,10 +193,6 @@
             <translation>Innstillinger og Om</translation>
         </message>
         <message>
-            <source>Settings</source>
-            <translation>Innstillinger</translation>
-        </message>
-        <message>
             <source>Save</source>
             <translation>Lagre</translation>
         </message>
@@ -333,14 +203,6 @@
         <message>
             <source>API Configuration</source>
             <translation>API-konfigurasjon</translation>
-        </message>
-        <message>
-            <source>Use my own API key</source>
-            <translation>Bruk min egen API-nøkkel</translation>
-        </message>
-        <message>
-            <source>Enable this option to use your personal Mistral API key</source>
-            <translation>Aktiver dette valget for å bruke din personlige Mistral API-nøkkel</translation>
         </message>
         <message>
             <source>To get a free API key, visit console.mistral.ai</source>
@@ -387,68 +249,12 @@
             <translation>Velg modellen som skal brukes</translation>
         </message>
         <message>
-            <source>Mistral Small (Recommended)</source>
-            <translation>Mistral Liten (Anbefalt)</translation>
-        </message>
-        <message>
-            <source>Mistral Large</source>
-            <translation>Mistral Stor</translation>
-        </message>
-        <message>
-            <source>Pixtral 12B (Vision)</source>
-            <translation>Pixtral 12B (Vision)</translation>
-        </message>
-        <message>
-            <source>Balanced model between performance and speed. Ideal for most conversations.</source>
-            <translation>Balansert modell mellom ytelse og hastighet. Ideell for de fleste samtaler.</translation>
-        </message>
-        <message>
-            <source>Most powerful model for complex tasks. Requires more API credits.</source>
-            <translation>Den kraftigste modellen for komplekse oppgaver. Krever flere API-kreditter.</translation>
-        </message>
-        <message>
-            <source>Model with image support. Can analyze and understand images.</source>
-            <translation>Modell med bildestøtte. Kan analysere og forstå bilder.</translation>
-        </message>
-        <message>
-            <source>Updates</source>
-            <translation>Oppdateringer</translation>
-        </message>
-        <message>
-            <source>Current version: %1</source>
-            <translation>Nåværende versjon: %1</translation>
-        </message>
-        <message>
-            <source>Update available: v%1</source>
-            <translation>Oppdatering tilgjengelig: v%1</translation>
-        </message>
-        <message>
-            <source>Checking...</source>
-            <translation>Sjekker...</translation>
-        </message>
-        <message>
-            <source>Check for updates</source>
-            <translation>Sjekk etter oppdateringer</translation>
-        </message>
-        <message>
-            <source>Information</source>
-            <translation>Informasjon</translation>
-        </message>
-        <message>
-            <source>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</source>
-            <translation>SailCat bruker Mistral AI API for å tilby intelligente samtaler. Mistrals gratisnivå gir gratis tilgang med forespørselsgrenser som egner seg for eksperimentering og utvikling.</translation>
-        </message>
-        <message>
             <source>Powered by Mistral AI • MIT License</source>
             <translation>Drevet av Mistral AI • MIT-lisens</translation>
         </message>
         <message>
             <source>Made with &lt;3 for Sailfish OS</source>
             <translation>Laget med &lt;3 for Sailfish OS</translation>
-        </message>
-        <message>
-            <source>• Conversations stored locally\n• No sync with Mistral web\n• Requires personal API key</source>
-            <translation>• Samtaler lagres lokalt\n• Ingen synkronisering med Mistral på nett\n• Krever personlig API-nøkkel</translation>
         </message>
         <message>
             <source>About</source>
@@ -554,36 +360,88 @@
 • Ingen synkronisering med Mistral på nett
 • Krever personlig API-nøkkel</translation>
         </message>
-    </context>
-    <context>
-        <name>CategoryChip</name>
         <message>
-            <source>Code</source>
-            <translation>Kode</translation>
+            <source>Prompt library</source>
+            <translation>Promptbibliotek</translation>
         </message>
         <message>
-            <source>Ideas</source>
-            <translation>Ideer</translation>
+            <source>Show API key</source>
+            <translation>Vis API-nøkkel</translation>
         </message>
         <message>
-            <source>Learning</source>
-            <translation>Læring</translation>
+            <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
+            <translation>Nøkkelen lagres kryptert i en fil bare du kan lese, og sendes til api.mistral.ai over TLS. Den forlater ikke enheten på annen måte.</translation>
         </message>
         <message>
-            <source>Other</source>
-            <translation>Annet</translation>
+            <source>Appearance</source>
+            <translation>Utseende</translation>
         </message>
         <message>
-            <source>Practical</source>
-            <translation>Praktisk</translation>
+            <source>Conversation style</source>
+            <translation>Samtalestil</translation>
         </message>
         <message>
-            <source>Translation</source>
-            <translation>Oversettelse</translation>
+            <source>How messages are laid out in the chat</source>
+            <translation>Hvordan meldinger plasseres i samtalen</translation>
         </message>
         <message>
-            <source>Writing</source>
-            <translation>Skriving</translation>
+            <source>Show timestamps</source>
+            <translation>Vis tidsstempler</translation>
+        </message>
+        <message>
+            <source>Display the time under each message</source>
+            <translation>Vis klokkeslett under hver melding</translation>
+        </message>
+        <message>
+            <source>Limit conversation context</source>
+            <translation>Begrens samtalekontekst</translation>
+        </message>
+        <message>
+            <source>Send only the most recent messages. Keeps long conversations cheap and avoids hitting the model context limit.</source>
+            <translation>Sender bare de nyeste meldingene. Holder lange samtaler billige og unngår modellens kontekstgrense.</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n message(s)</source>
+            <translation>
+                <numerusform>%n melding</numerusform>
+                <numerusform>%n meldinger</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Messages kept</source>
+            <translation>Meldinger som beholdes</translation>
+        </message>
+        <message>
+            <source>Bubbles</source>
+            <translation>Bobler</translation>
+        </message>
+        <message>
+            <source>Compact</source>
+            <translation>Kompakt</translation>
+        </message>
+        <message>
+            <source>Cards</source>
+            <translation>Kort</translation>
+        </message>
+        <message>
+            <source>Flat</source>
+            <translation>Flat</translation>
+        </message>
+        <message>
+            <source>Rounded bubbles aligned left and right, like a messaging app.</source>
+            <translation>Avrundede bobler justert til venstre og høyre, som i en meldingsapp.</translation>
+        </message>
+        <message>
+            <source>Dense rows with a short speaker prefix. Fits the most text on screen.</source>
+            <translation>Tette rader med kort avsenderprefiks. Viser mest mulig tekst.</translation>
+        </message>
+        <message>
+            <source>Each message in its own panel with a header.</source>
+            <translation>Hver melding i sitt eget panel med overskrift.</translation>
+        </message>
+        <message>
+            <source>Full width rows with a tinted background on your messages.</source>
+            <translation>Rader i full bredde med farget bakgrunn på dine meldinger.</translation>
         </message>
     </context>
     <context>
@@ -769,6 +627,29 @@
             <source>View details</source>
             <translation>Vis detaljer</translation>
         </message>
+        <message>
+            <source>Conversation settings</source>
+            <translation>Samtaleinnstillinger</translation>
+        </message>
+        <message>
+            <source>Share</source>
+            <translation>Del</translation>
+        </message>
+        <message>
+            <source>Auto-label conversations</source>
+            <translation>Merk samtaler automatisk</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n conversation(s) relabelled</source>
+            <translation>
+                <numerusform>%n samtale merket på nytt</numerusform>
+                <numerusform>%n samtaler merket på nytt</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Nothing to relabel</source>
+            <translation>Ingenting å merke på nytt</translation>
+        </message>
     </context>
     <context>
         <name>CoverPage</name>
@@ -843,10 +724,6 @@
             <translation>Aktivitet per time</translation>
         </message>
         <message>
-            <source>Code</source>
-            <translation>Kode</translation>
-        </message>
-        <message>
             <source>Completion tokens</source>
             <translation>Fullføringstokens</translation>
         </message>
@@ -859,16 +736,8 @@
             <translation>Første melding</translation>
         </message>
         <message>
-            <source>Ideas</source>
-            <translation>Ideer</translation>
-        </message>
-        <message>
             <source>Last 14 days</source>
             <translation>Siste 14 dager</translation>
-        </message>
-        <message>
-            <source>Learning</source>
-            <translation>Læring</translation>
         </message>
         <message>
             <source>Longest conversation</source>
@@ -895,20 +764,12 @@
             <translation>Ingen</translation>
         </message>
         <message>
-            <source>Other</source>
-            <translation>Annet</translation>
-        </message>
-        <message>
             <source>Peak: %1 messages/day</source>
             <translation>Topp: %1 meldinger/dag</translation>
         </message>
         <message>
             <source>Peak: %1 tokens/day</source>
             <translation>Topp: %1 tokens/dag</translation>
-        </message>
-        <message>
-            <source>Practical</source>
-            <translation>Praktisk</translation>
         </message>
         <message>
             <source>Prompt tokens</source>
@@ -947,16 +808,8 @@
             <translation>Tokens brukt</translation>
         </message>
         <message>
-            <source>Translation</source>
-            <translation>Oversettelse</translation>
-        </message>
-        <message>
             <source>Who writes more?</source>
             <translation>Hvem skriver mest?</translation>
-        </message>
-        <message>
-            <source>Writing</source>
-            <translation>Skriving</translation>
         </message>
         <message>
             <source>You: %1 chars</source>
@@ -1061,6 +914,275 @@
         <message>
             <source>Wanderer</source>
             <translation>Vandrer</translation>
+        </message>
+        <message>
+            <source>n/a</source>
+            <translation>ikke tilgjengelig</translation>
+        </message>
+        <message>
+            <source>Estimated cost</source>
+            <translation>Estimert kostnad</translation>
+        </message>
+        <message>
+            <source>Total</source>
+            <translation>Totalt</translation>
+        </message>
+        <message>
+            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
+            <translation>Estimat basert på offentlige listepriser, i amerikanske dollar. Bare bruk registrert av denne appen telles - sjekk Mistral-konsollen for den faktiske fakturaen.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Categories</name>
+        <message>
+            <source>Code</source>
+            <translation>Kode</translation>
+        </message>
+        <message>
+            <source>Debugging</source>
+            <translation>Feilsøking</translation>
+        </message>
+        <message>
+            <source>DevOps</source>
+            <translation>DevOps</translation>
+        </message>
+        <message>
+            <source>Data</source>
+            <translation>Data</translation>
+        </message>
+        <message>
+            <source>Design</source>
+            <translation>Design</translation>
+        </message>
+        <message>
+            <source>Writing</source>
+            <translation>Skriving</translation>
+        </message>
+        <message>
+            <source>Translation</source>
+            <translation>Oversettelse</translation>
+        </message>
+        <message>
+            <source>Learning</source>
+            <translation>Læring</translation>
+        </message>
+        <message>
+            <source>Research</source>
+            <translation>Undersøkelser</translation>
+        </message>
+        <message>
+            <source>Maths</source>
+            <translation>Matematikk</translation>
+        </message>
+        <message>
+            <source>Science</source>
+            <translation>Vitenskap</translation>
+        </message>
+        <message>
+            <source>Business</source>
+            <translation>Næringsliv</translation>
+        </message>
+        <message>
+            <source>Finance</source>
+            <translation>Økonomi</translation>
+        </message>
+        <message>
+            <source>Career</source>
+            <translation>Karriere</translation>
+        </message>
+        <message>
+            <source>Legal</source>
+            <translation>Juss</translation>
+        </message>
+        <message>
+            <source>Health</source>
+            <translation>Helse</translation>
+        </message>
+        <message>
+            <source>Cooking</source>
+            <translation>Matlaging</translation>
+        </message>
+        <message>
+            <source>Travel</source>
+            <translation>Reise</translation>
+        </message>
+        <message>
+            <source>Home</source>
+            <translation>Hjem</translation>
+        </message>
+        <message>
+            <source>Gaming</source>
+            <translation>Spill</translation>
+        </message>
+        <message>
+            <source>Music</source>
+            <translation>Musikk</translation>
+        </message>
+        <message>
+            <source>Books &amp; Movies</source>
+            <translation>Bøker og filmer</translation>
+        </message>
+        <message>
+            <source>Sports</source>
+            <translation>Sport</translation>
+        </message>
+        <message>
+            <source>Relationships</source>
+            <translation>Relasjoner</translation>
+        </message>
+        <message>
+            <source>Productivity</source>
+            <translation>Produktivitet</translation>
+        </message>
+        <message>
+            <source>Ideas</source>
+            <translation>Ideer</translation>
+        </message>
+        <message>
+            <source>Practical</source>
+            <translation>Praktisk</translation>
+        </message>
+        <message>
+            <source>Other</source>
+            <translation>Annet</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConversationSettingsPage</name>
+        <message>
+            <source>Conversation settings</source>
+            <translation>Samtaleinnstillinger</translation>
+        </message>
+        <message>
+            <source>Save</source>
+            <translation>Lagre</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Avbryt</translation>
+        </message>
+        <message>
+            <source>Title</source>
+            <translation>Tittel</translation>
+        </message>
+        <message>
+            <source>Conversation title</source>
+            <translation>Samtaletittel</translation>
+        </message>
+        <message>
+            <source>Category</source>
+            <translation>Kategori</translation>
+        </message>
+        <message>
+            <source>Topic</source>
+            <translation>Emne</translation>
+        </message>
+        <message>
+            <source>Used by the statistics page</source>
+            <translation>Brukes av statistikksiden</translation>
+        </message>
+        <message>
+            <source>Model</source>
+            <translation>Modell</translation>
+        </message>
+        <message>
+            <source>Model for this conversation</source>
+            <translation>Modell for denne samtalen</translation>
+        </message>
+        <message>
+            <source>Overrides the model chosen in settings</source>
+            <translation>Overstyrer modellen valgt i innstillingene</translation>
+        </message>
+        <message>
+            <source>Use default (%1)</source>
+            <translation>Bruk standard (%1)</translation>
+        </message>
+        <message>
+            <source>System prompt</source>
+            <translation>Systemledetekst</translation>
+        </message>
+        <message>
+            <source>Custom system prompt</source>
+            <translation>Tilpasset systemledetekst</translation>
+        </message>
+        <message>
+            <source>Replaces the global system prompt for this conversation only</source>
+            <translation>Erstatter den globale systemprompten bare for denne samtalen</translation>
+        </message>
+        <message>
+            <source>Instruction</source>
+            <translation>Instruksjon</translation>
+        </message>
+        <message>
+            <source>Enter a system prompt...</source>
+            <translation>Skriv inn en systemprompt...</translation>
+        </message>
+    </context>
+    <context>
+        <name>PromptLibraryPage</name>
+        <message>
+            <source>Prompt library</source>
+            <translation>Promptbibliotek</translation>
+        </message>
+        <message>
+            <source>Tap a prompt to add it to the message you are writing.</source>
+            <translation>Trykk på en prompt for å legge den til i meldingen du skriver.</translation>
+        </message>
+        <message>
+            <source>New prompt</source>
+            <translation>Ny prompt</translation>
+        </message>
+        <message>
+            <source>No saved prompts</source>
+            <translation>Ingen lagrede prompter</translation>
+        </message>
+        <message>
+            <source>Use the pulley menu to save one</source>
+            <translation>Bruk trekkmenyen for å lagre en</translation>
+        </message>
+        <message>
+            <source>Edit</source>
+            <translation>Rediger</translation>
+        </message>
+        <message>
+            <source>Copy</source>
+            <translation>Kopier</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Slett</translation>
+        </message>
+        <message>
+            <source>Deleting</source>
+            <translation>Sletter</translation>
+        </message>
+        <message>
+            <source>Edit prompt</source>
+            <translation>Rediger prompt</translation>
+        </message>
+        <message>
+            <source>Save</source>
+            <translation>Lagre</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Avbryt</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Navn</translation>
+        </message>
+        <message>
+            <source>Optional name</source>
+            <translation>Valgfritt navn</translation>
+        </message>
+        <message>
+            <source>Prompt</source>
+            <translation>Prompt</translation>
+        </message>
+        <message>
+            <source>Enter the prompt text...</source>
+            <translation>Skriv inn promptteksten...</translation>
         </message>
     </context>
 </TS>

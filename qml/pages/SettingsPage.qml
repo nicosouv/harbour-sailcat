@@ -7,17 +7,13 @@ Dialog {
     allowedOrientations: Orientation.All
 
     property var availableModelsList: settingsManager.availableModels()
+    property var chatStyleList: settingsManager.availableChatStyles()
+    property bool revealKey: false
 
-    canAccept: apiKeyField.text.trim().length > 0 || !useCustomKeySwitch.checked
+    canAccept: true
 
     onAccepted: {
-        if (useCustomKeySwitch.checked) {
-            settingsManager.apiKey = apiKeyField.text.trim()
-            settingsManager.useCustomKey = true
-        } else {
-            settingsManager.useCustomKey = false
-            settingsManager.apiKey = ""
-        }
+        settingsManager.apiKey = apiKeyField.text.trim()
 
         var selectedModel = modelComboBox.currentItem ?
                             modelComboBox.currentItem.modelValue :
@@ -28,6 +24,13 @@ Dialog {
                                       temperatureSlider.value : -1.0
         settingsManager.maxTokens = limitTokensSwitch.checked ?
                                     Math.round(maxTokensSlider.value) : 0
+        settingsManager.contextMessageLimit = limitContextSwitch.checked ?
+                                              Math.round(contextSlider.value) : 0
+
+        if (chatStyleComboBox.currentItem) {
+            settingsManager.chatStyle = chatStyleComboBox.currentItem.styleValue
+        }
+        settingsManager.showTimestamps = timestampsSwitch.checked
 
         if (systemPromptComboBox.currentItem) {
             var preset = systemPromptComboBox.currentItem.promptValue
@@ -74,7 +77,7 @@ Dialog {
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Version %1").arg(updateChecker.currentVersion)
+                text: qsTr("Version %1").arg(settingsManager.appVersion)
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
             }
@@ -106,16 +109,31 @@ Dialog {
                 }
             }
 
+            BackgroundItem {
+                width: parent.width
+
+                onClicked: pageStack.push(Qt.resolvedUrl("PromptLibraryPage.qml"))
+
+                Label {
+                    x: Theme.horizontalPageMargin
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: qsTr("Prompt library")
+                    color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
+
+                Icon {
+                    anchors {
+                        right: parent.right
+                        rightMargin: Theme.horizontalPageMargin
+                        verticalCenter: parent.verticalCenter
+                    }
+                    source: "image://theme/icon-m-right"
+                }
+            }
+
             // API Configuration Section
             SectionHeader {
                 text: qsTr("API Configuration")
-            }
-
-            TextSwitch {
-                id: useCustomKeySwitch
-                text: qsTr("Use my own API key")
-                description: qsTr("Enable this option to use your personal Mistral API key")
-                checked: settingsManager.useCustomKey
             }
 
             Label {
@@ -125,7 +143,6 @@ Dialog {
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
-                visible: useCustomKeySwitch.checked
             }
 
             TextField {
@@ -134,19 +151,34 @@ Dialog {
                 label: qsTr("Mistral API Key")
                 placeholderText: qsTr("Enter your API key")
                 text: settingsManager.apiKey
-                visible: useCustomKeySwitch.checked
-                enabled: useCustomKeySwitch.checked
-                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                echoMode: settingsPage.revealKey ? TextInput.Normal : TextInput.Password
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData
 
                 EnterKey.enabled: text.length > 0
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
-                EnterKey.onClicked: settingsPage.accept()
+                EnterKey.onClicked: focus = false
+            }
+
+            TextSwitch {
+                id: revealKeySwitch
+                text: qsTr("Show API key")
+                checked: settingsPage.revealKey
+                onCheckedChanged: settingsPage.revealKey = checked
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: qsTr("The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.")
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
             }
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Clear API key")
-                visible: settingsManager.hasApiKey && useCustomKeySwitch.checked
+                visible: settingsManager.hasApiKey
                 onClicked: {
                     remorse.execute(qsTr("Clearing API key"), function() {
                         apiKeyField.text = ""
@@ -166,6 +198,7 @@ Dialog {
                 description: qsTr("Select the language for the interface")
                 width: parent.width
 
+                // Order must match settingsManager.availableLanguages()
                 menu: ContextMenu {
                     Repeater {
                         model: [
@@ -174,7 +207,8 @@ Dialog {
                             { name: "Deutsch", value: "de" },
                             { name: "Español", value: "es" },
                             { name: "Suomi", value: "fi" },
-                            { name: "Italiano", value: "it" }
+                            { name: "Italiano", value: "it" },
+                            { name: "Norsk bokmål", value: "nb_NO" }
                         ]
 
                         MenuItem {
@@ -185,14 +219,9 @@ Dialog {
                 }
 
                 Component.onCompleted: {
-                    var currentLang = settingsManager.language
-                    var languages = ["en", "fr", "de", "es", "fi", "it"]
-                    var index = languages.indexOf(currentLang)
-                    if (index >= 0) {
-                        currentIndex = index
-                    } else {
-                        currentIndex = 0
-                    }
+                    var languages = settingsManager.availableLanguages()
+                    var index = languages.indexOf(settingsManager.language)
+                    currentIndex = index >= 0 ? index : 0
                 }
 
                 onCurrentItemChanged: {
@@ -200,6 +229,59 @@ Dialog {
                         settingsManager.language = currentItem.langValue
                     }
                 }
+            }
+
+            // Appearance Section
+            SectionHeader {
+                text: qsTr("Appearance")
+            }
+
+            ComboBox {
+                id: chatStyleComboBox
+                label: qsTr("Conversation style")
+                description: qsTr("How messages are laid out in the chat")
+                width: parent.width
+
+                menu: ContextMenu {
+                    Repeater {
+                        model: settingsPage.chatStyleList
+
+                        MenuItem {
+                            text: settingsPage.chatStyleLabel(modelData)
+                            property string styleValue: modelData
+                        }
+                    }
+                }
+
+                Component.onCompleted: {
+                    var index = settingsPage.chatStyleList.indexOf(settingsManager.chatStyle)
+                    currentIndex = index >= 0 ? index : 0
+                }
+
+                // Applied live so the effect is visible before saving
+                onCurrentItemChanged: {
+                    if (currentItem) {
+                        settingsManager.chatStyle = currentItem.styleValue
+                    }
+                }
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: chatStyleComboBox.currentItem
+                      ? settingsPage.chatStyleDescription(chatStyleComboBox.currentItem.styleValue)
+                      : ""
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
+            }
+
+            TextSwitch {
+                id: timestampsSwitch
+                text: qsTr("Show timestamps")
+                description: qsTr("Display the time under each message")
+                checked: settingsManager.showTimestamps
             }
 
             // Model Selection Section
@@ -285,6 +367,25 @@ Dialog {
                 value: settingsManager.maxTokens > 0 ? settingsManager.maxTokens : 1024
                 valueText: Math.round(value)
                 label: qsTr("Max tokens")
+            }
+
+            TextSwitch {
+                id: limitContextSwitch
+                text: qsTr("Limit conversation context")
+                description: qsTr("Send only the most recent messages. Keeps long conversations cheap and avoids hitting the model context limit.")
+                checked: settingsManager.contextMessageLimit > 0
+            }
+
+            Slider {
+                id: contextSlider
+                width: parent.width
+                visible: limitContextSwitch.checked
+                minimumValue: 4
+                maximumValue: 60
+                stepSize: 2
+                value: settingsManager.contextMessageLimit > 0 ? settingsManager.contextMessageLimit : 20
+                valueText: qsTr("%n message(s)", "", Math.round(value))
+                label: qsTr("Messages kept")
             }
 
             // System Prompt Section
@@ -438,5 +539,23 @@ Dialog {
             parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1)
         }
         return parts.join(" ")
+    }
+
+    function chatStyleLabel(style) {
+        switch (style) {
+        case "bubbles": return qsTr("Bubbles")
+        case "compact": return qsTr("Compact")
+        case "cards": return qsTr("Cards")
+        default: return qsTr("Flat")
+        }
+    }
+
+    function chatStyleDescription(style) {
+        switch (style) {
+        case "bubbles": return qsTr("Rounded bubbles aligned left and right, like a messaging app.")
+        case "compact": return qsTr("Dense rows with a short speaker prefix. Fits the most text on screen.")
+        case "cards": return qsTr("Each message in its own panel with a header.")
+        default: return qsTr("Full width rows with a tinted background on your messages.")
+        }
     }
 }

@@ -1,12 +1,28 @@
 #include "mistralapi.h"
+#include "categories.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkRequest>
+#include <QSslConfiguration>
+#include <QSslSocket>
 #include <QDebug>
 #include <QStringList>
 #include <algorithm>
 
 static const int REQUEST_TIMEOUT_MS = 60000;
+
+// Every endpoint is HTTPS and under our control: require a verified peer and
+// refuse the legacy TLS versions rather than inheriting the platform default.
+static void applyTransportSecurity(QNetworkRequest &request)
+{
+    QSslConfiguration ssl = QSslConfiguration::defaultConfiguration();
+    ssl.setProtocol(QSsl::TlsV1_2OrLater);
+    ssl.setPeerVerifyMode(QSslSocket::VerifyPeer);
+    request.setSslConfiguration(ssl);
+
+    // Do not let a redirect move the request (and its bearer token) elsewhere.
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, false);
+}
 
 MistralAPI::MistralAPI(QObject *parent)
     : QObject(parent)
@@ -61,10 +77,14 @@ void MistralAPI::sendMessage(const QString &apiKey,
         QJsonObject msgObj;
         msgObj["role"] = msgMap["role"].toString();
 
-        // Vision messages use an array of {type, ...} parts instead of a string
-        QVariant contentVar = msgMap["content"];
-        if (contentVar.type() == QVariant::List) {
-            msgObj["content"] = QJsonArray::fromVariantList(contentVar.toList());
+        // Vision messages use an array of {type, ...} parts instead of a
+        // string. Test by conversion rather than by type tag: a value that
+        // travelled through QML may arrive as any of several list flavours,
+        // while a string always converts to an empty list.
+        const QVariant contentVar = msgMap["content"];
+        const QVariantList parts = contentVar.toList();
+        if (!parts.isEmpty()) {
+            msgObj["content"] = QJsonArray::fromVariantList(parts);
         } else {
             msgObj["content"] = contentVar.toString();
         }
@@ -98,6 +118,7 @@ void MistralAPI::sendMessage(const QString &apiKey,
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
     request.setRawHeader("Accept", "text/event-stream");
+    applyTransportSecurity(request);
 
     // Send request
     m_currentReply = m_networkManager->post(request, jsonData);
@@ -126,10 +147,16 @@ void MistralAPI::generateTitle(const QString &apiKey,
     QJsonArray messages;
     QJsonObject systemMsg;
     systemMsg["role"] = "system";
-    systemMsg["content"] = "Analyze the user's first message and reply with ONLY a compact JSON object, "
-                           "no explanation, no code fences: "
-                           "{\"title\":\"short conversation title, max 50 characters, same language as the message\","
-                           "\"category\":\"one of: code, writing, translation, learning, ideas, practical, other\"}";
+    // "other" is deliberately described as a last resort: left to itself the
+    // model picks it far too often and every conversation ends up unlabelled.
+    systemMsg["content"] = QString(
+                "Analyze the user's first message and reply with ONLY a compact JSON object, "
+                "no explanation, no code fences: "
+                "{\"title\":\"short conversation title, max 50 characters, same language as the message\","
+                "\"category\":\"one of the labels below\"}. "
+                "Pick the single most specific matching category from this list: %1. "
+                "Use \"other\" only when no other label fits at all.")
+            .arg(Categories::all().join(", "));
     messages.append(systemMsg);
 
     QJsonObject userMsg;
@@ -149,6 +176,7 @@ void MistralAPI::generateTitle(const QString &apiKey,
     QNetworkRequest request(QUrl("https://api.mistral.ai/v1/chat/completions"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
+    applyTransportSecurity(request);
 
     // Send request
     QNetworkReply *reply = m_networkManager->post(request, jsonData);
@@ -166,6 +194,7 @@ void MistralAPI::fetchModels(const QString &apiKey)
 
     QNetworkRequest request(QUrl("https://api.mistral.ai/v1/models"));
     request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
+    applyTransportSecurity(request);
 
     QNetworkReply *reply = m_networkManager->get(request);
 
@@ -309,6 +338,15 @@ void MistralAPI::onTitleGenerationFinished()
 
         if (doc.isObject()) {
             QJsonObject obj = doc.object();
+
+            // Titling is billed like any other call: report it so the token
+            // counters match the invoice.
+            if (obj.contains("usage") && obj["usage"].isObject()) {
+                QJsonObject usage = obj["usage"].toObject();
+                emit sideRequestUsage(usage["prompt_tokens"].toInt(),
+                                      usage["completion_tokens"].toInt());
+            }
+
             QJsonArray choices = obj["choices"].toArray();
 
             if (!choices.isEmpty()) {
@@ -339,10 +377,7 @@ void MistralAPI::onTitleGenerationFinished()
                     }
                 }
 
-                static const QStringList allowedCategories = QStringList()
-                        << "code" << "writing" << "translation" << "learning"
-                        << "ideas" << "practical" << "other";
-                if (!allowedCategories.contains(category)) {
+                if (!Categories::isValid(category)) {
                     category = "other";
                 }
 

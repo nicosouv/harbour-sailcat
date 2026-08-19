@@ -14,7 +14,6 @@
 #include "conversationmodel.h"
 #include "conversationmanager.h"
 #include "settingsmanager.h"
-#include "updatechecker.h"
 
 int main(int argc, char *argv[])
 {
@@ -31,7 +30,6 @@ int main(int argc, char *argv[])
     MistralAPI mistralApi;
     ConversationManager conversationManager;
     SettingsManager settingsManager;
-    UpdateChecker updateChecker;
 
     // Load initial translation based on settings
     QString language = settingsManager.language();
@@ -65,7 +63,6 @@ int main(int argc, char *argv[])
     context->setContextProperty("conversationManager", &conversationManager);
     context->setContextProperty("conversationModel", conversationManager.currentConversation());
     context->setContextProperty("settingsManager", &settingsManager);
-    context->setContextProperty("updateChecker", &updateChecker);
 
     // Load main QML
     view->setSource(SailfishApp::pathTo("qml/harbour-sailcat.qml"));

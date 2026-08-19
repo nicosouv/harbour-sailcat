@@ -18,13 +18,21 @@ These are non-negotiable. Violating them produces code that does not compile or 
 ## Architecture
 
 - `src/mistralapi.{h,cpp}` — HTTP + SSE streaming to `POST https://api.mistral.ai/v1/chat/completions`. Signals: `streamingResponse(content)`, `responseCompleted()`, `messageSent()`, `titleGenerated(title)`.
-- `src/conversationmodel.{h,cpp}` — QAbstractListModel of messages (`role`, `content`, `timestamp`).
-- `src/conversationmanager.{h,cpp}` — persistence of conversations (QSettings-backed), current conversation lifecycle, statistics, search.
-- `src/settingsmanager.{h,cpp}` — QSettings wrapper: `apiKey`, `modelName`, `nextMessageModel`, `useCustomKey`, `language`.
-- `src/updatechecker.{h,cpp}` — GitHub Releases version check.
+- `src/conversationmodel.{h,cpp}` — QAbstractListModel of messages (`role`, `content`, `timestamp`, `pinned`, `imagePath`).
+- `src/conversationmanager.{h,cpp}` — persistence (one JSON file per conversation under `AppDataLocation`), current conversation lifecycle, `buildApiMessages()`, statistics, search.
+- `src/settingsmanager.{h,cpp}` — QSettings wrapper: `apiKey` (stored obfuscated), `modelName`, `nextMessageModel`, `language`, `contextMessageLimit`, `chatStyle`, `savedPrompts`.
+- `src/securestore.{h,cpp}` — owner-only file permissions and salted obfuscation for the API key.
+- `src/categories.{h,cpp}` — conversation categories and the local keyword classifier. Mirrored for display in `qml/components/Categories.js`.
 - `qml/pages/ChatPage.qml` — main chat UI. `qml/components/MessageBubble.qml` — message rendering with regex-based markdown. `qml/pages/SettingsPage.qml` — settings dialog.
 
-All C++ classes are exposed to QML as context properties: `mistralApi`, `conversationModel`, `conversationManager`, `settingsManager`, `updateChecker` (registered in `src/harbour-sailcat.cpp`).
+All C++ classes are exposed to QML as context properties: `mistralApi`, `conversationModel`, `conversationManager`, `settingsManager` (registered in `src/harbour-sailcat.cpp`).
+
+## Translations
+
+`translations/harbour-sailcat-<code>.ts`, one per entry in `SettingsManager::availableLanguages()`:
+en, fr, de, es, fi, it, nb_NO. Adding a language means adding the `.ts` file, the code in
+`availableLanguages()`, the `TRANSLATIONS` list in the `.pro`, and the entry in the SettingsPage
+language ComboBox — the ComboBox order must match `availableLanguages()`.
 
 ## Build & Test
 

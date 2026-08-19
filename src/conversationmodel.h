@@ -42,13 +42,17 @@ public:
     Q_INVOKABLE void truncateFrom(int index);
     Q_INVOKABLE void togglePinned(int index);
     Q_INVOKABLE void clearConversation();
-    Q_INVOKABLE QVariant getMessagesForApi() const;
     Q_INVOKABLE QString getFirstUserMessage() const;
     Q_INVOKABLE QString getLastAssistantMessage() const;
+    Q_INVOKABLE QString getLastUserMessage() const;
+    Q_INVOKABLE QString getLastUserImagePath() const;
 
     void addMessage(const QString &role, const QString &content, qint64 timestamp,
                     bool pinned = false, const QString &imagePath = QString());
     QJsonArray toJsonArray() const;
+
+    // Read-only view used by ConversationManager to build the API payload.
+    const QList<Message> &messages() const { return m_messages; }
 
 signals:
     void countChanged();

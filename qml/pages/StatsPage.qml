@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "../components/Categories.js" as CategoryData
 
 Page {
     id: statsPage
@@ -19,6 +20,7 @@ Page {
     property var funStats: conversationManager.getFunStats()
     property var topWords: funStats.topWords || []
     property var badges: buildBadges()
+    property var costList: buildCostList()
     property real chartProgress: 0
 
     function buildBadges() {
@@ -90,27 +92,49 @@ Page {
     }
 
     function categoryColor(cat) {
-        switch (cat) {
-        case "code": return "#4fc3f7"
-        case "writing": return "#ba68c8"
-        case "translation": return "#4db6ac"
-        case "learning": return "#ffb74d"
-        case "ideas": return "#f06292"
-        case "practical": return "#aed581"
-        default: return "#90a4ae"
-        }
+        return CategoryData.color(cat)
     }
 
     function categoryLabel(cat) {
-        switch (cat) {
-        case "code": return qsTr("Code")
-        case "writing": return qsTr("Writing")
-        case "translation": return qsTr("Translation")
-        case "learning": return qsTr("Learning")
-        case "ideas": return qsTr("Ideas")
-        case "practical": return qsTr("Practical")
-        default: return qsTr("Other")
+        return CategoryData.label(cat)
+    }
+
+    // Cost is an estimate from a hand-maintained price list, and only covers
+    // usage recorded since per-model tracking was added.
+    function buildCostList() {
+        var usage = stats.modelUsage || []
+        var list = []
+        for (var i = 0; i < usage.length; i++) {
+            var entry = usage[i]
+            var cost = settingsManager.estimatedCost(entry.model,
+                                                     entry.promptTokens,
+                                                     entry.completionTokens)
+            list.push({
+                model: entry.model,
+                tokens: entry.promptTokens + entry.completionTokens,
+                cost: cost
+            })
         }
+        list.sort(function(a, b) { return b.tokens - a.tokens })
+        return list
+    }
+
+    function totalCost() {
+        var total = 0
+        var known = false
+        for (var i = 0; i < costList.length; i++) {
+            if (costList[i].cost >= 0) {
+                total += costList[i].cost
+                known = true
+            }
+        }
+        return known ? total : -1
+    }
+
+    function formatCost(value) {
+        if (value < 0) return qsTr("n/a")
+        if (value < 0.01) return "< $0.01"
+        return "$" + value.toFixed(2)
     }
 
     NumberAnimation on chartProgress {
@@ -505,6 +529,89 @@ Page {
                         color: Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeExtraSmall
                     }
+                }
+            }
+
+            // Estimated spend
+            SectionHeader {
+                text: qsTr("Estimated cost")
+                visible: statsPage.costList.length > 0
+            }
+
+            Column {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                spacing: Theme.paddingSmall
+                visible: statsPage.costList.length > 0
+
+                Repeater {
+                    model: statsPage.costList
+
+                    Item {
+                        width: parent.width
+                        height: Theme.fontSizeSmall + Theme.paddingMedium
+
+                        Label {
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width * 0.55
+                            text: modelData.model
+                            font.pixelSize: Theme.fontSizeExtraSmall
+                            color: Theme.primaryColor
+                            truncationMode: TruncationMode.Fade
+                        }
+
+                        Label {
+                            anchors.right: costValue.left
+                            anchors.rightMargin: Theme.paddingMedium
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: formatExactTokens(modelData.tokens)
+                            font.pixelSize: Theme.fontSizeExtraSmall
+                            color: Theme.secondaryColor
+                        }
+
+                        Label {
+                            id: costValue
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: formatCost(modelData.cost)
+                            font.pixelSize: Theme.fontSizeExtraSmall
+                            color: Theme.highlightColor
+                        }
+                    }
+                }
+
+                Separator {
+                    width: parent.width
+                    color: Theme.rgba(Theme.secondaryColor, 0.3)
+                }
+
+                Item {
+                    width: parent.width
+                    height: totalCostLabel.height
+
+                    Label {
+                        id: totalCostLabel
+                        anchors.left: parent.left
+                        text: qsTr("Total")
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.primaryColor
+                    }
+
+                    Label {
+                        anchors.right: parent.right
+                        text: formatCost(statsPage.totalCost())
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.highlightColor
+                    }
+                }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.")
+                    font.pixelSize: Theme.fontSizeTiny
+                    color: Theme.secondaryColor
+                    wrapMode: Text.WordWrap
                 }
             }
 

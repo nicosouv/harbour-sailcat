@@ -4,7 +4,7 @@ import Sailfish.Silica 1.0
 ListItem {
     id: messageItem
     width: parent.width
-    contentHeight: Math.max(contentColumn.height + Theme.paddingLarge,
+    contentHeight: Math.max(contentColumn.height + verticalPadding * 2,
                             busyIndicator.visible ? Theme.itemSizeExtraSmall : 0)
 
     property string role: "user"
@@ -17,6 +17,34 @@ ListItem {
     signal regenerateRequested()
     signal editRequested()
     signal pinToggled()
+
+    // --- Presentation, driven by the chat style setting -------------------
+
+    readonly property string chatStyle: settingsManager.chatStyle
+    readonly property bool isUser: role === "user"
+    readonly property bool bubbled: chatStyle === "bubbles"
+    readonly property bool carded: chatStyle === "cards"
+    readonly property bool compact: chatStyle === "compact"
+
+    readonly property real hMargin: compact ? Theme.paddingMedium : Theme.horizontalPageMargin
+    readonly property real innerPadding: bubbled ? Theme.paddingMedium
+                                                 : (carded ? Theme.paddingMedium : 0)
+    readonly property real verticalPadding: compact ? Theme.paddingSmall : Theme.paddingMedium
+    readonly property int textSize: compact ? Theme.fontSizeExtraSmall : Theme.fontSizeSmall
+
+    // Bubbles hug their text; the other styles use the full column width.
+    readonly property real availableWidth: width - 2 * hMargin
+                                           - (bubbled ? 2 * innerPadding : 0)
+    readonly property real maxContentWidth: bubbled ? availableWidth * 0.82 : availableWidth
+    readonly property real imageWidth: bubbled ? maxContentWidth : availableWidth * 0.6
+
+    // Only the bubble style flips text to the right; elsewhere a right aligned
+    // paragraph is just hard to read.
+    readonly property int textAlignment: (bubbled || chatStyle === "flat") && isUser
+                                         ? Text.AlignRight : Text.AlignLeft
+
+    readonly property color accentColor: isUser ? Theme.highlightBackgroundColor
+                                                : Theme.secondaryHighlightColor
 
     menu: ContextMenu {
         MenuItem {
@@ -38,7 +66,7 @@ ListItem {
         }
         MenuItem {
             text: qsTr("Edit")
-            visible: messageItem.role === "user" && !mistralApi.isBusy
+            visible: messageItem.isUser && !mistralApi.isBusy
             onClicked: messageItem.editRequested()
         }
         MenuItem {
@@ -48,11 +76,26 @@ ListItem {
         }
     }
 
+    // Full-width background: flat tints the user rows, cards draws a panel
     Rectangle {
         anchors.fill: parent
-        color: role === "user"
-            ? Theme.rgba(Theme.highlightBackgroundColor, 0.15)
-            : "transparent"
+        visible: !messageItem.bubbled && !messageItem.compact
+        color: messageItem.carded
+            ? Theme.rgba(messageItem.isUser ? Theme.highlightBackgroundColor
+                                            : Theme.secondaryHighlightColor, 0.10)
+            : (messageItem.isUser ? Theme.rgba(Theme.highlightBackgroundColor, 0.15)
+                                  : "transparent")
+    }
+
+    // Bubble background, sized to the content
+    Rectangle {
+        visible: messageItem.bubbled
+        x: contentColumn.x - messageItem.innerPadding
+        y: contentColumn.y - messageItem.innerPadding
+        width: contentColumn.width + messageItem.innerPadding * 2
+        height: contentColumn.height + messageItem.innerPadding * 2
+        radius: Theme.paddingLarge
+        color: Theme.rgba(messageItem.accentColor, messageItem.isUser ? 0.28 : 0.14)
     }
 
     // Pinned indicator: thin highlight edge + star in the corner
@@ -78,50 +121,81 @@ ListItem {
 
     Column {
         id: contentColumn
-        anchors {
-            left: parent.left
-            right: parent.right
-            verticalCenter: parent.verticalCenter
-            leftMargin: role === "user" ? Theme.horizontalPageMargin * 2 : Theme.horizontalPageMargin
-            rightMargin: role === "assistant" ? Theme.horizontalPageMargin * 2 : Theme.horizontalPageMargin
-        }
+        y: messageItem.verticalPadding
+        x: messageItem.bubbled && messageItem.isUser
+           ? messageItem.width - width - messageItem.hMargin - messageItem.innerPadding
+           : messageItem.hMargin + messageItem.innerPadding
+        // A bubble hugs its content; the other styles fill the column. The
+        // children never read this width back in bubble mode, so there is no
+        // binding loop.
+        width: messageItem.bubbled
+               ? Math.max(messageLabel.visible ? messageLabel.width : 0,
+                          attachedImage.visible ? attachedImage.width : 0,
+                          Theme.itemSizeExtraSmall)
+               : messageItem.availableWidth
         spacing: Theme.paddingSmall / 2
+
+        // Role header, cards style only
+        Label {
+            width: parent.width
+            visible: messageItem.carded
+            text: messageItem.isUser ? qsTr("You") : qsTr("Assistant")
+            font.pixelSize: Theme.fontSizeTiny
+            font.bold: true
+            color: messageItem.accentColor
+        }
 
         Image {
             id: attachedImage
             visible: messageItem.imagePath !== "" && status !== Image.Error
             source: messageItem.imagePath
-            width: Math.min(parent.width * 0.6, 512)
+            width: messageItem.imageWidth
             sourceSize.width: 512
             fillMode: Image.PreserveAspectFit
             asynchronous: true
-            x: messageItem.role === "user" ? parent.width - width : 0
+            x: messageItem.textAlignment === Text.AlignRight ? parent.width - width : 0
         }
 
         Label {
             id: messageLabel
-            width: parent.width
-            text: formatMarkdown(content)
+            width: messageItem.bubbled
+                   ? Math.min(implicitWidth, messageItem.maxContentWidth)
+                   : messageItem.availableWidth
+            // The compact style has no room for a header row, so the speaker
+            // is folded into the first line of the message itself.
+            text: (messageItem.compact
+                   ? '<font color="' + messageItem.accentColor + '"><b>'
+                     + (messageItem.isUser ? qsTr("You") : "AI") + ':</b></font> '
+                   : "") + formatMarkdown(content)
             textFormat: Text.RichText
             wrapMode: Text.Wrap
-            font.pixelSize: Theme.fontSizeSmall
+            font.pixelSize: messageItem.textSize
             color: Theme.primaryColor
             linkColor: Theme.highlightColor
-            horizontalAlignment: role === "user" ? Text.AlignRight : Text.AlignLeft
+            horizontalAlignment: messageItem.textAlignment
             visible: content !== ""
 
-            onLinkActivated: Qt.openUrlExternally(link)
+            onLinkActivated: messageItem.openLink(link)
         }
 
         Label {
             width: parent.width
             text: messageItem.timestamp > 0
                   ? Qt.formatTime(new Date(messageItem.timestamp), "hh:mm") : ""
-            visible: text !== "" && content !== ""
-            horizontalAlignment: role === "user" ? Text.AlignRight : Text.AlignLeft
+            visible: settingsManager.showTimestamps && !messageItem.compact
+                     && text !== "" && content !== ""
+            horizontalAlignment: messageItem.textAlignment
             font.pixelSize: Theme.fontSizeTiny
             color: Theme.secondaryColor
         }
+    }
+
+    // Separator between cards
+    Separator {
+        visible: messageItem.carded
+        width: parent.width
+        anchors.bottom: parent.bottom
+        color: Theme.rgba(Theme.secondaryColor, 0.2)
     }
 
     // Streaming placeholder shown inside the pending assistant bubble
@@ -131,8 +205,18 @@ ListItem {
         running: visible
         anchors {
             left: parent.left
-            leftMargin: Theme.horizontalPageMargin
+            leftMargin: messageItem.hMargin
             verticalCenter: parent.verticalCenter
+        }
+    }
+
+    // Only ever hand the browser a scheme we chose. A response is untrusted
+    // input, and "javascript:" in a markdown link would otherwise get through.
+    function openLink(link) {
+        if (/^(https?|mailto):/i.test(link)) {
+            Qt.openUrlExternally(link)
+        } else {
+            console.warn("Blocked link with unsupported scheme")
         }
     }
 
@@ -157,11 +241,14 @@ ListItem {
     function formatMarkdown(text) {
         if (!text) return ""
 
-        // Escape HTML so raw tags in the response cannot be interpreted
+        // Escape HTML so raw tags in the response cannot be interpreted.
+        // Quotes go too: they would otherwise let a crafted link URL break out
+        // of the href attribute we build below.
         var formatted = text
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
 
         // Protect code from the formatting rules below: extract it,
         // substitute placeholders, reinsert at the end
@@ -189,8 +276,13 @@ ListItem {
         // Strikethrough (~~text~~)
         formatted = formatted.replace(/~~([^~]+)~~/g, '<s>$1</s>')
 
-        // Links [text](url)
-        formatted = formatted.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2">$1</a>')
+        // Links [text](url), restricted to schemes we are willing to open
+        formatted = formatted.replace(/\[([^\]]+)\]\(([^\)\s]+)\)/g, function(match, label, url) {
+            if (!/^(https?:\/\/|mailto:)/i.test(url)) {
+                return label
+            }
+            return '<a href="' + url + '">' + label + '</a>'
+        })
 
         // Headers (# text)
         formatted = formatted.replace(/^### (.+)$/gm, '<h3>$1</h3>')

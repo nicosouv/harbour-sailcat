@@ -164,18 +164,21 @@ Page {
                     }
                 }
                 MenuItem {
-                    text: qsTr("Export")
+                    text: qsTr("Conversation settings")
                     onClicked: {
-                        var path = conversationManager.exportConversation(model.id)
-                        if (path !== "") {
-                            exportNotification.previewSummary = qsTr("Conversation exported")
-                            exportNotification.previewBody = path
-                        } else {
-                            exportNotification.previewSummary = qsTr("Export failed")
-                            exportNotification.previewBody = ""
-                        }
-                        exportNotification.publish()
+                        pageStack.push(Qt.resolvedUrl("ConversationSettingsPage.qml"), {
+                            conversationId: model.id
+                        })
                     }
+                }
+                MenuItem {
+                    text: qsTr("Export")
+                    onClicked: historyPage.exportConversation(model.id)
+                }
+                MenuItem {
+                    text: qsTr("Share")
+                    visible: historyPage.shareAction !== null
+                    onClicked: historyPage.shareConversation(model.id)
                 }
                 MenuItem {
                     text: qsTr("Copy as text")
@@ -302,6 +305,18 @@ Page {
                 }
             }
             MenuItem {
+                text: qsTr("Auto-label conversations")
+                onClicked: {
+                    var count = conversationManager.recategorizeConversations()
+                    exportNotification.previewSummary = count > 0
+                        ? qsTr("%n conversation(s) relabelled", "", count)
+                        : qsTr("Nothing to relabel")
+                    exportNotification.previewBody = ""
+                    exportNotification.publish()
+                    refreshList()
+                }
+            }
+            MenuItem {
                 text: qsTr("Settings & About")
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
@@ -342,8 +357,50 @@ Page {
         appName: "SailCat"
     }
 
+    // Sharing goes through Sailfish.Share, which is not present on every
+    // release we support: create it at runtime and hide the action if absent.
+    property var shareAction: null
+
     Component.onCompleted: {
         refreshList()
+
+        try {
+            shareAction = Qt.createQmlObject(
+                'import QtQuick 2.0; import Sailfish.Share 1.0; ShareAction { mimeType: "text/plain" }',
+                historyPage, "sailcatShareAction")
+        } catch (e) {
+            shareAction = null
+        }
+    }
+
+    function exportConversation(id) {
+        var path = conversationManager.exportConversation(id)
+        if (path !== "") {
+            exportNotification.previewSummary = qsTr("Conversation exported")
+            exportNotification.previewBody = path
+        } else {
+            exportNotification.previewSummary = qsTr("Export failed")
+            exportNotification.previewBody = ""
+        }
+        exportNotification.publish()
+        return path
+    }
+
+    function shareConversation(id) {
+        if (!shareAction) return
+
+        // Share the exported markdown file: handlers deal with files far more
+        // reliably than with inline text payloads.
+        var path = conversationManager.exportConversation(id)
+        if (path === "") {
+            exportNotification.previewSummary = qsTr("Export failed")
+            exportNotification.previewBody = ""
+            exportNotification.publish()
+            return
+        }
+
+        shareAction.resources = ["file://" + path]
+        shareAction.trigger()
     }
 
     // Refresh when returning to the page (it stays alive as an attached page)

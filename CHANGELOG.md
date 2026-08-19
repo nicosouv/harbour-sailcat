@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-08-19
+
+### Security
+
+- API key is no longer written in clear text. It is scrambled with a per-install
+  random salt and both the settings file and the conversation files are set to
+  owner-only permissions. Existing keys are migrated automatically on first launch.
+- Exported conversations are written with owner-only permissions.
+- All API and update requests now require TLS 1.2 or later, verify the peer and
+  refuse redirects, so a bearer token can never follow a redirect elsewhere.
+- Markdown links are restricted to `http`, `https` and `mailto`; a `javascript:`
+  URL in a model reply can no longer reach `Qt.openUrlExternally`.
+- Quotes are escaped when rendering messages, closing an attribute injection in
+  generated `<a href>` tags.
+- The update checker only opens URLs on `github.com`.
+- Conversation file names are validated, so an id can never escape the storage
+  directory.
+- The API key field is masked by default, with an explicit reveal switch.
+
+### Added
+
+- **Conversation context limit**: send only the most recent N messages, with an
+  on-screen notice of how many were left out. Keeps long conversations affordable
+  and avoids hitting the model context window.
+- **Prompt library**: save, edit and reuse prompts, insertable into the input field.
+- **Per-conversation model and system prompt**, plus title and category, from a new
+  conversation settings page.
+- **Retry button** on the error banner: resend without retyping.
+- **Chat styles**: flat, bubbles, compact and cards, with an option to hide timestamps.
+- **28 conversation categories** instead of 7 (code, debugging, devops, data, design,
+  writing, translation, learning, research, maths, science, business, finance, career,
+  legal, health, cooking, travel, home, gaming, music, books & movies, sports,
+  relationships, productivity, ideas, practical, other), a local keyword classifier that
+  takes over when the model answers "other", and an "Auto-label conversations" action
+  that relabels existing ones.
+- **Estimated cost** per model in the statistics page, from a hand-maintained price list.
+- **Rename a conversation** from the history page.
+- **Share a conversation** through the Sailfish share menu, when available.
+- Live answer preview on the cover page.
+- **Norwegian bokmål** translation (thanks @fsilye), selectable from the settings.
+
+### Changed
+
+- Conversations are stored as one JSON file per conversation under the app data
+  directory instead of a single blob in QSettings. Writes now touch only the
+  conversation that changed. Existing data is migrated automatically.
+- Streaming updates are coalesced at ~11 fps instead of repainting the whole message
+  on every token, which removes the stutter on long answers.
+- Attached images are copied into the app data directory and stay in the request
+  payload on later turns, so follow-up questions about a picture still see it.
+- Images and the per-conversation model are now honoured when regenerating a response.
+- The "Use my own API key" switch is gone: there is no bundled key, so it only ever
+  got in the way.
+- Title generation is billed and now counted in the token statistics.
+- All seven translations now carry the same set of strings, with the obsolete ones
+  removed and the gaps where de/es/fi/it had been left in English filled in.
+
+### Removed
+
+- In-app update check. It was already unreachable from the UI in 2.0.4, and the store
+  handles updates; the whole `UpdateChecker` class is gone. The settings page still
+  shows the running version.
+
+### Fixed
+
+- A message sent just before the app was closed is no longer lost: the conversation
+  is saved before the request and whenever the app leaves the foreground.
+- The token banner keeps the running total when reopening an existing conversation
+  instead of showing zero.
+- A rejected request no longer leaves an empty assistant bubble behind, which used to
+  be persisted and then sent back to the API.
+- The conversation title is no longer regenerated after editing a message back down
+  to two messages.
+- Removed the dead `ConversationListPage.qml` and stale entries in the translation files.
+
 ## [1.0.0] - 2025-11-10
 
 ### Added

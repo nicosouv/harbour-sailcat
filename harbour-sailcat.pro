@@ -2,9 +2,11 @@ TARGET = harbour-sailcat
 
 CONFIG += sailfishapp
 
+QT += network
+
 # Version is passed by the spec file (%qmake5 VERSION=%{version})
 isEmpty(VERSION) {
-    VERSION = 2.0.0
+    VERSION = 2.1.0
 }
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
@@ -13,21 +15,24 @@ SOURCES += src/harbour-sailcat.cpp \
     src/conversationmodel.cpp \
     src/conversationmanager.cpp \
     src/settingsmanager.cpp \
-    src/updatechecker.cpp
+    src/securestore.cpp \
+    src/categories.cpp
 
 HEADERS += src/mistralapi.h \
     src/conversationmodel.h \
     src/conversationmanager.h \
     src/settingsmanager.h \
-    src/updatechecker.h
+    src/securestore.h \
+    src/categories.h
 
 DISTFILES += qml/harbour-sailcat.qml \
     qml/cover/CoverPage.qml \
     qml/pages/ChatPage.qml \
-    qml/pages/ConversationListPage.qml \
     qml/pages/ConversationHistoryPage.qml \
     qml/pages/ConversationDetailPage.qml \
+    qml/pages/ConversationSettingsPage.qml \
     qml/pages/PinnedMessagesPage.qml \
+    qml/pages/PromptLibraryPage.qml \
     qml/pages/SettingsPage.qml \
     qml/pages/StatsPage.qml \
     qml/components/MessageBubble.qml \
@@ -36,6 +41,7 @@ DISTFILES += qml/harbour-sailcat.qml \
     qml/components/CountUpLabel.qml \
     qml/components/RatioDonut.qml \
     qml/components/CategoryChip.qml \
+    qml/components/Categories.js \
     rpm/harbour-sailcat.spec \
     harbour-sailcat.desktop
 
@@ -48,4 +54,5 @@ TRANSLATIONS += translations/harbour-sailcat-en.ts \
                 translations/harbour-sailcat-de.ts \
                 translations/harbour-sailcat-es.ts \
                 translations/harbour-sailcat-fi.ts \
-                translations/harbour-sailcat-it.ts
+                translations/harbour-sailcat-it.ts \
+                translations/harbour-sailcat-nb_NO.ts

@@ -8,4 +8,15 @@ ApplicationWindow {
     initialPage: Component { ChatPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
     allowedOrientations: defaultAllowedOrientations
+
+    // The app can be killed while in the background without further warning,
+    // so flush the conversation as soon as it stops being the active window.
+    Connections {
+        target: Qt.application
+        onStateChanged: {
+            if (Qt.application.state !== Qt.ApplicationActive) {
+                conversationManager.saveCurrentConversation()
+            }
+        }
+    }
 }

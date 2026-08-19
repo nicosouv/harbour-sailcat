@@ -158,18 +158,24 @@ void ConversationModel::clearConversation()
     emit countChanged();
 }
 
-QVariant ConversationModel::getMessagesForApi() const
+QString ConversationModel::getLastUserMessage() const
 {
-    QVariantList messagesList;
-
-    for (const Message &msg : m_messages) {
-        QVariantMap msgMap;
-        msgMap["role"] = msg.role;
-        msgMap["content"] = msg.content;
-        messagesList.append(msgMap);
+    for (int i = m_messages.count() - 1; i >= 0; --i) {
+        if (m_messages.at(i).role == "user") {
+            return m_messages.at(i).content;
+        }
     }
+    return QString();
+}
 
-    return messagesList;
+QString ConversationModel::getLastUserImagePath() const
+{
+    for (int i = m_messages.count() - 1; i >= 0; --i) {
+        if (m_messages.at(i).role == "user") {
+            return m_messages.at(i).imagePath;
+        }
+    }
+    return QString();
 }
 
 QString ConversationModel::getFirstUserMessage() const

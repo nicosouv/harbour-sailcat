@@ -11,12 +11,28 @@ Page {
 
     property bool firstUse: false
     property string streamingContent: ""
+    property bool streamPending: false
     property bool autoScroll: true
     property int lastPromptTokens: 0
     property int lastCompletionTokens: 0
     property int conversationTokens: 0
     property int pendingScrollIndex: -1
     property string attachedImagePath: ""
+    property bool titleRequested: false
+    property string lastUsedModel: ""
+    property int trimmedMessages: 0
+
+    // Mirrors of the per-conversation overrides. Kept as properties rather
+    // than read on demand so bindings actually re-evaluate when they change.
+    property string conversationModelOverride: ""
+    property string conversationPromptOverride: ""
+
+    // A one-shot model chosen for the next message wins over the
+    // per-conversation override, which wins over the global setting.
+    readonly property string activeModel:
+        settingsManager.nextMessageModel !== "" ? settingsManager.nextMessageModel
+        : (conversationModelOverride !== "" ? conversationModelOverride
+                                            : settingsManager.modelName)
 
     onStatusChanged: {
         if (status === PageStatus.Active) {
@@ -30,6 +46,8 @@ Page {
                 messageListView.positionViewAtIndex(pendingScrollIndex, ListView.Center)
                 pendingScrollIndex = -1
             }
+            chatPage.refreshOverrides()
+            chatPage.refreshTrimIndicator()
         }
     }
 
@@ -44,7 +62,8 @@ Page {
         clip: true
 
         model: conversationModel
-        spacing: Theme.paddingMedium
+        spacing: settingsManager.chatStyle === "compact" ? Theme.paddingSmall
+                                                         : Theme.paddingMedium
 
         add: Transition {
             ParallelAnimation {
@@ -60,26 +79,27 @@ Page {
 
         header: PageHeader {
             title: "SailCat"
-            description: settingsManager.modelName
+            // A trailing asterisk marks a model pinned to this conversation
+            description: chatPage.conversationModelOverride !== ""
+                         ? chatPage.activeModel + " *" : chatPage.activeModel
         }
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Conversation History")
-                onClicked: {
-                    if (pageStack.nextPage(chatPage) !== null) {
-                        pageStack.navigateForward()
-                    } else {
-                        pageStack.push(Qt.resolvedUrl("ConversationHistoryPage.qml"))
-                    }
-                }
+                onClicked: chatPage.openHistory()
             }
             MenuItem {
                 text: qsTr("Pinned messages")
-                onClicked: {
-                    conversationManager.saveCurrentConversation()
-                    pageStack.push(Qt.resolvedUrl("PinnedMessagesPage.qml"), { chatPage: chatPage })
-                }
+                onClicked: chatPage.openPinned()
+            }
+            MenuItem {
+                text: qsTr("Prompt library")
+                onClicked: chatPage.openPromptLibrary()
+            }
+            MenuItem {
+                text: qsTr("Conversation settings")
+                onClicked: chatPage.openConversationSettings()
             }
             MenuItem {
                 text: qsTr("Settings & About")
@@ -93,10 +113,7 @@ Page {
             MenuItem {
                 text: qsTr("New conversation")
                 enabled: conversationModel.count > 0
-                onClicked: {
-                    conversationManager.createNewConversation()
-                    streamingContent = ""
-                }
+                onClicked: chatPage.startNewConversation()
             }
         }
 
@@ -104,20 +121,19 @@ Page {
         PushUpMenu {
             MenuItem {
                 text: qsTr("Conversation History")
-                onClicked: {
-                    if (pageStack.nextPage(chatPage) !== null) {
-                        pageStack.navigateForward()
-                    } else {
-                        pageStack.push(Qt.resolvedUrl("ConversationHistoryPage.qml"))
-                    }
-                }
+                onClicked: chatPage.openHistory()
             }
             MenuItem {
                 text: qsTr("Pinned messages")
-                onClicked: {
-                    conversationManager.saveCurrentConversation()
-                    pageStack.push(Qt.resolvedUrl("PinnedMessagesPage.qml"), { chatPage: chatPage })
-                }
+                onClicked: chatPage.openPinned()
+            }
+            MenuItem {
+                text: qsTr("Prompt library")
+                onClicked: chatPage.openPromptLibrary()
+            }
+            MenuItem {
+                text: qsTr("Conversation settings")
+                onClicked: chatPage.openConversationSettings()
             }
             MenuItem {
                 text: qsTr("Settings & About")
@@ -131,10 +147,7 @@ Page {
             MenuItem {
                 text: qsTr("New conversation")
                 enabled: conversationModel.count > 0
-                onClicked: {
-                    conversationManager.createNewConversation()
-                    streamingContent = ""
-                }
+                onClicked: chatPage.startNewConversation()
             }
         }
 
@@ -209,6 +222,22 @@ Page {
             }
         }
 
+        // Trimmed context notice
+        Item {
+            width: parent.width
+            height: visible ? trimLabel.height + Theme.paddingSmall : 0
+            visible: chatPage.trimmedMessages > 0
+
+            Label {
+                id: trimLabel
+                anchors.centerIn: parent
+                text: qsTr("Context limited: %n older message(s) not sent", "",
+                           chatPage.trimmedMessages)
+                font.pixelSize: Theme.fontSizeTiny
+                color: Theme.secondaryColor
+            }
+        }
+
         // Token usage banner
         Item {
             width: parent.width
@@ -218,10 +247,12 @@ Page {
             Label {
                 id: tokenLabel
                 anchors.centerIn: parent
-                text: qsTr("Tokens: %1 total - last: %2 in / %3 out")
-                        .arg(chatPage.conversationTokens)
-                        .arg(chatPage.lastPromptTokens)
-                        .arg(chatPage.lastCompletionTokens)
+                text: chatPage.lastCompletionTokens > 0
+                      ? qsTr("Tokens: %1 total - last: %2 in / %3 out")
+                            .arg(chatPage.conversationTokens)
+                            .arg(chatPage.lastPromptTokens)
+                            .arg(chatPage.lastCompletionTokens)
+                      : qsTr("Tokens: %1 total").arg(chatPage.conversationTokens)
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.secondaryColor
             }
@@ -240,7 +271,7 @@ Page {
                 id: errorLabel
                 anchors {
                     left: parent.left
-                    right: closeErrorButton.left
+                    right: retryErrorButton.left
                     verticalCenter: parent.verticalCenter
                     leftMargin: Theme.horizontalPageMargin
                     rightMargin: Theme.paddingMedium
@@ -249,6 +280,17 @@ Page {
                 color: Theme.errorColor
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeExtraSmall
+            }
+
+            IconButton {
+                id: retryErrorButton
+                anchors {
+                    right: closeErrorButton.left
+                    verticalCenter: parent.verticalCenter
+                }
+                icon.source: "image://theme/icon-m-refresh"
+                enabled: !mistralApi.isBusy && conversationModel.count > 0
+                onClicked: chatPage.retryLastRequest()
             }
 
             IconButton {
@@ -334,7 +376,7 @@ Page {
                 IconButton {
                     id: attachButton
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: settingsManager.isVisionModel(settingsManager.modelName)
+                    visible: settingsManager.isVisionModel(chatPage.activeModel)
                     icon.source: "image://theme/icon-m-attach"
                     icon.highlighted: chatPage.attachedImagePath !== ""
                     onClicked: {
@@ -414,6 +456,16 @@ Page {
                 }
             }
         }
+    }
+
+    // Repainting the whole message on every SSE delta is what makes long
+    // answers stutter: coalesce the deltas and update at a fixed cadence.
+    Timer {
+        id: streamFlushTimer
+        interval: 90
+        repeat: true
+        running: mistralApi.isBusy
+        onTriggered: chatPage.flushStream()
     }
 
     // First launch dialog
@@ -509,7 +561,10 @@ Page {
 
         ImagePickerPage {
             onSelectedContentPropertiesChanged: {
-                chatPage.attachedImagePath = selectedContentProperties.filePath
+                // Keep our own downscaled copy: the gallery original can be
+                // deleted, and the conversation still needs the picture.
+                chatPage.attachedImagePath =
+                    conversationManager.retainImage(selectedContentProperties.filePath)
             }
         }
     }
@@ -519,26 +574,37 @@ Page {
         target: mistralApi
 
         onStreamingResponse: {
-            streamingContent += content
-            conversationModel.updateLastAssistantMessage(streamingContent)
-            if (chatPage.autoScroll) {
-                messageListView.positionViewAtEnd()
-            }
+            chatPage.streamingContent += content
+            chatPage.streamPending = true
         }
 
         onMessageSent: {
-            streamingContent = ""
+            chatPage.streamingContent = ""
+            chatPage.streamPending = false
+            // Added only once the request is actually in flight, so a rejected
+            // send never leaves an empty assistant bubble behind.
+            conversationModel.addAssistantMessage("")
+            messageListView.positionViewAtEnd()
         }
 
         onUsageReceived: {
-            conversationManager.addTokenUsage(promptTokens, completionTokens)
+            conversationManager.addTokenUsage(promptTokens, completionTokens,
+                                              chatPage.lastUsedModel)
             chatPage.lastPromptTokens = promptTokens
             chatPage.lastCompletionTokens = completionTokens
             chatPage.conversationTokens += promptTokens + completionTokens
         }
 
+        onSideRequestUsage: {
+            // Title generation is billed too, but it is not part of what the
+            // conversation banner reports.
+            conversationManager.addTokenUsage(promptTokens, completionTokens,
+                                              chatPage.lastUsedModel)
+        }
+
         onResponseCompleted: {
-            streamingContent = ""
+            chatPage.flushStream()
+            chatPage.streamingContent = ""
 
             // Drop the empty assistant bubble left behind by an error or cancel
             conversationModel.removeLastMessageIfEmpty()
@@ -547,12 +613,15 @@ Page {
                 messageListView.positionViewAtEnd()
             }
             conversationManager.saveCurrentConversation()
+            chatPage.refreshTrimIndicator()
 
-            // Generate title after first exchange (2 messages: user + assistant)
-            if (conversationModel.count === 2) {
+            // Generate title after the first exchange, once per conversation
+            if (!chatPage.titleRequested && conversationModel.count === 2) {
                 var firstMessage = conversationModel.getFirstUserMessage()
                 if (firstMessage) {
-                    mistralApi.generateTitle(settingsManager.apiKey, settingsManager.modelName, firstMessage)
+                    chatPage.titleRequested = true
+                    mistralApi.generateTitle(settingsManager.apiKey,
+                                             chatPage.activeModel, firstMessage)
                 }
             }
         }
@@ -569,6 +638,8 @@ Page {
         onApiKeyChanged: {
             firstUse = !settingsManager.hasApiKey
         }
+
+        onContextMessageLimitChanged: chatPage.refreshTrimIndicator()
     }
 
     Connections {
@@ -577,12 +648,25 @@ Page {
         onCurrentConversationChanged: {
             chatPage.lastPromptTokens = 0
             chatPage.lastCompletionTokens = 0
-            chatPage.conversationTokens = 0
+            chatPage.titleRequested = false
+            // Restore the running total instead of showing 0 for a
+            // conversation that already cost something.
+            var stats = conversationManager.getConversationStatistics(
+                            conversationManager.currentConversationId())
+            chatPage.conversationTokens = stats.totalTokens || 0
+            chatPage.refreshOverrides()
+            chatPage.refreshTrimIndicator()
         }
     }
 
     Component.onCompleted: {
         firstUse = !settingsManager.hasApiKey
+
+        var stats = conversationManager.getConversationStatistics(
+                        conversationManager.currentConversationId())
+        conversationTokens = stats.totalTokens || 0
+        refreshOverrides()
+        refreshTrimIndicator()
 
         // Show first launch dialog after a short delay to let PageStack settle
         if (settingsManager.isFirstLaunch()) {
@@ -595,6 +679,50 @@ Page {
         interval: 500
         repeat: false
         onTriggered: firstLaunchDialog.open()
+    }
+
+    function flushStream() {
+        if (!streamPending) return
+        streamPending = false
+        conversationModel.updateLastAssistantMessage(streamingContent)
+        if (autoScroll) {
+            messageListView.positionViewAtEnd()
+        }
+    }
+
+    function refreshOverrides() {
+        var overrides = conversationManager.getConversationOverrides(
+                            conversationManager.currentConversationId())
+        conversationModelOverride = overrides.model || ""
+        conversationPromptOverride = overrides.systemPrompt || ""
+    }
+
+    function effectiveSystemPrompt() {
+        return conversationPromptOverride !== "" ? conversationPromptOverride
+                                                 : settingsManager.systemPrompt
+    }
+
+    function refreshTrimIndicator() {
+        trimmedMessages = conversationManager.trimmedMessageCount(
+                    settingsManager.contextMessageLimit)
+    }
+
+    function dispatchRequest() {
+        var messages = conversationManager.buildApiMessages(
+                    settingsManager.contextMessageLimit, effectiveSystemPrompt())
+        if (messages.length === 0) {
+            return
+        }
+
+        lastUsedModel = activeModel
+        autoScroll = true
+
+        mistralApi.sendMessage(settingsManager.apiKey, lastUsedModel, messages,
+                               settingsManager.temperature, settingsManager.maxTokens)
+
+        // Reset next message model after sending
+        settingsManager.resetNextMessageModel()
+        refreshTrimIndicator()
     }
 
     function sendMessage() {
@@ -611,43 +739,21 @@ Page {
 
         messageInput.text = ""
         messageInput.focus = false
-        autoScroll = true
         conversationModel.addUserMessage(message, imagePath)
 
-        var apiKey = settingsManager.apiKey
-        var messages = conversationModel.getMessagesForApi()
+        // Persist before the round trip: losing the question because the app
+        // was closed mid-answer is worse than losing the answer.
+        conversationManager.saveCurrentConversation()
 
-        // Attach the image to the last message as multimodal content
-        if (imagePath !== "") {
-            var dataUrl = conversationManager.imageToDataUrl(imagePath)
-            if (dataUrl !== "") {
-                messages[messages.length - 1] = {
-                    "role": "user",
-                    "content": [
-                        { "type": "text", "text": message },
-                        { "type": "image_url", "image_url": dataUrl }
-                    ]
-                }
-            }
-        }
+        dispatchRequest()
+    }
 
-        if (settingsManager.systemPrompt !== "") {
-            messages = [{ "role": "system", "content": settingsManager.systemPrompt }].concat(messages)
-        }
+    function retryLastRequest() {
+        if (mistralApi.isBusy) return
 
-        // Use nextMessageModel if set, otherwise use default model
-        var actualModel = settingsManager.nextMessageModel !== "" ?
-                          settingsManager.nextMessageModel :
-                          settingsManager.modelName
-
-        conversationModel.addAssistantMessage("")
-        mistralApi.sendMessage(apiKey, actualModel, messages,
-                               settingsManager.temperature, settingsManager.maxTokens)
-
-        // Reset next message model after sending
-        settingsManager.resetNextMessageModel()
-
-        messageListView.positionViewAtEnd()
+        mistralApi.clearError()
+        conversationModel.removeLastMessageIfEmpty()
+        dispatchRequest()
     }
 
     function editMessage(index, content) {
@@ -658,6 +764,45 @@ Page {
         conversationManager.saveCurrentConversation()
         messageInput.text = content
         messageInput.focus = true
+        refreshTrimIndicator()
+    }
+
+    function insertPrompt(text) {
+        if (!text) return
+        messageInput.text = messageInput.text.length > 0
+                ? messageInput.text + "\n" + text
+                : text
+        messageInput.focus = true
+    }
+
+    function startNewConversation() {
+        conversationManager.createNewConversation()
+        streamingContent = ""
+        streamPending = false
+    }
+
+    function openHistory() {
+        if (pageStack.nextPage(chatPage) !== null) {
+            pageStack.navigateForward()
+        } else {
+            pageStack.push(Qt.resolvedUrl("ConversationHistoryPage.qml"))
+        }
+    }
+
+    function openPinned() {
+        conversationManager.saveCurrentConversation()
+        pageStack.push(Qt.resolvedUrl("PinnedMessagesPage.qml"), { chatPage: chatPage })
+    }
+
+    function openPromptLibrary() {
+        pageStack.push(Qt.resolvedUrl("PromptLibraryPage.qml"), { chatPage: chatPage })
+    }
+
+    function openConversationSettings() {
+        conversationManager.saveCurrentConversation()
+        pageStack.push(Qt.resolvedUrl("ConversationSettingsPage.qml"), {
+            conversationId: conversationManager.currentConversationId()
+        })
     }
 
     function exportCurrentConversation() {
@@ -676,16 +821,7 @@ Page {
         if (mistralApi.isBusy) return
 
         conversationModel.removeLastAssistantMessage()
-
-        var messages = conversationModel.getMessagesForApi()
-        if (settingsManager.systemPrompt !== "") {
-            messages = [{ "role": "system", "content": settingsManager.systemPrompt }].concat(messages)
-        }
-
-        autoScroll = true
-        conversationModel.addAssistantMessage("")
-        mistralApi.sendMessage(settingsManager.apiKey, settingsManager.modelName, messages,
-                               settingsManager.temperature, settingsManager.maxTokens)
+        dispatchRequest()
     }
 
     ModelSelector {

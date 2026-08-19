@@ -2,97 +2,10 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="de">
     <context>
-        <name>AboutPage</name>
-        <message>
-            <source>About</source>
-            <translation>About</translation>
-        </message>
-        <message>
-            <source>Version %1</source>
-            <translation>Version %1</translation>
-        </message>
-        <message>
-            <source>Description</source>
-            <translation>Description</translation>
-        </message>
-        <message>
-            <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.</source>
-            <translation>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.</translation>
-        </message>
-        <message>
-            <source>Features</source>
-            <translation>Features</translation>
-        </message>
-        <message>
-            <source>• Mistral AI free tier support</source>
-            <translation>• Mistral AI free tier support</translation>
-        </message>
-        <message>
-            <source>• Real-time streaming responses</source>
-            <translation>• Real-time streaming responses</translation>
-        </message>
-        <message>
-            <source>• Native Sailfish interface with Silica</source>
-            <translation>• Native Sailfish interface with Silica</translation>
-        </message>
-        <message>
-            <source>• Conversation history</source>
-            <translation>• Conversation history</translation>
-        </message>
-        <message>
-            <source>• Choice between multiple Mistral models</source>
-            <translation>• Choice between multiple Mistral models</translation>
-        </message>
-        <message>
-            <source>Development</source>
-            <translation>Development</translation>
-        </message>
-        <message>
-            <source>Developed with ❤️ for Sailfish OS</source>
-            <translation>Developed with ❤️ for Sailfish OS</translation>
-        </message>
-        <message>
-            <source>Source code on GitHub</source>
-            <translation>Source code on GitHub</translation>
-        </message>
-        <message>
-            <source>Credits</source>
-            <translation>Credits</translation>
-        </message>
-        <message>
-            <source>Powered by Mistral AI API\nInterface: Sailfish Silica\nFramework: Qt 5.6</source>
-            <translation>Powered by Mistral AI API
-Interface: Sailfish Silica
-Framework: Qt 5.6</translation>
-        </message>
-        <message>
-            <source>License</source>
-            <translation>License</translation>
-        </message>
-        <message>
-            <source>MIT License\n\nThis application is free software. You are free to use, modify, and distribute it under the terms of the MIT license.</source>
-            <translation>MIT License
-
-This application is free software. You are free to use, modify, and distribute it under the terms of the MIT license.</translation>
-        </message>
-    </context>
-    <context>
         <name>ChatPage</name>
         <message>
-            <source>About</source>
-            <translation>About</translation>
-        </message>
-        <message>
-            <source>Settings</source>
-            <translation>Settings</translation>
-        </message>
-        <message>
-            <source>Conversations</source>
-            <translation>Conversations</translation>
-        </message>
-        <message>
             <source>New conversation</source>
-            <translation>New conversation</translation>
+            <translation>Neue Unterhaltung</translation>
         </message>
         <message>
             <source>Welcome to SailCat</source>
@@ -101,14 +14,6 @@ This application is free software. You are free to use, modify, and distribute i
         <message>
             <source>Configure your Mistral API key to get started</source>
             <translation>Configure your Mistral API key to get started</translation>
-        </message>
-        <message>
-            <source>Configure</source>
-            <translation>Configure</translation>
-        </message>
-        <message>
-            <source>Your message...</source>
-            <translation>Your message...</translation>
         </message>
         <message>
             <source>Start a conversation</source>
@@ -121,22 +26,6 @@ This application is free software. You are free to use, modify, and distribute i
         <message>
             <source>Type a message...</source>
             <translation>Type a message...</translation>
-        </message>
-        <message>
-            <source>Welcome</source>
-            <translation>Welcome</translation>
-        </message>
-        <message>
-            <source>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</source>
-            <translation>Welcome to SailCat! To get started, you need to configure your Mistral AI API key in Settings.</translation>
-        </message>
-        <message>
-            <source>Open Settings</source>
-            <translation>Open Settings</translation>
-        </message>
-        <message>
-            <source>Skip for now</source>
-            <translation>Skip for now</translation>
         </message>
         <message>
             <source>1. Get a free API key from console.mistral.ai
@@ -208,50 +97,31 @@ This application is free software. You are free to use, modify, and distribute i
 • Sie benötigen einen eigenen API-Schlüssel
 • Ihre Daten bleiben auf Ihrem Telefon</translation>
         </message>
-    </context>
-    <context>
-        <name>ConversationListPage</name>
         <message>
-            <source>New conversation</source>
-            <translation>New conversation</translation>
+            <source>Prompt library</source>
+            <translation>Prompt-Bibliothek</translation>
         </message>
         <message>
-            <source>Conversations</source>
-            <translation>Conversations</translation>
-        </message>
-        <message>
-            <source>Delete</source>
-            <translation>Delete</translation>
-        </message>
-        <message>
-            <source>Deleting</source>
-            <translation>Deleting</translation>
+            <source>Conversation settings</source>
+            <translation>Unterhaltungseinstellungen</translation>
         </message>
         <message numerus="yes">
-            <source>%n message(s)</source>
+            <source>Context limited: %n older message(s) not sent</source>
             <translation>
-                <numerusform>%n message</numerusform>
-                <numerusform>%n messages</numerusform>
+                <numerusform>Kontext begrenzt: %n ältere Nachricht nicht gesendet</numerusform>
+                <numerusform>Kontext begrenzt: %n ältere Nachrichten nicht gesendet</numerusform>
             </translation>
         </message>
         <message>
-            <source>No conversations</source>
-            <translation>No conversations</translation>
-        </message>
-        <message>
-            <source>Create a new conversation using the menu</source>
-            <translation>Create a new conversation using the menu</translation>
-        </message>
-        <message>
-            <source>Start chatting to create conversations</source>
-            <translation>Start chatting to create conversations</translation>
+            <source>Tokens: %1 total</source>
+            <translation>Tokens: %1 insgesamt</translation>
         </message>
     </context>
     <context>
         <name>ConversationManager</name>
         <message>
             <source>New conversation</source>
-            <translation>New conversation</translation>
+            <translation>Neue Unterhaltung</translation>
         </message>
         <message>
             <source>Match in title</source>
@@ -282,38 +152,7 @@ This application is free software. You are free to use, modify, and distribute i
         </message>
     </context>
     <context>
-        <context>
-            <name>MessageBubble</name>
-            <message>
-                <source>Copy</source>
-                <translation>Copy</translation>
-            </message>
-            <message>
-                <source>Copy code</source>
-                <translation>Code kopieren</translation>
-            </message>
-            <message>
-                <source>Edit</source>
-                <translation>Bearbeiten</translation>
-            </message>
-            <message>
-                <source>Pin</source>
-                <translation>Anheften</translation>
-            </message>
-            <message>
-                <source>Regenerate</source>
-                <translation>Neu generieren</translation>
-            </message>
-            <message>
-                <source>Unpin</source>
-                <translation>Lösen</translation>
-            </message>
-        </context>
         <name>SettingsPage</name>
-        <message>
-            <source>Settings</source>
-            <translation>Settings</translation>
-        </message>
         <message>
             <source>Save</source>
             <translation>Save</translation>
@@ -325,14 +164,6 @@ This application is free software. You are free to use, modify, and distribute i
         <message>
             <source>API Configuration</source>
             <translation>API Configuration</translation>
-        </message>
-        <message>
-            <source>Use my own API key</source>
-            <translation>Use my own API key</translation>
-        </message>
-        <message>
-            <source>Enable this option to use your personal Mistral API key</source>
-            <translation>Enable this option to use your personal Mistral API key</translation>
         </message>
         <message>
             <source>To get a free API key, visit console.mistral.ai</source>
@@ -365,58 +196,6 @@ This application is free software. You are free to use, modify, and distribute i
         <message>
             <source>Select the model to use</source>
             <translation>Select the model to use</translation>
-        </message>
-        <message>
-            <source>Mistral Small (Recommended)</source>
-            <translation>Mistral Small (Recommended)</translation>
-        </message>
-        <message>
-            <source>Mistral Large</source>
-            <translation>Mistral Large</translation>
-        </message>
-        <message>
-            <source>Pixtral 12B (Vision)</source>
-            <translation>Pixtral 12B (Vision)</translation>
-        </message>
-        <message>
-            <source>Balanced model between performance and speed. Ideal for most conversations.</source>
-            <translation>Balanced model between performance and speed. Ideal for most conversations.</translation>
-        </message>
-        <message>
-            <source>Most powerful model for complex tasks. Requires more API credits.</source>
-            <translation>Most powerful model for complex tasks. Requires more API credits.</translation>
-        </message>
-        <message>
-            <source>Model with image support. Can analyze and understand images.</source>
-            <translation>Model with image support. Can analyze and understand images.</translation>
-        </message>
-        <message>
-            <source>Updates</source>
-            <translation>Updates</translation>
-        </message>
-        <message>
-            <source>Current version: %1</source>
-            <translation>Current version: %1</translation>
-        </message>
-        <message>
-            <source>Update available: v%1</source>
-            <translation>Update available: v%1</translation>
-        </message>
-        <message>
-            <source>Checking...</source>
-            <translation>Checking...</translation>
-        </message>
-        <message>
-            <source>Check for updates</source>
-            <translation>Check for updates</translation>
-        </message>
-        <message>
-            <source>Information</source>
-            <translation>Information</translation>
-        </message>
-        <message>
-            <source>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</source>
-            <translation>SailCat uses Mistral AI API to provide intelligent conversations. Mistral's free tier offers free access with request limits suitable for experimentation and development.</translation>
         </message>
         <message>
             <source>About</source>
@@ -546,36 +325,88 @@ This application is free software. You are free to use, modify, and distribute i
 • Keine Synchronisierung mit Mistral Web
 • Eigener API-Schlüssel erforderlich</translation>
         </message>
-    </context>
-    <context>
-        <name>CategoryChip</name>
         <message>
-            <source>Code</source>
-            <translation>Code</translation>
+            <source>Prompt library</source>
+            <translation>Prompt-Bibliothek</translation>
         </message>
         <message>
-            <source>Ideas</source>
-            <translation>Ideen</translation>
+            <source>Show API key</source>
+            <translation>API-Schlüssel anzeigen</translation>
         </message>
         <message>
-            <source>Learning</source>
-            <translation>Lernen</translation>
+            <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
+            <translation>Der Schlüssel wird verschleiert in einer nur für Sie lesbaren Datei gespeichert und über TLS an api.mistral.ai gesendet. Sonst verlässt er das Gerät nicht.</translation>
         </message>
         <message>
-            <source>Other</source>
-            <translation>Sonstiges</translation>
+            <source>Appearance</source>
+            <translation>Erscheinungsbild</translation>
         </message>
         <message>
-            <source>Practical</source>
-            <translation>Praktisches</translation>
+            <source>Conversation style</source>
+            <translation>Unterhaltungsstil</translation>
         </message>
         <message>
-            <source>Translation</source>
-            <translation>Übersetzung</translation>
+            <source>How messages are laid out in the chat</source>
+            <translation>Wie Nachrichten im Chat angeordnet werden</translation>
         </message>
         <message>
-            <source>Writing</source>
-            <translation>Schreiben</translation>
+            <source>Show timestamps</source>
+            <translation>Zeitstempel anzeigen</translation>
+        </message>
+        <message>
+            <source>Display the time under each message</source>
+            <translation>Zeigt die Uhrzeit unter jeder Nachricht</translation>
+        </message>
+        <message>
+            <source>Limit conversation context</source>
+            <translation>Kontext begrenzen</translation>
+        </message>
+        <message>
+            <source>Send only the most recent messages. Keeps long conversations cheap and avoids hitting the model context limit.</source>
+            <translation>Sendet nur die neuesten Nachrichten. Hält lange Unterhaltungen günstig und vermeidet das Kontextlimit des Modells.</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n message(s)</source>
+            <translation>
+                <numerusform>%n message</numerusform>
+                <numerusform>%n messages</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Messages kept</source>
+            <translation>Behaltene Nachrichten</translation>
+        </message>
+        <message>
+            <source>Bubbles</source>
+            <translation>Sprechblasen</translation>
+        </message>
+        <message>
+            <source>Compact</source>
+            <translation>Kompakt</translation>
+        </message>
+        <message>
+            <source>Cards</source>
+            <translation>Karten</translation>
+        </message>
+        <message>
+            <source>Flat</source>
+            <translation>Flach</translation>
+        </message>
+        <message>
+            <source>Rounded bubbles aligned left and right, like a messaging app.</source>
+            <translation>Runde Sprechblasen links und rechts, wie in einer Messaging-App.</translation>
+        </message>
+        <message>
+            <source>Dense rows with a short speaker prefix. Fits the most text on screen.</source>
+            <translation>Dichte Zeilen mit kurzem Sprecherkürzel. Zeigt am meisten Text auf dem Bildschirm.</translation>
+        </message>
+        <message>
+            <source>Each message in its own panel with a header.</source>
+            <translation>Jede Nachricht in einem eigenen Feld mit Kopfzeile.</translation>
+        </message>
+        <message>
+            <source>Full width rows with a tinted background on your messages.</source>
+            <translation>Zeilen über die volle Breite, Ihre Nachrichten farbig hinterlegt.</translation>
         </message>
     </context>
     <context>
@@ -761,6 +592,29 @@ This application is free software. You are free to use, modify, and distribute i
             <source>View details</source>
             <translation>Details anzeigen</translation>
         </message>
+        <message>
+            <source>Conversation settings</source>
+            <translation>Unterhaltungseinstellungen</translation>
+        </message>
+        <message>
+            <source>Share</source>
+            <translation>Teilen</translation>
+        </message>
+        <message>
+            <source>Auto-label conversations</source>
+            <translation>Unterhaltungen automatisch beschriften</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n conversation(s) relabelled</source>
+            <translation>
+                <numerusform>%n Unterhaltung neu beschriftet</numerusform>
+                <numerusform>%n Unterhaltungen neu beschriftet</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Nothing to relabel</source>
+            <translation>Nichts neu zu beschriften</translation>
+        </message>
     </context>
     <context>
         <name>CoverPage</name>
@@ -835,10 +689,6 @@ This application is free software. You are free to use, modify, and distribute i
             <translation>Aktivität nach Uhrzeit</translation>
         </message>
         <message>
-            <source>Code</source>
-            <translation>Code</translation>
-        </message>
-        <message>
             <source>Completion tokens</source>
             <translation>Completion-Tokens</translation>
         </message>
@@ -851,16 +701,8 @@ This application is free software. You are free to use, modify, and distribute i
             <translation>Erste Nachricht</translation>
         </message>
         <message>
-            <source>Ideas</source>
-            <translation>Ideen</translation>
-        </message>
-        <message>
             <source>Last 14 days</source>
             <translation>Letzte 14 Tage</translation>
-        </message>
-        <message>
-            <source>Learning</source>
-            <translation>Lernen</translation>
         </message>
         <message>
             <source>Longest conversation</source>
@@ -887,20 +729,12 @@ This application is free software. You are free to use, modify, and distribute i
             <translation>Keine</translation>
         </message>
         <message>
-            <source>Other</source>
-            <translation>Sonstiges</translation>
-        </message>
-        <message>
             <source>Peak: %1 messages/day</source>
             <translation>Spitze: %1 Nachrichten/Tag</translation>
         </message>
         <message>
             <source>Peak: %1 tokens/day</source>
             <translation>Spitze: %1 Tokens/Tag</translation>
-        </message>
-        <message>
-            <source>Practical</source>
-            <translation>Praktisches</translation>
         </message>
         <message>
             <source>Prompt tokens</source>
@@ -939,16 +773,8 @@ This application is free software. You are free to use, modify, and distribute i
             <translation>Verbrauchte Tokens</translation>
         </message>
         <message>
-            <source>Translation</source>
-            <translation>Übersetzung</translation>
-        </message>
-        <message>
             <source>Who writes more?</source>
             <translation>Wer schreibt mehr?</translation>
-        </message>
-        <message>
-            <source>Writing</source>
-            <translation>Schreiben</translation>
         </message>
         <message>
             <source>You: %1 chars</source>
@@ -1053,6 +879,310 @@ This application is free software. You are free to use, modify, and distribute i
         <message>
             <source>Wanderer</source>
             <translation>Wanderer</translation>
+        </message>
+        <message>
+            <source>n/a</source>
+            <translation>k. A.</translation>
+        </message>
+        <message>
+            <source>Estimated cost</source>
+            <translation>Geschätzte Kosten</translation>
+        </message>
+        <message>
+            <source>Total</source>
+            <translation>Gesamt</translation>
+        </message>
+        <message>
+            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
+            <translation>Schätzung auf Basis der öffentlichen Listenpreise, in US-Dollar. Gezählt wird nur die von dieser App erfasste Nutzung - die echte Rechnung steht in Ihrer Mistral-Konsole.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Categories</name>
+        <message>
+            <source>Code</source>
+            <translation>Code</translation>
+        </message>
+        <message>
+            <source>Debugging</source>
+            <translation>Debugging</translation>
+        </message>
+        <message>
+            <source>DevOps</source>
+            <translation>DevOps</translation>
+        </message>
+        <message>
+            <source>Data</source>
+            <translation>Daten</translation>
+        </message>
+        <message>
+            <source>Design</source>
+            <translation>Design</translation>
+        </message>
+        <message>
+            <source>Writing</source>
+            <translation>Schreiben</translation>
+        </message>
+        <message>
+            <source>Translation</source>
+            <translation>Übersetzung</translation>
+        </message>
+        <message>
+            <source>Learning</source>
+            <translation>Lernen</translation>
+        </message>
+        <message>
+            <source>Research</source>
+            <translation>Recherche</translation>
+        </message>
+        <message>
+            <source>Maths</source>
+            <translation>Mathe</translation>
+        </message>
+        <message>
+            <source>Science</source>
+            <translation>Wissenschaft</translation>
+        </message>
+        <message>
+            <source>Business</source>
+            <translation>Business</translation>
+        </message>
+        <message>
+            <source>Finance</source>
+            <translation>Finanzen</translation>
+        </message>
+        <message>
+            <source>Career</source>
+            <translation>Karriere</translation>
+        </message>
+        <message>
+            <source>Legal</source>
+            <translation>Recht</translation>
+        </message>
+        <message>
+            <source>Health</source>
+            <translation>Gesundheit</translation>
+        </message>
+        <message>
+            <source>Cooking</source>
+            <translation>Kochen</translation>
+        </message>
+        <message>
+            <source>Travel</source>
+            <translation>Reisen</translation>
+        </message>
+        <message>
+            <source>Home</source>
+            <translation>Zuhause</translation>
+        </message>
+        <message>
+            <source>Gaming</source>
+            <translation>Gaming</translation>
+        </message>
+        <message>
+            <source>Music</source>
+            <translation>Musik</translation>
+        </message>
+        <message>
+            <source>Books &amp; Movies</source>
+            <translation>Bücher &amp; Filme</translation>
+        </message>
+        <message>
+            <source>Sports</source>
+            <translation>Sport</translation>
+        </message>
+        <message>
+            <source>Relationships</source>
+            <translation>Beziehungen</translation>
+        </message>
+        <message>
+            <source>Productivity</source>
+            <translation>Produktivität</translation>
+        </message>
+        <message>
+            <source>Ideas</source>
+            <translation>Ideen</translation>
+        </message>
+        <message>
+            <source>Practical</source>
+            <translation>Praktisches</translation>
+        </message>
+        <message>
+            <source>Other</source>
+            <translation>Sonstiges</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConversationSettingsPage</name>
+        <message>
+            <source>Conversation settings</source>
+            <translation>Unterhaltungseinstellungen</translation>
+        </message>
+        <message>
+            <source>Save</source>
+            <translation>Save</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Cancel</translation>
+        </message>
+        <message>
+            <source>Title</source>
+            <translation>Titel</translation>
+        </message>
+        <message>
+            <source>Conversation title</source>
+            <translation>Titel der Unterhaltung</translation>
+        </message>
+        <message>
+            <source>Category</source>
+            <translation>Kategorie</translation>
+        </message>
+        <message>
+            <source>Topic</source>
+            <translation>Thema</translation>
+        </message>
+        <message>
+            <source>Used by the statistics page</source>
+            <translation>Wird von der Statistikseite verwendet</translation>
+        </message>
+        <message>
+            <source>Model</source>
+            <translation>Model</translation>
+        </message>
+        <message>
+            <source>Model for this conversation</source>
+            <translation>Modell für diese Unterhaltung</translation>
+        </message>
+        <message>
+            <source>Overrides the model chosen in settings</source>
+            <translation>Überschreibt das in den Einstellungen gewählte Modell</translation>
+        </message>
+        <message>
+            <source>Use default (%1)</source>
+            <translation>Standard verwenden (%1)</translation>
+        </message>
+        <message>
+            <source>System prompt</source>
+            <translation>System-Prompt</translation>
+        </message>
+        <message>
+            <source>Custom system prompt</source>
+            <translation>Benutzerdefinierter System-Prompt</translation>
+        </message>
+        <message>
+            <source>Replaces the global system prompt for this conversation only</source>
+            <translation>Ersetzt den globalen System-Prompt nur für diese Unterhaltung</translation>
+        </message>
+        <message>
+            <source>Instruction</source>
+            <translation>Anweisung</translation>
+        </message>
+        <message>
+            <source>Enter a system prompt...</source>
+            <translation>System-Prompt eingeben...</translation>
+        </message>
+    </context>
+    <context>
+        <name>MessageBubble</name>
+        <message>
+            <source>You</source>
+            <translation>Sie</translation>
+        </message>
+        <message>
+            <source>Assistant</source>
+            <translation>Assistent</translation>
+        </message>
+        <message>
+            <source>Copy</source>
+            <translation>Kopieren</translation>
+        </message>
+        <message>
+            <source>Unpin</source>
+            <translation>Lösen</translation>
+        </message>
+        <message>
+            <source>Pin</source>
+            <translation>Anheften</translation>
+        </message>
+        <message>
+            <source>Copy code</source>
+            <translation>Code kopieren</translation>
+        </message>
+        <message>
+            <source>Edit</source>
+            <translation>Bearbeiten</translation>
+        </message>
+        <message>
+            <source>Regenerate</source>
+            <translation>Neu generieren</translation>
+        </message>
+    </context>
+    <context>
+        <name>PromptLibraryPage</name>
+        <message>
+            <source>Prompt library</source>
+            <translation>Prompt-Bibliothek</translation>
+        </message>
+        <message>
+            <source>Tap a prompt to add it to the message you are writing.</source>
+            <translation>Auf einen Prompt tippen, um ihn der aktuellen Nachricht hinzuzufügen.</translation>
+        </message>
+        <message>
+            <source>New prompt</source>
+            <translation>Neuer Prompt</translation>
+        </message>
+        <message>
+            <source>No saved prompts</source>
+            <translation>Keine gespeicherten Prompts</translation>
+        </message>
+        <message>
+            <source>Use the pulley menu to save one</source>
+            <translation>Über das Pulley-Menü einen speichern</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Löschen</translation>
+        </message>
+        <message>
+            <source>Deleting</source>
+            <translation>Wird gelöscht</translation>
+        </message>
+        <message>
+            <source>Edit prompt</source>
+            <translation>Prompt bearbeiten</translation>
+        </message>
+        <message>
+            <source>Save</source>
+            <translation>Save</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Cancel</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Name</translation>
+        </message>
+        <message>
+            <source>Optional name</source>
+            <translation>Optionaler Name</translation>
+        </message>
+        <message>
+            <source>Prompt</source>
+            <translation>Prompt</translation>
+        </message>
+        <message>
+            <source>Enter the prompt text...</source>
+            <translation>Prompt-Text eingeben...</translation>
+        </message>
+        <message>
+            <source>Edit</source>
+            <translation>Bearbeiten</translation>
+        </message>
+        <message>
+            <source>Copy</source>
+            <translation>Kopieren</translation>
         </message>
     </context>
 </TS>

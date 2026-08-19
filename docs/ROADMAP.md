@@ -48,6 +48,29 @@ Status legend: `todo` / `in progress` / `done`
 | 18 | Fun stats, badges & cover mini-stats | [18-fun-stats-badges.md](features/18-fun-stats-badges.md) | done (v2.0.3) |
 | 19 | Unit test suite (QtTest + CI gate) | [19-unit-tests.md](features/19-unit-tests.md) | done (v2.0.4) |
 
+## Phase 6 — Audit follow-up (August 2026)
+
+Everything below shipped together in v2.1.0, see [20-audit-followup.md](features/20-audit-followup.md).
+
+| # | Feature | Status |
+|---|---------|--------|
+| 20.1 | Encrypted-at-rest API key, owner-only files, TLS 1.2+, link scheme allowlist | done (v2.1.0) |
+| 20.2 | Per-file conversation storage with migration | done (v2.1.0) |
+| 20.3 | Conversation context limit | done (v2.1.0) |
+| 20.4 | Streaming render throttling | done (v2.1.0) |
+| 20.5 | Prompt library | done (v2.1.0) |
+| 20.6 | Per-conversation model & system prompt, rename | done (v2.1.0) |
+| 20.7 | Retry on error | done (v2.1.0) |
+| 20.8 | Selectable chat styles | done (v2.1.0) |
+| 20.9 | 28 categories + local classifier + relabel action | done (v2.1.0) |
+| 20.10 | Cost estimation in statistics | done (v2.1.0) |
+| 20.11 | Share via Sailfish share menu | done (v2.1.0) |
+| 20.12 | Update checker removed (was dead code) | done (v2.1.0) |
+| 20.13 | Live answer on the cover | done (v2.1.0) |
+
+Deliberately not done: conversation import (owner's call), PDF attachments (needs a
+parser outside the harbour allowed dependencies).
+
 ## Already done (do not re-implement)
 
 - Conversation persistence, history page, search (`ConversationManager::searchConversations` + `SearchField` in ConversationHistoryPage)

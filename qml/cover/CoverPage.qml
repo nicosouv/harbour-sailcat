@@ -28,6 +28,15 @@ CoverBackground {
         onCurrentConversationChanged: cover.refresh()
     }
 
+    // Follow the answer as it arrives. Polling beats reacting to every delta:
+    // the cover is small and a redraw per token would be wasted work.
+    Timer {
+        interval: 500
+        repeat: true
+        running: mistralApi.isBusy
+        onTriggered: cover.lastMessage = conversationModel.getLastAssistantMessage()
+    }
+
     Column {
         anchors {
             top: parent.top
