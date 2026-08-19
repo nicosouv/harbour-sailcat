@@ -572,6 +572,82 @@ private slots:
         manager.markConversationRead("no-such-id");
     }
 
+    void answerNeverLeaksIntoAnotherConversation()
+    {
+        // ConversationModel is a single reused object. Switching conversation
+        // mid-response used to make the rest of the answer land in - and be
+        // saved into - whatever was opened next.
+        MistralAPI api;
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.bindApi(&api);
+
+        const QString asking = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("question in A");
+        manager.saveCurrentConversation();
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "messageSent"));
+        QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                          Q_ARG(QString, "first half ")));
+        QTest::qWait(250);
+
+        // The user walks off to an unrelated conversation
+        manager.createNewConversation();
+        const QString other = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("unrelated question");
+        manager.saveCurrentConversation();
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                          Q_ARG(QString, "second half")));
+        QTest::qWait(250);
+
+        // Nothing from the answer may show up here
+        QCOMPARE(manager.currentConversation()->rowCount(), 1);
+        QCOMPARE(manager.currentConversation()->getLastAssistantMessage(), QString());
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "responseCompleted"));
+
+        // The other conversation is untouched
+        QCOMPARE(manager.getConversationStatistics(other)["messageCount"].toInt(), 1);
+        QCOMPARE(manager.currentConversation()->rowCount(), 1);
+
+        // And the full answer landed where it was asked
+        manager.loadConversation(asking);
+        QCOMPARE(manager.currentConversation()->rowCount(), 2);
+        QCOMPARE(manager.currentConversation()->getLastAssistantMessage(),
+                 QString("first half second half"));
+    }
+
+    void returningMidStreamShowsTheLatestText()
+    {
+        MistralAPI api;
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.bindApi(&api);
+
+        const QString asking = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("question");
+        manager.saveCurrentConversation();
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "messageSent"));
+        QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                          Q_ARG(QString, "partial")));
+        QTest::qWait(250);
+
+        manager.createNewConversation();
+        QVERIFY(QMetaObject::invokeMethod(&api, "streamingResponse",
+                                          Q_ARG(QString, " and more")));
+        QTest::qWait(250);
+
+        // Coming back must show everything buffered so far, not the snapshot
+        // taken when leaving
+        manager.loadConversation(asking);
+        QCOMPARE(manager.currentConversation()->getLastAssistantMessage(),
+                 QString("partial and more"));
+
+        QVERIFY(QMetaObject::invokeMethod(&api, "responseCompleted"));
+    }
+
     void cancelledRequestLeavesNoEmptyBubble()
     {
         MistralAPI api;

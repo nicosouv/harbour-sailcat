@@ -117,26 +117,77 @@ void ConversationManager::flushStream()
         return;
     }
     m_streamDirty = false;
+
+    // ConversationModel is a single reused object: loading another
+    // conversation swaps its contents. Writing the answer into it once the
+    // user has moved on would paint it onto - and save it into - a completely
+    // unrelated conversation. Keep buffering instead and write the answer back
+    // where it belongs when the response ends.
+    if (m_currentConversationId != m_streamingConversationId) {
+        return;
+    }
+
     m_currentConversation->updateLastAssistantMessage(m_streamBuffer);
     emit streamingUpdated();
+}
+
+// Response that ended while its conversation was not the one on screen: apply
+// it straight to the stored conversation rather than to the live model.
+void ConversationManager::finishBackgroundResponse()
+{
+    Conversation *conv = findConversation(m_streamingConversationId);
+    if (!conv) {
+        return;
+    }
+
+    const bool endsOnAssistant = !conv->messages.isEmpty()
+            && conv->messages.last().role == "assistant";
+
+    if (m_streamBuffer.isEmpty()) {
+        // Cancelled or failed before any content arrived: drop the placeholder
+        if (endsOnAssistant && conv->messages.last().content.isEmpty()) {
+            conv->messages.removeLast();
+        }
+    } else if (endsOnAssistant) {
+        conv->messages.last().content = m_streamBuffer;
+    } else {
+        Message msg;
+        msg.role = "assistant";
+        msg.content = m_streamBuffer;
+        msg.timestamp = QDateTime::currentMSecsSinceEpoch();
+        conv->messages.append(msg);
+    }
+
+    conv->updatedAt = QDateTime::currentMSecsSinceEpoch();
+    markDirty(conv->id);
+    saveDirtyConversations();
 }
 
 void ConversationManager::onResponseCompleted()
 {
     m_streamTimer->stop();
-    flushStream();
+
+    const QString finishedId = m_streamingConversationId;
+    const bool onScreen = !finishedId.isEmpty()
+            && finishedId == m_currentConversationId;
+
+    if (onScreen) {
+        flushStream();
+        // Drop the empty assistant bubble left behind by an error or a cancel
+        m_currentConversation->removeLastMessageIfEmpty();
+        // Save first: the flag below looks at the stored message list, which
+        // only catches up with the model here.
+        saveCurrentConversation();
+    } else {
+        finishBackgroundResponse();
+    }
+
     m_streamBuffer.clear();
-
-    // Drop the empty assistant bubble left behind by an error or a cancel
-    m_currentConversation->removeLastMessageIfEmpty();
-
-    // Save first: the flag below looks at the stored message list, which only
-    // catches up with the model here.
-    saveCurrentConversation();
+    m_streamDirty = false;
 
     // Flag the answer as unread. A chat page showing this conversation clears
     // it straight away; if the user walked off to the history, the badge stays.
-    Conversation *conv = findConversation(m_streamingConversationId);
+    Conversation *conv = findConversation(finishedId);
     if (conv && !conv->messages.isEmpty()) {
         conv->unread = true;
         markDirty(conv->id);
@@ -148,7 +199,7 @@ void ConversationManager::onResponseCompleted()
         emit streamingConversationIdChanged();
     }
 
-    emit responseFinished();
+    emit responseFinished(finishedId);
 }
 
 void ConversationManager::markConversationRead(const QString &conversationId)
@@ -166,7 +217,9 @@ void ConversationManager::markConversationRead(const QString &conversationId)
 void ConversationManager::onUsageReceived(int promptTokens, int completionTokens)
 {
     addTokenUsage(promptTokens, completionTokens, m_activeModel);
-    emit tokenUsageChanged(promptTokens, completionTokens);
+    emit tokenUsageChanged(m_streamingConversationId.isEmpty()
+                           ? m_currentConversationId : m_streamingConversationId,
+                           promptTokens, completionTokens);
 }
 
 void ConversationManager::onSideRequestUsage(int promptTokens, int completionTokens)
@@ -416,6 +469,12 @@ void ConversationManager::loadConversation(const QString &conversationId)
     for (const Message &msg : conv->messages) {
         m_currentConversation->addMessage(msg.role, msg.content, msg.timestamp,
                                           msg.pinned, msg.imagePath);
+    }
+
+    // Coming back to a conversation that is still receiving an answer: the
+    // stored copy stops where the last flush left it, the buffer is ahead.
+    if (!m_streamBuffer.isEmpty() && conversationId == m_streamingConversationId) {
+        m_currentConversation->updateLastAssistantMessage(m_streamBuffer);
     }
 
     m_settings.setValue("lastConversationId", m_currentConversationId);
@@ -1053,8 +1112,12 @@ void ConversationManager::addTokenUsage(int promptTokens, int completionTokens,
     m_settings.setValue("stats/dailyTokens",
                         QJsonDocument(daily).toJson(QJsonDocument::Compact));
 
-    // Per-model split, needed to turn tokens into a cost estimate
-    Conversation *conv = findConversation(m_currentConversationId);
+    // Per-model split, needed to turn tokens into a cost estimate.
+    // Charged to the conversation that asked, not to whatever is on screen by
+    // the time the usage chunk arrives.
+    Conversation *conv = findConversation(m_streamingConversationId.isEmpty()
+                                          ? m_currentConversationId
+                                          : m_streamingConversationId);
     if (!model.isEmpty()) {
         QJsonObject perModel = QJsonDocument::fromJson(
                     m_settings.value("stats/modelTokens").toByteArray()).object();

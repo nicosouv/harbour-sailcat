@@ -91,10 +91,6 @@ Page {
         // one leaves this conversation, the bottom one acts on it.
         PullDownMenu {
             MenuItem {
-                text: qsTr("Conversation History")
-                onClicked: chatPage.openHistory()
-            }
-            MenuItem {
                 text: qsTr("Pinned messages")
                 onClicked: chatPage.openPinned()
             }
@@ -566,18 +562,32 @@ Page {
         target: conversationManager
 
         onStreamingUpdated: {
+            // Only emitted for the conversation on screen, but the page may
+            // have scrolled away from the bottom
             if (chatPage.autoScroll) {
                 messageListView.positionViewAtEnd()
             }
         }
 
         onTokenUsageChanged: {
+            // A response can finish for a conversation the user has already
+            // left: the banner only reports on the one being shown.
+            if (conversationId !== conversationManager.currentConversationId()) {
+                return
+            }
             chatPage.lastPromptTokens = promptTokens
             chatPage.lastCompletionTokens = completionTokens
-            chatPage.conversationTokens += promptTokens + completionTokens
+            var stats = conversationManager.getConversationStatistics(conversationId)
+            chatPage.conversationTokens = stats.totalTokens || 0
         }
 
         onResponseFinished: {
+            // Answers that landed in another conversation are none of this
+            // page's business
+            if (conversationId !== conversationManager.currentConversationId()) {
+                return
+            }
+
             if (chatPage.autoScroll) {
                 messageListView.positionViewAtEnd()
             }
@@ -594,7 +604,6 @@ Page {
             // the first answer landed keeps its fallback title, and "Suggest a
             // title" is there to fix it.
             if (!chatPage.titleRequested && conversationModel.count === 2) {
-                var conversationId = conversationManager.currentConversationId()
                 var digest = conversationManager.conversationDigest(conversationId)
                 if (digest) {
                     chatPage.titleRequested = true
@@ -733,11 +742,6 @@ Page {
 
     function startNewConversation() {
         conversationManager.createNewConversation()
-    }
-
-    // The history is the page underneath, so going there is going back
-    function openHistory() {
-        pageStack.navigateBack()
     }
 
     function openPinned() {

@@ -36,10 +36,6 @@
 3. Los geht's!</translation>
         </message>
         <message>
-            <source>Conversation History</source>
-            <translation>Unterhaltungsverlauf</translation>
-        </message>
-        <message>
             <source>Conversation exported</source>
             <translation>Unterhaltung exportiert</translation>
         </message>
@@ -590,6 +586,10 @@
         <message>
             <source>Nothing to relabel</source>
             <translation>Nichts neu zu beschriften</translation>
+        </message>
+        <message>
+            <source>Settings &amp; About</source>
+            <translation>Einstellungen &amp; Info</translation>
         </message>
     </context>
     <context>

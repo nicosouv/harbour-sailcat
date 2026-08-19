@@ -110,9 +110,10 @@ signals:
     // Emitted on every throttled write of the streaming answer, so a visible
     // chat page can follow it.
     void streamingUpdated();
-    void responseFinished();
+    void responseFinished(const QString &conversationId);
     void streamingConversationIdChanged();
-    void tokenUsageChanged(int promptTokens, int completionTokens);
+    void tokenUsageChanged(const QString &conversationId,
+                           int promptTokens, int completionTokens);
 
 private slots:
     void onMessageSent();
@@ -121,6 +122,7 @@ private slots:
     void onUsageReceived(int promptTokens, int completionTokens);
     void onSideRequestUsage(int promptTokens, int completionTokens);
     void flushStream();
+    void finishBackgroundResponse();
 
 private:
     ConversationModel *m_currentConversation;

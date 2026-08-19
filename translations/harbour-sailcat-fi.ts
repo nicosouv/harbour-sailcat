@@ -36,10 +36,6 @@
 3. Aloita keskustelu!</translation>
         </message>
         <message>
-            <source>Conversation History</source>
-            <translation>Keskusteluhistoria</translation>
-        </message>
-        <message>
             <source>Conversation exported</source>
             <translation>Keskustelu viety</translation>
         </message>
@@ -590,6 +586,10 @@
         <message>
             <source>Nothing to relabel</source>
             <translation>Ei uudelleenmerkittävää</translation>
+        </message>
+        <message>
+            <source>Settings &amp; About</source>
+            <translation>Asetukset ja tietoja</translation>
         </message>
     </context>
     <context>

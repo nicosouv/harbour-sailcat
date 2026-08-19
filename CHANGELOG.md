@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-08-19
+
+### Fixed
+
+- **An answer could land in the wrong conversation.** `ConversationModel` is a single
+  reused object, so opening another conversation while a response was streaming made
+  the rest of the answer appear in - and be saved into - the conversation that was
+  opened next. The stream is now tied to the conversation that asked: it keeps
+  buffering in the background and is written back where it belongs, and coming back
+  to it mid-response shows everything received so far.
+- Token usage and the unread flag are charged to the conversation that asked, not to
+  whatever happens to be on screen when the response ends.
+
+### Changed
+
+- "Conversation History" removed from the chat pulley: swiping back does it.
+- "Settings & About" added to the history pulley, which is the root page and had no
+  other way in.
+
 ## [2.2.0] - 2026-08-19
 
 ### Changed

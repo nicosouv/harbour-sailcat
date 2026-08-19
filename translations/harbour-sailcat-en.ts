@@ -60,10 +60,6 @@
 3. Start chatting!</translation>
         </message>
         <message>
-            <source>Conversation History</source>
-            <translation>Conversation History</translation>
-        </message>
-        <message>
             <source>Conversation exported</source>
             <translation>Conversation exported</translation>
         </message>
@@ -625,6 +621,10 @@
         <message>
             <source>Nothing to relabel</source>
             <translation>Nothing to relabel</translation>
+        </message>
+        <message>
+            <source>Settings &amp; About</source>
+            <translation>Settings &amp; About</translation>
         </message>
     </context>
     <context>

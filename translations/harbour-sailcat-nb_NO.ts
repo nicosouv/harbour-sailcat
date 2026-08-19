@@ -60,10 +60,6 @@
 3. Start chattingen!</translation>
         </message>
         <message>
-            <source>Conversation History</source>
-            <translation>Samtalehistorikk</translation>
-        </message>
-        <message>
             <source>Conversation exported</source>
             <translation>Samtale eksportert</translation>
         </message>
@@ -625,6 +621,10 @@
         <message>
             <source>Nothing to relabel</source>
             <translation>Ingenting å merke på nytt</translation>
+        </message>
+        <message>
+            <source>Settings &amp; About</source>
+            <translation>Innstillinger og Om</translation>
         </message>
     </context>
     <context>

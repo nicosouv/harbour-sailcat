@@ -347,8 +347,12 @@ Page {
                     refreshList()
                 }
             }
-            // Settings and pinned messages live in the chat pulley, one swipe
-            // away: duplicating them here only made this menu longer.
+            // This page is the root: without an entry here the settings are
+            // only reachable from inside a conversation.
+            MenuItem {
+                text: qsTr("Settings & About")
+                onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
+            }
             MenuItem {
                 text: qsTr("New conversation")
                 onClicked: {

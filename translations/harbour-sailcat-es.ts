@@ -36,10 +36,6 @@
 3. ¡Empieza a chatear!</translation>
         </message>
         <message>
-            <source>Conversation History</source>
-            <translation>Historial de conversaciones</translation>
-        </message>
-        <message>
             <source>Conversation exported</source>
             <translation>Conversación exportada</translation>
         </message>
@@ -590,6 +586,10 @@
         <message>
             <source>Nothing to relabel</source>
             <translation>Nada que reetiquetar</translation>
+        </message>
+        <message>
+            <source>Settings &amp; About</source>
+            <translation>Ajustes y Acerca de</translation>
         </message>
     </context>
     <context>
