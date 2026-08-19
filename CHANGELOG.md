@@ -131,6 +131,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to two messages.
 - Removed the dead `ConversationListPage.qml` and stale entries in the translation files.
 
+## [2.0.4] - 2026-07-04
+
+### Added
+
+- QtTest unit suite covering the backend classes, wired as a CI gate on pull
+  requests and on release builds.
+
+### Changed
+
+- README updated for the 2.x feature set.
+
 ## [1.0.0] - 2025-11-10
 
 ### Added
