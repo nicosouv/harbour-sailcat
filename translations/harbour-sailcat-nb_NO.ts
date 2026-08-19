@@ -552,10 +552,6 @@
             <translation>Samtalehistorikk</translation>
         </message>
         <message>
-            <source>Conversation exported</source>
-            <translation>Samtale eksportert</translation>
-        </message>
-        <message>
             <source>Copy as text</source>
             <translation>Kopier som tekst</translation>
         </message>
@@ -570,14 +566,6 @@
         <message>
             <source>Empty conversation</source>
             <translation>Tom samtale</translation>
-        </message>
-        <message>
-            <source>Export</source>
-            <translation>Eksporter</translation>
-        </message>
-        <message>
-            <source>Export failed</source>
-            <translation>Eksport feilet</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -630,10 +618,6 @@
         <message>
             <source>Conversation settings</source>
             <translation>Samtaleinnstillinger</translation>
-        </message>
-        <message>
-            <source>Share</source>
-            <translation>Del</translation>
         </message>
         <message>
             <source>Auto-label conversations</source>
@@ -1116,6 +1100,18 @@
         <message>
             <source>Enter a system prompt...</source>
             <translation>Skriv inn en systemprompt...</translation>
+        </message>
+        <message>
+            <source>Asking the model...</source>
+            <translation>Spør modellen...</translation>
+        </message>
+        <message>
+            <source>Suggest a title</source>
+            <translation>Foreslå en tittel</translation>
+        </message>
+        <message>
+            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
+            <translation>Leser samtalen og foreslår en tittel og en kategori. Ingenting lagres før du bekrefter.</translation>
         </message>
     </context>
     <context>

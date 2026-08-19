@@ -1,6 +1,6 @@
 Name:       harbour-sailcat
 Summary:    Le Chat de Mistral AI pour Sailfish OS
-Version:    2.1.0
+Version:    2.1.1
 Release:    1
 Group:      Applications/Internet
 License:    MIT

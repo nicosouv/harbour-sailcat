@@ -27,9 +27,12 @@ public:
                                    const QVariant &messages,
                                    double temperature = -1.0,
                                    int maxTokens = 0);
+    // targetId is echoed back with the result so a caller can tell which
+    // conversation the title belongs to.
     Q_INVOKABLE void generateTitle(const QString &apiKey,
                                      const QString &modelName,
-                                     const QString &firstUserMessage);
+                                     const QString &conversationText,
+                                     const QString &targetId = QString());
     Q_INVOKABLE void fetchModels(const QString &apiKey);
     Q_INVOKABLE void cancelRequest();
     Q_INVOKABLE void clearError();
@@ -44,7 +47,9 @@ signals:
     void sideRequestUsage(int promptTokens, int completionTokens);
     void responseCompleted();
     void messageSent();
-    void titleGenerated(const QString &title, const QString &category);
+    void titleGenerated(const QString &title, const QString &category,
+                        const QString &targetId);
+    void titleGenerationFailed(const QString &targetId);
     void modelsFetched(const QVariantList &models);
     void modelsFetchFailed();
 

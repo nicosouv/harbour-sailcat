@@ -517,10 +517,6 @@
             <translation>Cronologia delle conversazioni</translation>
         </message>
         <message>
-            <source>Conversation exported</source>
-            <translation>Conversazione esportata</translation>
-        </message>
-        <message>
             <source>Copy as text</source>
             <translation>Copia come testo</translation>
         </message>
@@ -535,14 +531,6 @@
         <message>
             <source>Empty conversation</source>
             <translation>Conversazione vuota</translation>
-        </message>
-        <message>
-            <source>Export</source>
-            <translation>Esporta</translation>
-        </message>
-        <message>
-            <source>Export failed</source>
-            <translation>Esportazione non riuscita</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -595,10 +583,6 @@
         <message>
             <source>Conversation settings</source>
             <translation>Impostazioni conversazione</translation>
-        </message>
-        <message>
-            <source>Share</source>
-            <translation>Condividi</translation>
         </message>
         <message>
             <source>Auto-label conversations</source>
@@ -1081,6 +1065,18 @@
         <message>
             <source>Enter a system prompt...</source>
             <translation>Inserisci un prompt di sistema...</translation>
+        </message>
+        <message>
+            <source>Asking the model...</source>
+            <translation>Interrogazione del modello...</translation>
+        </message>
+        <message>
+            <source>Suggest a title</source>
+            <translation>Suggerisci un titolo</translation>
+        </message>
+        <message>
+            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
+            <translation>Legge la conversazione e propone un titolo e una categoria. Nulla viene salvato finché non confermi.</translation>
         </message>
     </context>
     <context>

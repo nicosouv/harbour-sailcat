@@ -517,10 +517,6 @@
             <translation>Keskusteluhistoria</translation>
         </message>
         <message>
-            <source>Conversation exported</source>
-            <translation>Keskustelu viety</translation>
-        </message>
-        <message>
             <source>Copy as text</source>
             <translation>Kopioi tekstinä</translation>
         </message>
@@ -535,14 +531,6 @@
         <message>
             <source>Empty conversation</source>
             <translation>Tyhjä keskustelu</translation>
-        </message>
-        <message>
-            <source>Export</source>
-            <translation>Vie</translation>
-        </message>
-        <message>
-            <source>Export failed</source>
-            <translation>Vienti epäonnistui</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -595,10 +583,6 @@
         <message>
             <source>Conversation settings</source>
             <translation>Keskustelun asetukset</translation>
-        </message>
-        <message>
-            <source>Share</source>
-            <translation>Jaa</translation>
         </message>
         <message>
             <source>Auto-label conversations</source>
@@ -1081,6 +1065,18 @@
         <message>
             <source>Enter a system prompt...</source>
             <translation>Kirjoita järjestelmäkehote...</translation>
+        </message>
+        <message>
+            <source>Asking the model...</source>
+            <translation>Kysytään mallilta...</translation>
+        </message>
+        <message>
+            <source>Suggest a title</source>
+            <translation>Ehdota otsikkoa</translation>
+        </message>
+        <message>
+            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
+            <translation>Lukee keskustelun ja ehdottaa otsikkoa ja luokkaa. Mitään ei tallenneta ennen kuin vahvistat.</translation>
         </message>
     </context>
     <context>

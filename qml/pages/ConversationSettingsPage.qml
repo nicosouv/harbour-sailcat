@@ -14,6 +14,7 @@ Dialog {
     property var overrides: conversationManager.getConversationOverrides(conversationId)
     property var modelOptions: [""].concat(settingsManager.availableModels())
     property var categoryOptions: Categories.all()
+    property bool suggestingTitle: false
 
     canAccept: true
 
@@ -54,6 +55,24 @@ Dialog {
 
                 EnterKey.iconSource: "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: focus = false
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: conversationSettings.suggestingTitle
+                      ? qsTr("Asking the model...")
+                      : qsTr("Suggest a title")
+                enabled: !conversationSettings.suggestingTitle && settingsManager.hasApiKey
+                onClicked: conversationSettings.suggestTitle()
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: qsTr("Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.")
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
             }
 
             SectionHeader {
@@ -141,5 +160,41 @@ Dialog {
         }
 
         VerticalScrollDecorator {}
+    }
+
+    Connections {
+        target: mistralApi
+
+        onTitleGenerated: {
+            if (targetId !== conversationSettings.conversationId) {
+                return
+            }
+            conversationSettings.suggestingTitle = false
+            titleField.text = title
+
+            var index = conversationSettings.categoryOptions.indexOf(category)
+            if (index >= 0) {
+                categoryCombo.currentIndex = index
+            }
+        }
+
+        onTitleGenerationFailed: {
+            if (targetId === conversationSettings.conversationId) {
+                conversationSettings.suggestingTitle = false
+            }
+        }
+    }
+
+    function suggestTitle() {
+        var digest = conversationManager.conversationDigest(conversationId)
+        if (digest === "") {
+            return
+        }
+
+        suggestingTitle = true
+        // Never name a local "model" in QML: it shadows too much. Use the
+        // model this conversation would use for a normal message.
+        var modelId = overrides.model !== "" ? overrides.model : settingsManager.modelName
+        mistralApi.generateTitle(settingsManager.apiKey, modelId, digest, conversationId)
     }
 }

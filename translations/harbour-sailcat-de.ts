@@ -517,10 +517,6 @@
             <translation>Unterhaltungsverlauf</translation>
         </message>
         <message>
-            <source>Conversation exported</source>
-            <translation>Unterhaltung exportiert</translation>
-        </message>
-        <message>
             <source>Copy as text</source>
             <translation>Als Text kopieren</translation>
         </message>
@@ -535,14 +531,6 @@
         <message>
             <source>Empty conversation</source>
             <translation>Leere Unterhaltung</translation>
-        </message>
-        <message>
-            <source>Export</source>
-            <translation>Exportieren</translation>
-        </message>
-        <message>
-            <source>Export failed</source>
-            <translation>Export fehlgeschlagen</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -595,10 +583,6 @@
         <message>
             <source>Conversation settings</source>
             <translation>Unterhaltungseinstellungen</translation>
-        </message>
-        <message>
-            <source>Share</source>
-            <translation>Teilen</translation>
         </message>
         <message>
             <source>Auto-label conversations</source>
@@ -1081,6 +1065,18 @@
         <message>
             <source>Enter a system prompt...</source>
             <translation>System-Prompt eingeben...</translation>
+        </message>
+        <message>
+            <source>Asking the model...</source>
+            <translation>Modell wird gefragt...</translation>
+        </message>
+        <message>
+            <source>Suggest a title</source>
+            <translation>Titel vorschlagen</translation>
+        </message>
+        <message>
+            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
+            <translation>Liest die Unterhaltung und schlägt Titel und Kategorie vor. Nichts wird gespeichert, bis Sie bestätigen.</translation>
         </message>
     </context>
     <context>

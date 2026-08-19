@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-08-19
+
+### Fixed
+
+- **Conversation history was unusable in 2.1.0.** `getConversationsList()` returned a
+  key named `model`, and a ListModel role called `model` shadows the delegate's own
+  model object: every `model.title`, `model.id` and `model.category` lookup silently
+  became `undefined`. Titles all read "Empty conversation", category chips vanished,
+  and opening, renaming, exporting or sharing a conversation from the history did
+  nothing. No data was lost - titles and categories were intact on disk the whole
+  time, only the list could not read them.
+
+### Added
+
+- **Suggest a title** in the conversation settings: asks the model for a title and a
+  category based on the whole conversation, not just the first message. The proposal
+  fills the form and is only stored when you confirm.
+- Automatic titling now reads a digest of the exchange instead of the first message
+  alone, which gives noticeably better titles.
+
+### Removed
+
+- "Export" and "Share" from the conversation context menu in the history. Exporting
+  stays available from the chat pulley menu.
+
 ## [2.1.0] - 2026-08-19
 
 ### Security

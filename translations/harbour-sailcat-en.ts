@@ -552,10 +552,6 @@
             <translation>Conversation History</translation>
         </message>
         <message>
-            <source>Conversation exported</source>
-            <translation>Conversation exported</translation>
-        </message>
-        <message>
             <source>Copy as text</source>
             <translation>Copy as text</translation>
         </message>
@@ -570,14 +566,6 @@
         <message>
             <source>Empty conversation</source>
             <translation>Empty conversation</translation>
-        </message>
-        <message>
-            <source>Export</source>
-            <translation>Export</translation>
-        </message>
-        <message>
-            <source>Export failed</source>
-            <translation>Export failed</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -630,10 +618,6 @@
         <message>
             <source>Conversation settings</source>
             <translation>Conversation settings</translation>
-        </message>
-        <message>
-            <source>Share</source>
-            <translation>Share</translation>
         </message>
         <message>
             <source>Auto-label conversations</source>
@@ -1116,6 +1100,18 @@
         <message>
             <source>Enter a system prompt...</source>
             <translation>Enter a system prompt...</translation>
+        </message>
+        <message>
+            <source>Asking the model...</source>
+            <translation>Asking the model...</translation>
+        </message>
+        <message>
+            <source>Suggest a title</source>
+            <translation>Suggest a title</translation>
+        </message>
+        <message>
+            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
+            <translation>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</translation>
         </message>
     </context>
     <context>

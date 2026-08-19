@@ -552,10 +552,6 @@
             <translation>Historique des conversations</translation>
         </message>
         <message>
-            <source>Conversation exported</source>
-            <translation>Conversation exportée</translation>
-        </message>
-        <message>
             <source>Copy as text</source>
             <translation>Copier en texte</translation>
         </message>
@@ -570,14 +566,6 @@
         <message>
             <source>Empty conversation</source>
             <translation>Conversation vide</translation>
-        </message>
-        <message>
-            <source>Export</source>
-            <translation>Exporter</translation>
-        </message>
-        <message>
-            <source>Export failed</source>
-            <translation>Échec de l'export</translation>
         </message>
         <message>
             <source>New conversation</source>
@@ -630,10 +618,6 @@
         <message>
             <source>Conversation settings</source>
             <translation>Réglages de la conversation</translation>
-        </message>
-        <message>
-            <source>Share</source>
-            <translation>Partager</translation>
         </message>
         <message>
             <source>Auto-label conversations</source>
@@ -1116,6 +1100,18 @@
         <message>
             <source>Enter a system prompt...</source>
             <translation>Saisissez un prompt système...</translation>
+        </message>
+        <message>
+            <source>Asking the model...</source>
+            <translation>Interrogation du modèle...</translation>
+        </message>
+        <message>
+            <source>Suggest a title</source>
+            <translation>Proposer un titre</translation>
+        </message>
+        <message>
+            <source>Reads the conversation and proposes a title and a category. Nothing is saved until you confirm.</source>
+            <translation>Lit la conversation et propose un titre et une catégorie. Rien n'est enregistré tant que vous ne validez pas.</translation>
         </message>
     </context>
     <context>

@@ -462,6 +462,75 @@ private slots:
         QCOMPARE(overrides["systemPrompt"].toString(), QString("talk like a pirate"));
     }
 
+    void listedConversationsCarryNoReservedRole()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+
+        manager.currentConversation()->addUserMessage("hello");
+        manager.saveCurrentConversation();
+        manager.setConversationOverrides(manager.currentConversationId(),
+                                         "mistral-large-latest", QString());
+
+        // These objects are appended to a QML ListModel. A role named "model"
+        // shadows the delegate's own model object and turns every other lookup
+        // into undefined, which is how 2.1.0 lost all its conversation titles.
+        QJsonObject entry = manager.getConversationsList().at(0).toObject();
+        QVERIFY(!entry.contains("model"));
+        QVERIFY(entry.contains("title"));
+        QVERIFY(entry.contains("id"));
+    }
+
+    void conversationDigestCoversBothSpeakers()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+
+        QString id = manager.currentConversationId();
+        QCOMPARE(manager.conversationDigest(id), QString());
+
+        manager.currentConversation()->addUserMessage("how do I mount a btrfs volume?");
+        manager.currentConversation()->addAssistantMessage("Use the mount command.");
+        manager.saveCurrentConversation();
+
+        QString digest = manager.conversationDigest(id);
+        QVERIFY(digest.contains("User: how do I mount a btrfs volume?"));
+        QVERIFY(digest.contains("Assistant: Use the mount command."));
+
+        // Long conversations stay bounded
+        for (int i = 0; i < 50; ++i) {
+            manager.currentConversation()->addUserMessage(QString(600, 'x'));
+        }
+        manager.saveCurrentConversation();
+        QVERIFY(manager.conversationDigest(id).length() <= 2000);
+
+        QCOMPARE(manager.conversationDigest("no-such-id"), QString());
+    }
+
+    void renameByIdWorksForAnyConversation()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+
+        QString first = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("first");
+        manager.saveCurrentConversation();
+
+        manager.createNewConversation();
+        manager.currentConversation()->addUserMessage("second");
+        manager.saveCurrentConversation();
+
+        // Renaming a conversation that is not the current one must work
+        manager.renameConversation(first, "  Renamed from elsewhere  ");
+        QCOMPARE(manager.getConversationOverrides(first)["title"].toString(),
+                 QString("Renamed from elsewhere"));
+
+        // And survive a reload from disk
+        manager.loadConversation(first);
+        QCOMPARE(manager.getConversationDetails(first).toMap()["title"].toString(),
+                 QString("Renamed from elsewhere"));
+    }
+
     void deletedConversationLeavesNoFile()
     {
         ConversationManager manager;

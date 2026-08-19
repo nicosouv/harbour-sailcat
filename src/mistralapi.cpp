@@ -137,9 +137,11 @@ void MistralAPI::sendMessage(const QString &apiKey,
 
 void MistralAPI::generateTitle(const QString &apiKey,
                                  const QString &modelName,
-                                 const QString &firstUserMessage)
+                                 const QString &conversationText,
+                                 const QString &targetId)
 {
-    if (apiKey.isEmpty() || firstUserMessage.isEmpty()) {
+    if (apiKey.isEmpty() || conversationText.trimmed().isEmpty()) {
+        emit titleGenerationFailed(targetId);
         return;
     }
 
@@ -150,10 +152,10 @@ void MistralAPI::generateTitle(const QString &apiKey,
     // "other" is deliberately described as a last resort: left to itself the
     // model picks it far too often and every conversation ends up unlabelled.
     systemMsg["content"] = QString(
-                "Analyze the user's first message and reply with ONLY a compact JSON object, "
-                "no explanation, no code fences: "
-                "{\"title\":\"short conversation title, max 50 characters, same language as the message\","
-                "\"category\":\"one of the labels below\"}. "
+                "Analyze the conversation excerpt sent by the user and reply with ONLY a "
+                "compact JSON object, no explanation, no code fences: "
+                "{\"title\":\"short conversation title, max 50 characters, same language as "
+                "the conversation\",\"category\":\"one of the labels below\"}. "
                 "Pick the single most specific matching category from this list: %1. "
                 "Use \"other\" only when no other label fits at all.")
             .arg(Categories::all().join(", "));
@@ -161,7 +163,7 @@ void MistralAPI::generateTitle(const QString &apiKey,
 
     QJsonObject userMsg;
     userMsg["role"] = "user";
-    userMsg["content"] = firstUserMessage;
+    userMsg["content"] = conversationText;
     messages.append(userMsg);
 
     QJsonObject requestBody;
@@ -180,6 +182,9 @@ void MistralAPI::generateTitle(const QString &apiKey,
 
     // Send request
     QNetworkReply *reply = m_networkManager->post(request, jsonData);
+    // Carried on the reply so the result can be routed back to the right
+    // conversation: several of these can be in flight at once.
+    reply->setProperty("targetId", targetId);
 
     connect(reply, &QNetworkReply::finished,
             this, &MistralAPI::onTitleGenerationFinished);
@@ -332,6 +337,9 @@ void MistralAPI::onTitleGenerationFinished()
     if (!reply)
         return;
 
+    const QString targetId = reply->property("targetId").toString();
+    bool delivered = false;
+
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray responseData = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(responseData);
@@ -385,11 +393,18 @@ void MistralAPI::onTitleGenerationFinished()
                     title = title.left(47) + "...";
                 }
 
-                emit titleGenerated(title, category);
+                if (!title.isEmpty()) {
+                    delivered = true;
+                    emit titleGenerated(title, category, targetId);
+                }
             }
         }
     } else {
         qWarning() << "Title generation failed:" << reply->errorString();
+    }
+
+    if (!delivered) {
+        emit titleGenerationFailed(targetId);
     }
 
     reply->deleteLater();

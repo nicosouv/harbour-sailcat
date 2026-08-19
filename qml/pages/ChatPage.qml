@@ -617,16 +617,22 @@ Page {
 
             // Generate title after the first exchange, once per conversation
             if (!chatPage.titleRequested && conversationModel.count === 2) {
-                var firstMessage = conversationModel.getFirstUserMessage()
-                if (firstMessage) {
+                var conversationId = conversationManager.currentConversationId()
+                var digest = conversationManager.conversationDigest(conversationId)
+                if (digest) {
                     chatPage.titleRequested = true
                     mistralApi.generateTitle(settingsManager.apiKey,
-                                             chatPage.activeModel, firstMessage)
+                                             chatPage.activeModel, digest, conversationId)
                 }
             }
         }
 
         onTitleGenerated: {
+            // Another page may have asked for a title on a different
+            // conversation: only take the ones meant for this one.
+            if (targetId !== "" && targetId !== conversationManager.currentConversationId()) {
+                return
+            }
             conversationManager.updateCurrentConversationTitle(title)
             conversationManager.updateCurrentConversationCategory(category)
         }

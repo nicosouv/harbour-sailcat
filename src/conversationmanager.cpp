@@ -604,7 +604,10 @@ QJsonArray ConversationManager::getConversationsList() const
         obj["updatedAt"] = conv.updatedAt;
         obj["messageCount"] = conv.messages.count();
         obj["category"] = conv.category;
-        obj["model"] = conv.model;
+        // Never add a key named "model" here: these objects are appended to a
+        // ListModel, and a role called "model" shadows the delegate's own
+        // model object, which silently turns model.title, model.id and every
+        // other lookup into undefined.
 
         int userCount = 0;
         for (const Message &msg : conv.messages) {
@@ -742,6 +745,35 @@ QString ConversationManager::conversationToMarkdown(const QString &conversationI
         markdown += msg.content + "\n\n";
     }
     return markdown;
+}
+
+QString ConversationManager::conversationDigest(const QString &conversationId) const
+{
+    const Conversation *conv = findConversation(conversationId);
+    if (!conv) {
+        return QString();
+    }
+
+    // Enough of the exchange for the model to name the topic, without paying
+    // for the whole transcript. Each turn is clipped, and the whole digest is
+    // capped: a title is not worth more than a couple of thousand characters.
+    static const int PER_MESSAGE = 400;
+    static const int BUDGET = 2000;
+
+    QString digest;
+    for (const Message &msg : conv->messages) {
+        if (msg.content.trimmed().isEmpty()) {
+            continue;
+        }
+        QString line = (msg.role == "user" ? QString("User: ") : QString("Assistant: "))
+                + msg.content.left(PER_MESSAGE);
+        if (digest.length() + line.length() > BUDGET) {
+            break;
+        }
+        digest += line + "\n";
+    }
+
+    return digest;
 }
 
 QString ConversationManager::exportConversation(const QString &conversationId) const

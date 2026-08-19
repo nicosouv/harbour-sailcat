@@ -55,6 +55,8 @@ public:
     Q_INVOKABLE QString currentConversationId() const;
     Q_INVOKABLE QVariantList getPinnedMessages() const;
     Q_INVOKABLE QString conversationToMarkdown(const QString &conversationId) const;
+    // Condensed transcript handed to the model when asking for a title.
+    Q_INVOKABLE QString conversationDigest(const QString &conversationId) const;
     Q_INVOKABLE QString exportConversation(const QString &conversationId) const;
     Q_INVOKABLE QString imageToDataUrl(const QString &filePath) const;
 
