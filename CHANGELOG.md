@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-08-26
+
+### Added
+
+- **SailCat is no longer tied to Mistral.** Every backend it can talk to speaks the
+  same OpenAI chat-completions dialect, so the API layer now takes its endpoint from
+  the selected provider instead of hardcoding `api.mistral.ai`. Presets ship for
+  Mistral AI, Scaleway, OVHcloud AI Endpoints and Groq, plus a custom entry that takes
+  any base URL - including a llama.cpp or Ollama server on the local network.
+- Three of the four presets have a free tier, and the two French ones (Scaleway,
+  OVHcloud) keep conversations in the EU. OVHcloud answers without an API key at a
+  lower rate limit, so the app is usable before signing up anywhere.
+- Each provider keeps its own API key, its own default model and its own model cache.
+  Switching provider swaps the whole set; a key is never sent to another host.
+
+### Changed
+
+- The cost estimate reports "free" for a model served by a free-tier provider instead
+  of pricing it from the Mistral list, and the model picker hides the image
+  attachment button unless the catalogue says the model can read images.
+- A per-conversation model override is checked against the active provider before
+  every request: a Mistral model id is not sent to Groq.
+
 ## [2.2.1] - 2026-08-19
 
 ### Fixed

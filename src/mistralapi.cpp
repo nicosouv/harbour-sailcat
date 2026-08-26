@@ -11,8 +11,9 @@
 
 static const int REQUEST_TIMEOUT_MS = 60000;
 
-// Every endpoint is HTTPS and under our control: require a verified peer and
-// refuse the legacy TLS versions rather than inheriting the platform default.
+// Require a verified peer and refuse the legacy TLS versions rather than
+// inheriting the platform default. A custom endpoint may well be plain HTTP on
+// the local network, in which case none of this applies and Qt ignores it.
 static void applyTransportSecurity(QNetworkRequest &request)
 {
     QSslConfiguration ssl = QSslConfiguration::defaultConfiguration();
@@ -31,10 +32,48 @@ MistralAPI::MistralAPI(QObject *parent)
     , m_timeoutTimer(new QTimer(this))
     , m_isBusy(false)
     , m_timedOut(false)
+    , m_modelSource(Providers::MistralCatalogue)
+    , m_streamUsageOption(false)
+    , m_keyRequired(true)
 {
     m_timeoutTimer->setSingleShot(true);
     m_timeoutTimer->setInterval(REQUEST_TIMEOUT_MS);
     connect(m_timeoutTimer, &QTimer::timeout, this, &MistralAPI::onTimeout);
+
+    // Sensible until the settings have been read.
+    const Providers::Provider fallback = Providers::byId(Providers::defaultId());
+    setEndpoint(fallback.baseUrl, fallback.modelSource,
+                fallback.streamUsageOption, fallback.keyRequired);
+}
+
+void MistralAPI::setEndpoint(const QString &baseUrl,
+                             Providers::ModelSource modelSource,
+                             bool streamUsageOption,
+                             bool keyRequired)
+{
+    m_baseUrl = baseUrl;
+    m_modelSource = modelSource;
+    m_streamUsageOption = streamUsageOption;
+    m_keyRequired = keyRequired;
+}
+
+QUrl MistralAPI::endpoint(const QString &path) const
+{
+    if (m_baseUrl.isEmpty()) {
+        return QUrl();
+    }
+    return QUrl(m_baseUrl + path);
+}
+
+void MistralAPI::prepareRequest(QNetworkRequest &request, const QString &apiKey) const
+{
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    // A provider that answers anonymously gets no header at all: an empty
+    // bearer token is worse than none.
+    if (!apiKey.isEmpty()) {
+        request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
+    }
+    applyTransportSecurity(request);
 }
 
 bool MistralAPI::isBusy() const
@@ -58,8 +97,13 @@ void MistralAPI::sendMessage(const QString &apiKey,
         return;
     }
 
-    if (apiKey.isEmpty()) {
+    if (apiKey.isEmpty() && m_keyRequired) {
         setError(tr("Missing API key. Please configure your API key in settings."));
+        return;
+    }
+
+    if (m_baseUrl.isEmpty()) {
+        setError(tr("No endpoint configured. Please pick a provider in settings."));
         return;
     }
 
@@ -110,15 +154,21 @@ void MistralAPI::sendMessage(const QString &apiKey,
         requestBody["max_tokens"] = maxTokens;
     }
 
+    // Mistral reports token usage in the last chunk on its own; the OpenAI
+    // dialect only does when asked, and rejects the field where unsupported.
+    if (m_streamUsageOption) {
+        QJsonObject streamOptions;
+        streamOptions["include_usage"] = true;
+        requestBody["stream_options"] = streamOptions;
+    }
+
     QJsonDocument doc(requestBody);
     QByteArray jsonData = doc.toJson();
 
     // Configure HTTP request
-    QNetworkRequest request(QUrl("https://api.mistral.ai/v1/chat/completions"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
+    QNetworkRequest request(endpoint("/chat/completions"));
     request.setRawHeader("Accept", "text/event-stream");
-    applyTransportSecurity(request);
+    prepareRequest(request, apiKey);
 
     // Send request
     m_currentReply = m_networkManager->post(request, jsonData);
@@ -140,7 +190,8 @@ void MistralAPI::generateTitle(const QString &apiKey,
                                  const QString &conversationText,
                                  const QString &targetId)
 {
-    if (apiKey.isEmpty() || conversationText.trimmed().isEmpty()) {
+    if ((apiKey.isEmpty() && m_keyRequired) || m_baseUrl.isEmpty()
+            || conversationText.trimmed().isEmpty()) {
         emit titleGenerationFailed(targetId);
         return;
     }
@@ -175,10 +226,8 @@ void MistralAPI::generateTitle(const QString &apiKey,
     QByteArray jsonData = doc.toJson();
 
     // Configure HTTP request
-    QNetworkRequest request(QUrl("https://api.mistral.ai/v1/chat/completions"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
-    applyTransportSecurity(request);
+    QNetworkRequest request(endpoint("/chat/completions"));
+    prepareRequest(request, apiKey);
 
     // Send request
     QNetworkReply *reply = m_networkManager->post(request, jsonData);
@@ -192,14 +241,13 @@ void MistralAPI::generateTitle(const QString &apiKey,
 
 void MistralAPI::fetchModels(const QString &apiKey)
 {
-    if (apiKey.isEmpty()) {
+    if ((apiKey.isEmpty() && m_keyRequired) || m_baseUrl.isEmpty()) {
         emit modelsFetchFailed();
         return;
     }
 
-    QNetworkRequest request(QUrl("https://api.mistral.ai/v1/models"));
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(apiKey).toUtf8());
-    applyTransportSecurity(request);
+    QNetworkRequest request(endpoint("/models"));
+    prepareRequest(request, apiKey);
 
     QNetworkReply *reply = m_networkManager->get(request);
 
@@ -438,11 +486,30 @@ void MistralAPI::onModelsFetchFinished()
         QJsonObject modelObj = value.toObject();
         QString id = modelObj["id"].toString();
         QJsonObject caps = modelObj["capabilities"].toObject();
+        bool vision = false;
 
-        // Keep only current chat models; dated aliases add noise
-        if (!caps["completion_chat"].toBool() || !id.endsWith("-latest")) {
-            continue;
+        if (m_modelSource == Providers::MistralCatalogue) {
+            // Keep only current chat models; dated aliases add noise
+            if (!caps["completion_chat"].toBool() || !id.endsWith("-latest")) {
+                continue;
+            }
+            vision = caps["vision"].toBool();
+        } else {
+            // The OpenAI catalogue describes nothing but an id, and mixes in
+            // embeddings, speech and image models. Filter by name, and drop
+            // entries the provider says cannot complete anything.
+            if (!Providers::isChatModelId(id)) {
+                continue;
+            }
+            if (modelObj.contains("max_completion_tokens")
+                    && modelObj["max_completion_tokens"].toInt() == 0) {
+                continue;
+            }
+            // Some of them do fill in capabilities; believe them over the name.
+            vision = caps.contains("vision") ? caps["vision"].toBool()
+                                             : Providers::looksLikeVisionModel(id);
         }
+
         if (ids.contains(id)) {
             continue;
         }
@@ -450,7 +517,7 @@ void MistralAPI::onModelsFetchFinished()
 
         QVariantMap entry;
         entry["id"] = id;
-        entry["vision"] = caps["vision"].toBool();
+        entry["vision"] = vision;
         models.append(entry);
     }
 

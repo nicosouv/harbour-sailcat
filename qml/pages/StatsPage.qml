@@ -133,6 +133,9 @@ Page {
 
     function formatCost(value) {
         if (value < 0) return qsTr("n/a")
+        // A provider that bills nothing within its rate limits, not a rounding
+        // artefact: zero is the real answer there.
+        if (value === 0) return qsTr("free")
         if (value < 0.01) return "< $0.01"
         return "$" + value.toFixed(2)
     }
@@ -608,7 +611,7 @@ Page {
 
                 Label {
                     width: parent.width
-                    text: qsTr("Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.")
+                    text: qsTr("Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your provider console for the real invoice.")
                     font.pixelSize: Theme.fontSizeTiny
                     color: Theme.secondaryColor
                     wrapMode: Text.WordWrap

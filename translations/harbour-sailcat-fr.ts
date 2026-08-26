@@ -16,8 +16,8 @@
             <translation>Bienvenue sur SailCat</translation>
         </message>
         <message>
-            <source>Configure your Mistral API key to get started</source>
-            <translation>Configurez votre clé API Mistral pour commencer</translation>
+            <source>Pick a provider and enter its API key to get started</source>
+            <translation>Choisissez un fournisseur et entrez sa clé API pour commencer</translation>
         </message>
         <message>
             <source>Start a conversation</source>
@@ -36,12 +36,12 @@
             <translation>Commencer</translation>
         </message>
         <message>
-            <source>What is Mistral AI?</source>
-            <translation>Qu'est-ce que Mistral AI ?</translation>
+            <source>Which AI answers you?</source>
+            <translation>Quelle IA vous répond ?</translation>
         </message>
         <message>
-            <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
-            <translation>Mistral AI est une entreprise européenne d'IA fournissant des modèles de langage de pointe. SailCat utilise leur API pour apporter des conversations intelligentes à Sailfish OS.</translation>
+            <source>The one you pick. SailCat talks to Mistral AI, Scaleway, OVHcloud, Groq or any OpenAI-compatible endpoint, with your own account. Several of them have a free tier, and the European ones keep your conversations on this side of the Atlantic.</source>
+            <translation>Celle que vous choisissez. SailCat parle à Mistral AI, Scaleway, OVHcloud, Groq ou à n'importe quel endpoint compatible OpenAI, avec votre propre compte. Plusieurs proposent une offre gratuite, et les européens gardent vos conversations de ce côté-ci de l'Atlantique.</translation>
         </message>
         <message>
             <source>Privacy &amp; Storage</source>
@@ -52,12 +52,12 @@
             <translation>Démarrage</translation>
         </message>
         <message>
-            <source>1. Get a free API key from console.mistral.ai
-2. Configure it in Settings
+            <source>1. Pick a provider in Settings
+2. Paste the API key it gives you
 3. Start chatting!</source>
-            <translation>1. Obtenez une clé API gratuite sur console.mistral.ai
-2. Configurez-la dans les Réglages
-3. Commencez à discuter !</translation>
+            <translation>1. Choisissez un fournisseur dans les Paramètres
+2. Collez la clé API qu'il vous donne
+3. Discutez !</translation>
         </message>
         <message>
             <source>Conversation exported</source>
@@ -85,12 +85,12 @@
         </message>
         <message>
             <source>• Your conversations are stored locally on your device
-• No sync with Mistral's web interface
-• You need your own API key to use the app
+• No sync with any web interface
+• Each provider keeps its own key, stored scrambled
 • Your data stays on your phone</source>
             <translation>• Vos conversations sont stockées localement sur votre appareil
-• Pas de synchronisation avec l'interface web de Mistral
-• Vous avez besoin de votre propre clé API
+• Aucune synchronisation avec une interface web
+• Chaque fournisseur garde sa propre clé, stockée brouillée
 • Vos données restent sur votre téléphone</translation>
         </message>
         <message>
@@ -181,6 +181,10 @@
             <source>Request timed out. Please check your connection.</source>
             <translation>Délai de la requête dépassé. Vérifiez votre connexion.</translation>
         </message>
+        <message>
+            <source>No endpoint configured. Please pick a provider in settings.</source>
+            <translation>Aucun endpoint configuré. Choisissez un fournisseur dans les paramètres.</translation>
+        </message>
     </context>
     <context>
         <name>SettingsPage</name>
@@ -201,12 +205,12 @@
             <translation>Configuration de l'API</translation>
         </message>
         <message>
-            <source>To get a free API key, visit console.mistral.ai</source>
-            <translation>Pour obtenir une clé API gratuite, visitez console.mistral.ai</translation>
+            <source>To get an API key, visit %1</source>
+            <translation>Pour obtenir une clé API, rendez-vous sur %1</translation>
         </message>
         <message>
-            <source>Mistral API Key</source>
-            <translation>Clé API Mistral</translation>
+            <source>%1 API key</source>
+            <translation>Clé API %1</translation>
         </message>
         <message>
             <source>Enter your API key</source>
@@ -237,16 +241,16 @@
             <translation>Modèle</translation>
         </message>
         <message>
-            <source>Mistral Model</source>
-            <translation>Modèle Mistral</translation>
+            <source>Model</source>
+            <translation>Modèle</translation>
         </message>
         <message>
             <source>Select the model to use</source>
             <translation>Sélectionnez le modèle à utiliser</translation>
         </message>
         <message>
-            <source>Powered by Mistral AI • MIT License</source>
-            <translation>Propulsé par Mistral AI • Licence MIT</translation>
+            <source>Powered by %1 • MIT License</source>
+            <translation>Propulsé par %1 • Licence MIT</translation>
         </message>
         <message>
             <source>Made with &lt;3 for Sailfish OS</source>
@@ -313,8 +317,8 @@
             <translation>Persona</translation>
         </message>
         <message>
-            <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS.</source>
-            <translation>SailCat est un client élégant pour Le Chat de Mistral AI, spécialement conçu pour Sailfish OS.</translation>
+            <source>SailCat is an elegant chat client for Mistral AI and other OpenAI-compatible providers, designed for Sailfish OS.</source>
+            <translation>SailCat est un client de chat élégant pour Mistral AI et les autres fournisseurs compatibles OpenAI, conçu pour Sailfish OS.</translation>
         </message>
         <message>
             <source>Source code on GitHub</source>
@@ -350,11 +354,11 @@
         </message>
         <message>
             <source>• Conversations stored locally
-• No sync with Mistral web
-• Requires personal API key</source>
+• No sync with any web interface
+• Uses your own account with the provider</source>
             <translation>• Conversations stockées localement
-• Pas de synchronisation avec Mistral web
-• Nécessite une clé API personnelle</translation>
+• Aucune synchronisation avec une interface web
+• Utilise votre propre compte chez le fournisseur</translation>
         </message>
         <message>
             <source>Prompt library</source>
@@ -365,8 +369,8 @@
             <translation>Afficher la clé API</translation>
         </message>
         <message>
-            <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
-            <translation>La clé est stockée brouillée dans un fichier accessible à vous seul et envoyée à api.mistral.ai via TLS. Elle ne quitte pas l'appareil autrement.</translation>
+            <source>The key is stored scrambled in an owner-only file on this device and is only ever sent to %1. Each provider keeps its own key.</source>
+            <translation>La clé est stockée brouillée dans un fichier accessible à vous seul sur cet appareil et n'est envoyée qu'à %1. Chaque fournisseur garde sa propre clé.</translation>
         </message>
         <message>
             <source>Appearance</source>
@@ -438,6 +442,42 @@
         <message>
             <source>Full width rows with a tinted background on your messages.</source>
             <translation>Lignes pleine largeur avec un fond teinté sur vos messages.</translation>
+        </message>
+        <message>
+            <source>Provider</source>
+            <translation>Fournisseur</translation>
+        </message>
+        <message>
+            <source>Every backend speaks the same protocol; only the key and the model list change</source>
+            <translation>Tous parlent le même protocole ; seuls la clé et la liste de modèles changent</translation>
+        </message>
+        <message>
+            <source>%1 - free tier</source>
+            <translation>%1 - offre gratuite</translation>
+        </message>
+        <message>
+            <source>Hosted in %1</source>
+            <translation>Hébergé en %1</translation>
+        </message>
+        <message>
+            <source>Endpoint base URL</source>
+            <translation>URL de base de l'endpoint</translation>
+        </message>
+        <message>
+            <source>Anything OpenAI-compatible, up to a llama.cpp or Ollama server on your own network.</source>
+            <translation>N'importe quoi de compatible OpenAI, jusqu'à un serveur llama.cpp ou Ollama sur votre propre réseau.</translation>
+        </message>
+        <message>
+            <source>%1 API key (optional)</source>
+            <translation>Clé API %1 (optionnelle)</translation>
+        </message>
+        <message>
+            <source>Leave empty to stay anonymous</source>
+            <translation>Laissez vide pour rester anonyme</translation>
+        </message>
+        <message>
+            <source>Model identifier</source>
+            <translation>Identifiant du modèle</translation>
         </message>
     </context>
     <context>
@@ -904,8 +944,12 @@
             <translation>Total</translation>
         </message>
         <message>
-            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
-            <translation>Estimation basée sur les tarifs publics, en dollars US. Seule l'utilisation enregistrée par l'application est comptée - consultez votre console Mistral pour la facture réelle.</translation>
+            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your provider console for the real invoice.</source>
+            <translation>Estimation basée sur les tarifs publics, en dollars US. Seule l'utilisation enregistrée par cette app est comptée - consultez la console de votre fournisseur pour la facture réelle.</translation>
+        </message>
+        <message>
+            <source>free</source>
+            <translation>gratuit</translation>
         </message>
     </context>
     <context>
@@ -1163,6 +1207,25 @@
         <message>
             <source>Enter the prompt text...</source>
             <translation>Saisissez le texte du prompt...</translation>
+        </message>
+    </context>
+    <context>
+        <name>QObject</name>
+        <message>
+            <source>France (EU)</source>
+            <translation>France (UE)</translation>
+        </message>
+        <message>
+            <source>United States</source>
+            <translation>États-Unis</translation>
+        </message>
+        <message>
+            <source>Wherever you point it</source>
+            <translation>Là où vous le pointez</translation>
+        </message>
+        <message>
+            <source>Custom endpoint</source>
+            <translation>Endpoint personnalisé</translation>
         </message>
     </context>
 </TS>

@@ -4,17 +4,19 @@
   <img src="icons/172x172/harbour-sailcat.png" alt="SailCat Logo" width="172"/>
 </p>
 
-**SailCat** is an elegant client for **Mistral AI Chat**, specifically designed for **Sailfish OS**. Enjoy intelligent conversations with Mistral's most advanced AI models, directly from your Sailfish device.
+**SailCat** is an elegant AI chat client, specifically designed for **Sailfish OS**. Talk to **Mistral AI**, **Scaleway**, **OVHcloud**, **Groq** or any OpenAI-compatible endpoint - including your own self-hosted one - directly from your Sailfish device.
 
 > 🤖 **Since version 2.x, SailCat is developed with the help of AI** — Claude (Claude Code) and Mistral Vibe. Features are specified in [docs/features/](docs/features/), implemented together by a human developer and AI agents, validated by CI on three architectures and covered by unit tests before every release. A human still codes, reviews, tests on device and hits the tag button :)
 
 ## ✨ Features
 
-- 🆓 **Mistral AI free tier support** - Start for free
-- 🔑 **Personal API key** - Use your own key for unlimited access
+- 🌍 **Your choice of provider** - Mistral AI, Scaleway, OVHcloud, Groq, or a custom OpenAI-compatible endpoint
+- 🆓 **Free tiers supported** - Three of the four presets have one, and OVHcloud even answers without a key
+- 🇪🇺 **European hosting available** - Scaleway and OVHcloud keep your conversations in the EU
+- 🔑 **One key per provider** - Stored scrambled, never sent anywhere else
 - ⚡ **Real-time streaming** - Instant and smooth responses
 - 🖼️ **Image support (vision)** - Attach a photo and let Pixtral analyze it
-- 🧠 **Live model list** - All current Mistral chat models, fetched from the API, with a quick-switch button next to the input
+- 🧠 **Live model list** - Fetched from whichever provider you picked, with a quick-switch button next to the input
 - 🎭 **System prompt & personas** - Presets (Concise, Translator, Code assistant) or your own instruction
 - 🎛️ **Generation settings** - Temperature and response length
 - 💬 **Conversation history** - Search, per-conversation details, automatic titles and categories
@@ -30,7 +32,7 @@
 
 - Sailfish OS 3.0+ or higher
 - Internet connection
-- Mistral API key (free at [console.mistral.ai](https://console.mistral.ai))
+- An API key from one of the supported providers (free tiers available; OVHcloud works without one)
 
 ### Build from source
 
@@ -52,19 +54,26 @@ Download the `.rpm` file from [releases](https://github.com/nicosouv/harbour-sai
 
 ## 🔧 Configuration
 
-### Get a Mistral API Key
+### Pick a provider
 
-1. Create an account on [console.mistral.ai](https://console.mistral.ai)
-2. Select the "Experiment" plan (free)
-3. Generate an API key in the "API Keys" section
-4. Copy your API key
+| Provider | Free tier | Hosting | Key |
+|---|---|---|---|
+| [Mistral AI](https://console.mistral.ai) | Experiment plan | 🇪🇺 France | Required |
+| [Scaleway](https://console.scaleway.com) | 1M tokens | 🇪🇺 France | Required |
+| [OVHcloud](https://endpoints.ai.cloud.ovh.net) | Rate-limited | 🇪🇺 France | Optional |
+| [Groq](https://console.groq.com) | Yes, no credit card | 🇺🇸 US | Required |
+| Custom endpoint | - | Wherever you point it | Optional |
+
+⚠️ On Mistral's free "Experiment" plan, API inputs and outputs go into their model
+training programs by default. Opt out in the Admin Console privacy settings if that
+matters to you - the paid plans are excluded automatically.
 
 ### Configure SailCat
 
 1. Launch SailCat
 2. Access **Settings** via the pulley menu
-3. Enable **"Use my own API key"**
-4. Paste your Mistral API key
+3. Choose your **provider**
+4. Paste the API key it gave you (or leave it empty on OVHcloud)
 5. Choose your preferred model
 6. Save and start chatting!
 
@@ -83,7 +92,7 @@ Use the pulley menu and select **"New conversation"** to clear history and start
 
 ### Available models
 
-The model list is fetched live from the Mistral API (all current `-latest` chat models, including vision-capable ones) and cached for offline use. Switch models anytime with the button next to the text input.
+The model list is fetched live from the provider you selected and cached per provider for offline use. Switch models anytime with the button next to the text input. Each provider keeps its own key, its own default model and its own cached list.
 
 ## 🏗️ Technical Architecture
 
@@ -143,12 +152,12 @@ POST https://api.mistral.ai/v1/chat/completions
 
 - ✅ API keys are stored locally with QSettings, isolated by Sailjail sandboxing
 - ✅ No telemetry or analytics
-- ✅ Direct communication with Mistral API (HTTPS)
+- ✅ Direct communication with your provider (HTTPS), no intermediary
 - ✅ No intermediate server
 - ✅ Conversations stored locally on your device
-- ✅ No sync with Mistral's web interface
+- ✅ No sync with any web interface
 - ✅ Sailjail permissions: Internet, Pictures (attachments), Documents (exports)
-- ⚠️ Your API key gives access to your Mistral account - keep it secret
+- ⚠️ Your API key gives access to your provider account - keep it secret
 
 ## 🚀 Releases & CI/CD
 

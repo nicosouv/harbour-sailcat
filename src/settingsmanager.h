@@ -10,6 +10,17 @@
 class SettingsManager : public QObject
 {
     Q_OBJECT
+    // Active chat backend. The key, the default model and the model cache all
+    // hang off it: switching provider swaps the whole set, it does not carry
+    // a Mistral key or a Mistral model id over to Groq.
+    Q_PROPERTY(QString providerId READ providerId WRITE setProviderId NOTIFY providerChanged)
+    Q_PROPERTY(QString providerName READ providerName NOTIFY providerChanged)
+    Q_PROPERTY(QString providerBaseUrl READ providerBaseUrl NOTIFY providerChanged)
+    Q_PROPERTY(QString providerKeyUrl READ providerKeyUrl NOTIFY providerChanged)
+    Q_PROPERTY(QString providerRegion READ providerRegion NOTIFY providerChanged)
+    Q_PROPERTY(bool providerKeyRequired READ providerKeyRequired NOTIFY providerChanged)
+    Q_PROPERTY(bool providerFreeTier READ providerFreeTier NOTIFY providerChanged)
+    Q_PROPERTY(QString customBaseUrl READ customBaseUrl WRITE setCustomBaseUrl NOTIFY providerChanged)
     Q_PROPERTY(QString apiKey READ apiKey WRITE setApiKey NOTIFY apiKeyChanged)
     Q_PROPERTY(QString modelName READ modelName WRITE setModelName NOTIFY modelNameChanged)
     Q_PROPERTY(QString nextMessageModel READ nextMessageModel WRITE setNextMessageModel NOTIFY nextMessageModelChanged)
@@ -26,6 +37,19 @@ class SettingsManager : public QObject
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
+
+    QString providerId() const;
+    void setProviderId(const QString &id);
+
+    QString providerName() const;
+    QString providerBaseUrl() const;
+    QString providerKeyUrl() const;
+    QString providerRegion() const;
+    bool providerKeyRequired() const;
+    bool providerFreeTier() const;
+
+    QString customBaseUrl() const;
+    void setCustomBaseUrl(const QString &url);
 
     QString apiKey() const;
     void setApiKey(const QString &key);
@@ -63,6 +87,14 @@ public:
 
     bool hasApiKey() const;
 
+    // One entry per provider: id, name, region, keyUrl, keyRequired, freeTier.
+    Q_INVOKABLE QVariantList availableProviders() const;
+
+    // Keeps a model override from following the user to another provider:
+    // returns the candidate when the active provider knows it, the provider
+    // default otherwise. An unfetched catalogue accepts anything.
+    Q_INVOKABLE QString resolveModel(const QString &candidate) const;
+
     Q_INVOKABLE QStringList availableModels() const;
     Q_INVOKABLE QStringList availableLanguages() const;
     Q_INVOKABLE QStringList availableChatStyles() const;
@@ -88,6 +120,7 @@ public:
                                      qint64 completionTokens) const;
 
 signals:
+    void providerChanged();
     void apiKeyChanged();
     void modelNameChanged();
     void nextMessageModelChanged();
@@ -104,6 +137,8 @@ signals:
 
 private:
     QSettings m_settings;
+    QString m_providerId;
+    QString m_customBaseUrl;
     QString m_apiKey;
     QString m_modelName;
     QString m_nextMessageModel;
@@ -124,6 +159,13 @@ private:
     void saveSavedPrompts();
     void persistApiKey();
     void secureSettingsFile();
+
+    // "providers/<id>/<key>", the per-provider half of the settings file.
+    QString providerKey(const QString &key) const;
+    // Reads key, model name and model cache for the active provider.
+    void loadProviderSettings();
+    // Moves the pre-2.3 single-provider entries under providers/mistral/.
+    void migrateToProviderSettings();
 };
 
 #endif // SETTINGSMANAGER_H

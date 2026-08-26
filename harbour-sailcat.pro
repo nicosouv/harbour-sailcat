@@ -6,7 +6,7 @@ QT += network
 
 # Version is passed by the spec file (%qmake5 VERSION=%{version})
 isEmpty(VERSION) {
-    VERSION = 2.2.1
+    VERSION = 2.3.0
 }
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
@@ -16,14 +16,16 @@ SOURCES += src/harbour-sailcat.cpp \
     src/conversationmanager.cpp \
     src/settingsmanager.cpp \
     src/securestore.cpp \
-    src/categories.cpp
+    src/categories.cpp \
+    src/providers.cpp
 
 HEADERS += src/mistralapi.h \
     src/conversationmodel.h \
     src/conversationmanager.h \
     src/settingsmanager.h \
     src/securestore.h \
-    src/categories.h
+    src/categories.h \
+    src/providers.h
 
 DISTFILES += qml/harbour-sailcat.qml \
     qml/cover/CoverPage.qml \

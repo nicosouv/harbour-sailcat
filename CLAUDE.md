@@ -4,7 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SailCat is a native Sailfish OS chat client for Mistral AI, built with Qt/C++ backend and QML/Silica frontend. The app uses streaming SSE (Server-Sent Events) to display real-time AI responses.
+SailCat is a native Sailfish OS chat client for Mistral AI and other OpenAI-compatible
+providers (Scaleway, OVHcloud, Groq, or any custom endpoint), built with Qt/C++ backend
+and QML/Silica frontend. The app uses streaming SSE (Server-Sent Events) to display
+real-time AI responses.
 
 ## Build Commands
 
@@ -58,7 +61,10 @@ Four QObject classes are exposed to QML as context properties, plus two helper
 namespaces:
 
 1. **MistralAPI** (`src/mistralapi.*`)
-   - Manages HTTP communication with Mistral AI API
+   - Manages HTTP communication with the selected provider. Despite the name it is
+     provider-agnostic: `setEndpoint()` supplies the base URL and the per-provider
+     quirks, and `main()` calls it whenever the provider changes. Never hardcode a
+     host here again
    - Implements SSE streaming parser for real-time responses
    - Parses `data: [DONE]` and JSON chunks from stream
    - Enforces TLS 1.2+, peer verification and no redirects on every request
@@ -90,9 +96,12 @@ namespaces:
 4. **SettingsManager** (`src/settingsmanager.*`)
    - Wraps QSettings for persistent configuration, file kept owner-only
    - API key stored scrambled via SecureStore, never in clear text
-   - Properties: `apiKey`, `modelName`, `nextMessageModel`, `language`, `temperature`,
-     `maxTokens`, `systemPrompt`, `contextMessageLimit`, `chatStyle`, `showTimestamps`,
-     `savedPrompts`
+   - The key, the default model and the model cache live under `providers/<id>/`:
+     switching provider swaps the whole set. `resolveModel()` keeps a per-conversation
+     model override from being sent to a provider that does not serve it
+   - Properties: `providerId`, `customBaseUrl`, `apiKey`, `modelName`,
+     `nextMessageModel`, `language`, `temperature`, `maxTokens`, `systemPrompt`,
+     `contextMessageLimit`, `chatStyle`, `showTimestamps`, `savedPrompts`
    - `modelPricing()` / `estimatedCost()` back the cost estimate in the stats page
    - `appVersion` exposes `APP_VERSION`, injected by qmake from the spec version
 
@@ -104,6 +113,10 @@ Helpers (plain namespaces, not QObjects):
 - **SecureStore** (`src/securestore.*`) - owner-only file permissions and salted
   obfuscation for the API key. See `docs/features/20-audit-followup.md` for the
   threat model and the migration rules.
+- **Providers** (`src/providers.*`) - the endpoint registry: Mistral AI, Scaleway,
+  OVHcloud, Groq and a custom OpenAI-compatible entry, with the quirks that differ
+  between them (catalogue shape, `stream_options.include_usage`, key required, free
+  tier). See `docs/features/21-multi-provider.md`.
 - **Categories** (`src/categories.*`) - the 28 conversation categories and a local
   keyword classifier used when the model answers "other". Display labels and colors
   live in `qml/components/Categories.js` and **must stay in sync**.
@@ -165,12 +178,17 @@ Swiping back from the chat pops it; the history pushes a fresh one when a
 conversation is opened. Never assume a `ChatPage` instance exists — look it up by
 `objectName: "chatPage"` and handle null.
 
-## Mistral AI Integration
+## Provider Integration
 
 ### Endpoint
+
 ```
-POST https://api.mistral.ai/v1/chat/completions
+POST <provider base URL>/chat/completions
 ```
+
+The base URL comes from `Providers::byId()`, or from the user for a custom endpoint:
+`https://api.mistral.ai/v1`, `https://api.scaleway.ai/v1`,
+`https://oai.endpoints.kepler.ai.cloud.ovh.net/v1`, `https://api.groq.com/openai/v1`.
 
 ### Request Format
 ```json
@@ -228,7 +246,8 @@ journalctl -f | grep sailcat
 4. **Streaming Only** - The app relies on SSE streaming; non-streaming mode not implemented
    (title generation is the one exception and uses a plain request)
 5. **API key handling** - Never log it, never write it in clear text, never widen the
-   permissions of the settings file. See `src/securestore.*`.
+   permissions of the settings file. Keys are per provider: a key must never be sent
+   to a host other than the one it was entered for. See `src/securestore.*`.
 6. **Category identifiers** - `src/categories.cpp` and `qml/components/Categories.js`
    hold the same list twice; changing one without the other silently degrades to "Other".
 

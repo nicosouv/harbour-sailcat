@@ -6,6 +6,7 @@ Dialog {
 
     allowedOrientations: Orientation.All
 
+    property var providerList: settingsManager.availableProviders()
     property var availableModelsList: settingsManager.availableModels()
     property var chatStyleList: settingsManager.availableChatStyles()
     property bool revealKey: false
@@ -13,12 +14,18 @@ Dialog {
     canAccept: true
 
     onAccepted: {
+        // The provider is already applied; the address it needs is not.
+        if (settingsManager.providerId === "custom") {
+            settingsManager.customBaseUrl = baseUrlField.text.trim()
+        }
         settingsManager.apiKey = apiKeyField.text.trim()
 
-        var selectedModel = modelComboBox.currentItem ?
-                            modelComboBox.currentItem.modelValue :
-                            "mistral-small-latest"
-        settingsManager.modelName = selectedModel
+        var selectedModel = modelComboBox.visible && modelComboBox.currentItem
+                            ? modelComboBox.currentItem.modelValue
+                            : modelNameField.text.trim()
+        if (selectedModel !== "") {
+            settingsManager.modelName = selectedModel
+        }
 
         settingsManager.temperature = customTemperatureSwitch.checked ?
                                       temperatureSlider.value : -1.0
@@ -136,10 +143,77 @@ Dialog {
                 text: qsTr("API Configuration")
             }
 
+            ComboBox {
+                id: providerComboBox
+                label: qsTr("Provider")
+                description: qsTr("Every backend speaks the same protocol; only the key and the model list change")
+                width: parent.width
+
+                menu: ContextMenu {
+                    Repeater {
+                        model: settingsPage.providerList
+
+                        MenuItem {
+                            text: modelData.freeTier
+                                  ? qsTr("%1 - free tier").arg(modelData.name)
+                                  : modelData.name
+                            property string providerValue: modelData.id
+                            // Reacting to the click rather than to currentItem:
+                            // the menu is populated after the index is restored,
+                            // and that must not read as a user choice.
+                            onClicked: settingsPage.applyProvider(providerValue)
+                        }
+                    }
+                }
+
+                Component.onCompleted: {
+                    for (var i = 0; i < settingsPage.providerList.length; i++) {
+                        if (settingsPage.providerList[i].id === settingsManager.providerId) {
+                            currentIndex = i
+                            return
+                        }
+                    }
+                }
+            }
+
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("To get a free API key, visit console.mistral.ai")
+                text: qsTr("Hosted in %1").arg(settingsManager.providerRegion)
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
+            }
+
+            TextField {
+                id: baseUrlField
+                width: parent.width
+                visible: settingsManager.providerId === "custom"
+                label: qsTr("Endpoint base URL")
+                placeholderText: qsTr("https://host/v1")
+                text: settingsManager.customBaseUrl
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase | Qt.ImhUrlCharactersOnly
+
+                EnterKey.enabled: text.length > 0
+                EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                EnterKey.onClicked: focus = false
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                visible: settingsManager.providerId === "custom"
+                text: qsTr("Anything OpenAI-compatible, up to a llama.cpp or Ollama server on your own network.")
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                visible: settingsManager.providerKeyUrl !== ""
+                text: qsTr("To get an API key, visit %1").arg(settingsManager.providerKeyUrl)
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
@@ -148,8 +222,12 @@ Dialog {
             TextField {
                 id: apiKeyField
                 width: parent.width
-                label: qsTr("Mistral API Key")
-                placeholderText: qsTr("Enter your API key")
+                label: settingsManager.providerKeyRequired
+                       ? qsTr("%1 API key").arg(settingsManager.providerName)
+                       : qsTr("%1 API key (optional)").arg(settingsManager.providerName)
+                placeholderText: settingsManager.providerKeyRequired
+                                 ? qsTr("Enter your API key")
+                                 : qsTr("Leave empty to stay anonymous")
                 text: settingsManager.apiKey
                 echoMode: settingsPage.revealKey ? TextInput.Normal : TextInput.Password
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase | Qt.ImhSensitiveData
@@ -169,7 +247,7 @@ Dialog {
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.")
+                text: qsTr("The key is stored scrambled in an owner-only file on this device and is only ever sent to %1. Each provider keeps its own key.").arg(settingsManager.providerBaseUrl)
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.WordWrap
@@ -291,9 +369,10 @@ Dialog {
 
             ComboBox {
                 id: modelComboBox
-                label: qsTr("Mistral Model")
+                label: qsTr("Model")
                 description: qsTr("Select the model to use")
                 width: parent.width
+                visible: settingsPage.availableModelsList.length > 0
 
                 menu: ContextMenu {
                     Repeater {
@@ -312,6 +391,22 @@ Dialog {
                 }
 
                 Component.onCompleted: selectCurrentModel()
+            }
+
+            // A custom endpoint has no catalogue to offer until it has been
+            // queried once, so the model id is typed in.
+            TextField {
+                id: modelNameField
+                width: parent.width
+                visible: settingsPage.availableModelsList.length === 0
+                label: qsTr("Model")
+                placeholderText: qsTr("Model identifier")
+                text: settingsManager.modelName
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+
+                EnterKey.enabled: text.length > 0
+                EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                EnterKey.onClicked: focus = false
             }
 
             Label {
@@ -462,8 +557,8 @@ Dialog {
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("SailCat is an elegant client for Mistral AI Chat, " +
-                      "specifically designed for Sailfish OS.")
+                text: qsTr("SailCat is an elegant chat client for Mistral AI and other " +
+                      "OpenAI-compatible providers, designed for Sailfish OS.")
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.primaryColor
@@ -472,7 +567,7 @@ Dialog {
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("• Conversations stored locally\n• No sync with Mistral web\n• Requires personal API key")
+                text: qsTr("• Conversations stored locally\n• No sync with any web interface\n• Uses your own account with the provider")
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
@@ -487,7 +582,7 @@ Dialog {
             Label {
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2 * Theme.horizontalPageMargin
-                text: qsTr("Powered by Mistral AI • MIT License")
+                text: qsTr("Powered by %1 • MIT License").arg(settingsManager.providerName)
                 wrapMode: Text.WordWrap
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
@@ -524,10 +619,32 @@ Dialog {
             settingsManager.updateModelCache(models)
             settingsPage.availableModelsList = settingsManager.availableModels()
             modelComboBox.selectCurrentModel()
+            modelNameField.text = settingsManager.modelName
         }
     }
 
-    Component.onCompleted: {
+    Component.onCompleted: fetchModelsIfNeeded()
+
+    // Applied straight away rather than on Save: the key field and the model
+    // list below it both belong to the selected provider.
+    function applyProvider(providerValue) {
+        if (providerValue === settingsManager.providerId) {
+            return
+        }
+        // Whatever was typed belongs to the provider being left, and the field
+        // is about to be overwritten: keep it there.
+        settingsManager.apiKey = apiKeyField.text.trim()
+        settingsManager.providerId = providerValue
+        apiKeyField.text = settingsManager.apiKey
+        availableModelsList = settingsManager.availableModels()
+        modelComboBox.selectCurrentModel()
+        modelNameField.text = settingsManager.modelName
+        fetchModelsIfNeeded()
+    }
+
+    function fetchModelsIfNeeded() {
+        // The cache is per provider, so a switch to one never queried before
+        // fetches even though the previous provider had a fresh list.
         if (settingsManager.hasApiKey && settingsManager.modelCacheStale()) {
             mistralApi.fetchModels(settingsManager.apiKey)
         }

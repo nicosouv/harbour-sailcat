@@ -9,6 +9,7 @@
 #include "conversationmodel.h"
 #include "conversationmanager.h"
 #include "mistralapi.h"
+#include "providers.h"
 #include "securestore.h"
 #include "settingsmanager.h"
 
@@ -806,7 +807,8 @@ private slots:
 
         QSettings raw("harbour-sailcat", "SailCat");
         QVERIFY(!raw.contains("apiKey"));
-        QVERIFY(!raw.value("apiKeyEnc").toString().contains("sk-test-secret-value"));
+        QVERIFY(!raw.value("providers/mistral/apiKeyEnc").toString()
+                .contains("sk-test-secret-value"));
 
         reopened.clearApiKey();
         QVERIFY(!reopened.hasApiKey());
@@ -818,20 +820,97 @@ private slots:
             SettingsManager settings;
             settings.clearApiKey();
         }
-        // Simulate a pre-2.1 install
+        // Simulate a pre-2.1 install: no provider entry, key in clear text
         {
             QSettings raw("harbour-sailcat", "SailCat");
-            raw.remove("apiKeyEnc");
+            raw.remove("provider");
+            raw.remove("providers");
             raw.setValue("apiKey", "sk-legacy-key");
+            raw.setValue("modelName", "mistral-large-latest");
             raw.sync();
         }
 
         SettingsManager migrated;
         QCOMPARE(migrated.apiKey(), QString("sk-legacy-key"));
+        // The provider it belonged to is Mistral, and the model follows it
+        QCOMPARE(migrated.providerId(), QString("mistral"));
+        QCOMPARE(migrated.modelName(), QString("mistral-large-latest"));
 
         QSettings raw("harbour-sailcat", "SailCat");
         QVERIFY(!raw.contains("apiKey"));
-        QVERIFY(!raw.value("apiKeyEnc").toString().isEmpty());
+        QVERIFY(!raw.contains("apiKeyEnc"));
+        QVERIFY(!raw.value("providers/mistral/apiKeyEnc").toString().isEmpty());
+    }
+
+    void eachProviderKeepsItsOwnKey()
+    {
+        SettingsManager settings;
+        settings.setProviderId("mistral");
+        settings.setApiKey("sk-mistral");
+        settings.setProviderId("groq");
+        // Switching provider must not carry the previous key over
+        QCOMPARE(settings.apiKey(), QString());
+        settings.setApiKey("gsk-groq");
+
+        settings.setProviderId("mistral");
+        QCOMPARE(settings.apiKey(), QString("sk-mistral"));
+        settings.setProviderId("groq");
+        QCOMPARE(settings.apiKey(), QString("gsk-groq"));
+
+        // And they survive a restart, still separately
+        SettingsManager reopened;
+        QCOMPARE(reopened.providerId(), QString("groq"));
+        QCOMPARE(reopened.apiKey(), QString("gsk-groq"));
+
+        reopened.clearApiKey();
+        reopened.setProviderId("mistral");
+        reopened.clearApiKey();
+    }
+
+    void unknownProviderFallsBackToDefault()
+    {
+        SettingsManager settings;
+        settings.setProviderId("definitely-not-a-provider");
+        QCOMPARE(settings.providerId(), Providers::defaultId());
+    }
+
+    void customEndpointNeedsAnAddress()
+    {
+        SettingsManager settings;
+        settings.setProviderId("custom");
+        settings.setCustomBaseUrl("");
+        // No key required, but nowhere to send the request either
+        QVERIFY(!settings.hasApiKey());
+
+        settings.setCustomBaseUrl("http://192.168.1.10:11434/v1/");
+        // The trailing slash goes: callers append "/chat/completions"
+        QCOMPARE(settings.providerBaseUrl(), QString("http://192.168.1.10:11434/v1"));
+        QVERIFY(settings.hasApiKey());
+
+        settings.setProviderId("mistral");
+    }
+
+    void modelOverrideDoesNotFollowToAnotherProvider()
+    {
+        SettingsManager settings;
+        settings.setProviderId("groq");
+
+        QVariantList catalogue;
+        QVariantMap entry;
+        entry["id"] = "llama-3.3-70b-versatile";
+        entry["vision"] = false;
+        catalogue.append(entry);
+        settings.updateModelCache(catalogue);
+
+        // The fetched catalogue replaces a model it does not serve
+        QCOMPARE(settings.modelName(), QString("llama-3.3-70b-versatile"));
+        // A Mistral override is not sent to Groq
+        QCOMPARE(settings.resolveModel("mistral-large-latest"),
+                 QString("llama-3.3-70b-versatile"));
+        QCOMPARE(settings.resolveModel("llama-3.3-70b-versatile"),
+                 QString("llama-3.3-70b-versatile"));
+
+        settings.setProviderId("mistral");
     }
 
     void contextLimitIsRoundedToPairs()
@@ -902,6 +981,94 @@ private slots:
         QVERIFY(!settings.modelPricing("some-future-model")["known"].toBool());
         QCOMPARE(settings.estimatedCost("some-future-model", 1000, 1000), -1.0);
     }
+
+    void freeTierCostsNothing()
+    {
+        SettingsManager settings;
+        settings.setProviderId("groq");
+
+        QVariantList catalogue;
+        QVariantMap entry;
+        // Priced at Mistral, free here: the provider decides, not the name
+        entry["id"] = "mistral-saba-24b";
+        entry["vision"] = false;
+        catalogue.append(entry);
+        settings.updateModelCache(catalogue);
+
+        QVERIFY(settings.modelPricing("mistral-saba-24b")["known"].toBool());
+        QCOMPARE(settings.estimatedCost("mistral-saba-24b", 1000000, 1000000), 0.0);
+
+        // A model this provider does not serve is still an unknown
+        QVERIFY(!settings.modelPricing("some-future-model")["known"].toBool());
+
+        settings.setProviderId("mistral");
+        // Back on a paid provider the price list applies again
+        QVERIFY(settings.estimatedCost("mistral-saba-24b", 1000000, 0) > 0.0);
+    }
+};
+
+class TestProviders : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void registryIsConsistent()
+    {
+        const QList<Providers::Provider> all = Providers::all();
+        QVERIFY(all.count() >= 2);
+        QVERIFY(Providers::isValid(Providers::defaultId()));
+
+        QStringList seen;
+        for (int i = 0; i < all.count(); ++i) {
+            const Providers::Provider &p = all.at(i);
+            QVERIFY(!p.id.isEmpty());
+            QVERIFY(!p.name.isEmpty());
+            QVERIFY(!seen.contains(p.id));
+            seen.append(p.id);
+
+            if (p.baseUrl.isEmpty()) {
+                // Only the custom entry has no address of its own, and it
+                // cannot offer a catalogue either
+                QCOMPARE(p.id, QString("custom"));
+                QVERIFY(p.fallbackModels.isEmpty());
+            } else {
+                QVERIFY(p.baseUrl.startsWith("https://"));
+                QVERIFY(!p.baseUrl.endsWith('/'));
+                // Every preset must be usable before /v1/models is fetched
+                QVERIFY(!p.fallbackModels.isEmpty());
+                QVERIFY(p.fallbackModels.contains(p.defaultModel));
+            }
+        }
+    }
+
+    void unknownIdYieldsTheDefault()
+    {
+        QCOMPARE(Providers::byId("nope").id, Providers::defaultId());
+        QVERIFY(!Providers::isValid("nope"));
+    }
+
+    void nonChatModelsAreFilteredOut()
+    {
+        // Real ids from the OVHcloud catalogue, which tags none of them
+        QVERIFY(Providers::isChatModelId("Mistral-Small-3.2-24B-Instruct-2506"));
+        QVERIFY(Providers::isChatModelId("gpt-oss-120b"));
+        QVERIFY(!Providers::isChatModelId("Qwen3-Embedding-8B"));
+        QVERIFY(!Providers::isChatModelId("bge-m3"));
+        QVERIFY(!Providers::isChatModelId("whisper-large-v3"));
+        QVERIFY(!Providers::isChatModelId("nvr-tts-en-us"));
+        QVERIFY(!Providers::isChatModelId("stable-diffusion-xl-base-v10"));
+        QVERIFY(!Providers::isChatModelId(""));
+    }
+
+    void visionIsGuessedConservatively()
+    {
+        QVERIFY(Providers::looksLikeVisionModel("pixtral-12b-latest"));
+        QVERIFY(Providers::looksLikeVisionModel("Qwen2.5-VL-72B-Instruct"));
+        QVERIFY(Providers::looksLikeVisionModel("llava-next-mistral-7b"));
+        // On doubt the answer is no: the attachment button stays hidden
+        QVERIFY(!Providers::looksLikeVisionModel("llama-3.3-70b-versatile"));
+        QVERIFY(!Providers::looksLikeVisionModel("gpt-oss-120b"));
+    }
 };
 
 int main(int argc, char *argv[])
@@ -940,6 +1107,10 @@ int main(int argc, char *argv[])
     }
     {
         TestSettingsManager t;
+        status |= QTest::qExec(&t, argc, argv);
+    }
+    {
+        TestProviders t;
         status |= QTest::qExec(&t, argc, argv);
     }
     return status;

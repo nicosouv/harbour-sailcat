@@ -1,4 +1,5 @@
 #include "settingsmanager.h"
+#include "providers.h"
 #include "securestore.h"
 
 #include <QDateTime>
@@ -10,7 +11,7 @@
 
 // Injected by qmake from the spec file version
 #ifndef APP_VERSION
-#define APP_VERSION "2.2.1"
+#define APP_VERSION "2.3.0"
 #endif
 
 namespace {
@@ -48,6 +49,7 @@ const int MAX_SAVED_PROMPTS = 100;
 SettingsManager::SettingsManager(QObject *parent)
     : QObject(parent)
     , m_settings("harbour-sailcat", "SailCat")
+    , m_providerId(Providers::defaultId())
     , m_temperature(-1.0)
     , m_maxTokens(0)
     , m_contextMessageLimit(0)
@@ -57,6 +59,130 @@ SettingsManager::SettingsManager(QObject *parent)
 {
     loadSettings();
     secureSettingsFile();
+}
+
+QString SettingsManager::providerId() const
+{
+    return m_providerId;
+}
+
+void SettingsManager::setProviderId(const QString &id)
+{
+    const QString wanted = Providers::isValid(id) ? id : Providers::defaultId();
+    if (m_providerId == wanted) {
+        return;
+    }
+
+    m_providerId = wanted;
+    m_settings.setValue("provider", m_providerId);
+    // A model chosen for the next message belongs to the provider we are
+    // leaving; it would be meaningless on the new one.
+    m_nextMessageModel.clear();
+    m_settings.remove("nextMessageModel");
+    loadProviderSettings();
+    m_settings.sync();
+    secureSettingsFile();
+
+    // Everything hanging off the provider changed at once.
+    emit providerChanged();
+    emit apiKeyChanged();
+    emit hasApiKeyChanged();
+    emit modelNameChanged();
+    emit nextMessageModelChanged();
+    emit availableModelsChanged();
+}
+
+QString SettingsManager::providerName() const
+{
+    return Providers::byId(m_providerId).name;
+}
+
+QString SettingsManager::providerBaseUrl() const
+{
+    const Providers::Provider provider = Providers::byId(m_providerId);
+    if (!provider.baseUrl.isEmpty()) {
+        return provider.baseUrl;
+    }
+
+    // Custom endpoint: tolerate a trailing slash, the caller appends paths.
+    QString url = m_customBaseUrl.trimmed();
+    while (url.endsWith('/')) {
+        url.chop(1);
+    }
+    return url;
+}
+
+QString SettingsManager::providerKeyUrl() const
+{
+    return Providers::byId(m_providerId).keyUrl;
+}
+
+QString SettingsManager::providerRegion() const
+{
+    return Providers::byId(m_providerId).region;
+}
+
+bool SettingsManager::providerKeyRequired() const
+{
+    return Providers::byId(m_providerId).keyRequired;
+}
+
+bool SettingsManager::providerFreeTier() const
+{
+    return Providers::byId(m_providerId).freeTier;
+}
+
+QString SettingsManager::customBaseUrl() const
+{
+    return m_customBaseUrl;
+}
+
+void SettingsManager::setCustomBaseUrl(const QString &url)
+{
+    const QString trimmed = url.trimmed();
+    if (m_customBaseUrl == trimmed) {
+        return;
+    }
+
+    m_customBaseUrl = trimmed;
+    m_settings.setValue("providers/custom/baseUrl", m_customBaseUrl);
+    m_settings.sync();
+    secureSettingsFile();
+    emit providerChanged();
+    emit hasApiKeyChanged();
+}
+
+QVariantList SettingsManager::availableProviders() const
+{
+    QVariantList list;
+    const QList<Providers::Provider> providers = Providers::all();
+
+    for (int i = 0; i < providers.count(); ++i) {
+        const Providers::Provider &provider = providers.at(i);
+        QVariantMap entry;
+        entry["id"] = provider.id;
+        entry["name"] = provider.name;
+        entry["region"] = provider.region;
+        entry["keyUrl"] = provider.keyUrl;
+        entry["keyRequired"] = provider.keyRequired;
+        entry["freeTier"] = provider.freeTier;
+        entry["custom"] = provider.baseUrl.isEmpty();
+        list.append(entry);
+    }
+
+    return list;
+}
+
+QString SettingsManager::resolveModel(const QString &candidate) const
+{
+    if (candidate.isEmpty()) {
+        return m_modelName;
+    }
+    // Nothing fetched yet: no grounds to reject anything.
+    if (m_cachedModels.isEmpty() || m_cachedModels.contains(candidate)) {
+        return candidate;
+    }
+    return m_modelName;
 }
 
 QString SettingsManager::apiKey() const
@@ -264,6 +390,14 @@ QVariantMap SettingsManager::modelPricing(const QString &modelId) const
     pricing["output"] = 0.0;
     pricing["known"] = false;
 
+    // A model served by a provider that bills nothing within its rate limits
+    // costs nothing, whatever it costs at its vendor: an open-weight model
+    // hosted for free on Groq is not billed at Mistral's list price.
+    if (providerFreeTier() && m_cachedModels.contains(modelId)) {
+        pricing["known"] = true;
+        return pricing;
+    }
+
     const QString id = modelId.toLower();
     for (int i = 0; i < PRICE_COUNT; ++i) {
         if (id.contains(QString::fromLatin1(PRICES[i].match))) {
@@ -295,11 +429,9 @@ QStringList SettingsManager::availableModels() const
     if (!m_cachedModels.isEmpty()) {
         return m_cachedModels;
     }
-    // Fallback when the model list was never fetched
-    return QStringList()
-        << "mistral-small-latest"
-        << "mistral-large-latest"
-        << "pixtral-12b-latest";
+    // Fallback until the catalogue has been fetched once. A custom endpoint
+    // has none, so the field is left free-form there.
+    return Providers::byId(m_providerId).fallbackModels;
 }
 
 QStringList SettingsManager::availableChatStyles() const
@@ -316,7 +448,7 @@ bool SettingsManager::isVisionModel(const QString &modelId) const
     if (!m_cachedModels.isEmpty()) {
         return m_cachedVisionModels.contains(modelId);
     }
-    return modelId.contains("pixtral");
+    return Providers::looksLikeVisionModel(modelId);
 }
 
 void SettingsManager::updateModelCache(const QVariantList &models)
@@ -342,9 +474,20 @@ void SettingsManager::updateModelCache(const QVariantList &models)
 
     m_cachedModels = ids;
     m_cachedVisionModels = visionIds;
-    m_settings.setValue("models/cachedList", m_cachedModels);
-    m_settings.setValue("models/visionList", m_cachedVisionModels);
-    m_settings.setValue("models/cacheTimestamp", QDateTime::currentMSecsSinceEpoch() / 1000);
+    m_settings.setValue(providerKey("models/cachedList"), m_cachedModels);
+    m_settings.setValue(providerKey("models/visionList"), m_cachedVisionModels);
+    m_settings.setValue(providerKey("models/cacheTimestamp"),
+                        QDateTime::currentMSecsSinceEpoch() / 1000);
+    // A stored model the provider does not serve would fail on every send.
+    // Not a model switch the user made, so the stat is left alone.
+    if (!m_cachedModels.contains(m_modelName)) {
+        const QString fallback = Providers::byId(m_providerId).defaultModel;
+        m_modelName = m_cachedModels.contains(fallback) ? fallback
+                                                        : m_cachedModels.first();
+        m_settings.setValue(providerKey("modelName"), m_modelName);
+        emit modelNameChanged();
+    }
+
     m_settings.sync();
     secureSettingsFile();
     emit availableModelsChanged();
@@ -355,7 +498,7 @@ bool SettingsManager::modelCacheStale() const
     if (m_cachedModels.isEmpty()) {
         return true;
     }
-    qint64 cachedAt = m_settings.value("models/cacheTimestamp", 0).toLongLong();
+    qint64 cachedAt = m_settings.value(providerKey("models/cacheTimestamp"), 0).toLongLong();
     qint64 now = QDateTime::currentMSecsSinceEpoch() / 1000;
     return (now - cachedAt) > 24 * 3600;
 }
@@ -380,7 +523,12 @@ void SettingsManager::clearApiKey()
 
 bool SettingsManager::hasApiKey() const
 {
-    return !m_apiKey.isEmpty();
+    // Really "is the app configured enough to send a request": a provider that
+    // answers anonymously needs no key, a custom endpoint needs an address.
+    if (providerBaseUrl().isEmpty()) {
+        return false;
+    }
+    return !m_apiKey.isEmpty() || !providerKeyRequired();
 }
 
 QString SettingsManager::nextMessageModel() const
@@ -422,38 +570,20 @@ void SettingsManager::setFirstLaunchComplete()
 
 void SettingsManager::loadSettings()
 {
-    // The key moved to an obfuscated entry in 2.1. Read order matters:
-    //   1. the new entry, which deobfuscate() also passes through untouched if
-    //      it happens to hold a plain value (salt unavailable at write time)
-    //   2. the pre-2.1 clear-text entry, migrated in place
-    // The clear-text entry is only dropped once the key is stored again, so an
-    // upgrade with a configured key never loses it.
-    const QString storedKey = m_settings.value("apiKeyEnc", "").toString();
-    if (!storedKey.isEmpty()) {
-        m_apiKey = SecureStore::deobfuscate(storedKey);
-        if (m_apiKey.isEmpty()) {
-            qWarning() << "Stored API key could not be decoded; it must be entered again";
-            m_settings.remove("apiKeyEnc");
-        }
-    }
+    migrateToProviderSettings();
 
-    if (m_apiKey.isEmpty()) {
-        const QString legacyKey = m_settings.value("apiKey", "").toString();
-        if (!legacyKey.isEmpty()) {
-            m_apiKey = legacyKey;
-        }
+    m_providerId = m_settings.value("provider", Providers::defaultId()).toString();
+    if (!Providers::isValid(m_providerId)) {
+        m_providerId = Providers::defaultId();
     }
+    m_customBaseUrl = m_settings.value("providers/custom/baseUrl", "").toString();
 
-    if (!m_apiKey.isEmpty()) {
-        persistApiKey();
-    }
-    m_settings.remove("apiKey");
+    loadProviderSettings();
 
     // Dropped in 2.1: there is no bundled key, so the toggle only ever got in
     // the way. Remove the leftover entry.
     m_settings.remove("useCustomKey");
 
-    m_modelName = m_settings.value("modelName", "mistral-small-latest").toString();
     m_nextMessageModel = m_settings.value("nextMessageModel", "").toString();
     m_language = m_settings.value("language", "en").toString();
     m_temperature = m_settings.value("generation/temperature", -1.0).toDouble();
@@ -465,8 +595,6 @@ void SettingsManager::loadSettings()
         m_chatStyle = "flat";
     }
     m_showTimestamps = m_settings.value("ui/showTimestamps", true).toBool();
-    m_cachedModels = m_settings.value("models/cachedList").toStringList();
-    m_cachedVisionModels = m_settings.value("models/visionList").toStringList();
     m_modelSwitches = m_settings.value("stats/modelSwitches", 0).toInt();
 
     m_savedPrompts.clear();
@@ -490,17 +618,92 @@ void SettingsManager::loadSettings()
     m_settings.sync();
 }
 
+QString SettingsManager::providerKey(const QString &key) const
+{
+    return QString("providers/%1/%2").arg(m_providerId, key);
+}
+
+void SettingsManager::loadProviderSettings()
+{
+    const Providers::Provider provider = Providers::byId(m_providerId);
+
+    // The key is stored obfuscated. deobfuscate() passes a plain value through
+    // untouched, which covers a key written while the salt was unavailable.
+    m_apiKey.clear();
+    const QString storedKey = m_settings.value(providerKey("apiKeyEnc"), "").toString();
+    if (!storedKey.isEmpty()) {
+        m_apiKey = SecureStore::deobfuscate(storedKey);
+        if (m_apiKey.isEmpty()) {
+            qWarning() << "Stored API key could not be decoded; it must be entered again";
+            m_settings.remove(providerKey("apiKeyEnc"));
+        }
+    }
+
+    m_modelName = m_settings.value(providerKey("modelName"),
+                                   provider.defaultModel).toString();
+    m_cachedModels = m_settings.value(providerKey("models/cachedList")).toStringList();
+    m_cachedVisionModels = m_settings.value(providerKey("models/visionList")).toStringList();
+}
+
+void SettingsManager::migrateToProviderSettings()
+{
+    // Before 2.3 there was one provider, so the key, the model and the model
+    // cache sat at the top level. Move them under providers/mistral/ once.
+    if (m_settings.value("provider").isValid()) {
+        return;
+    }
+
+    const QString mistral = Providers::defaultId();
+    const QString prefix = QString("providers/%1/").arg(mistral);
+
+    // The pre-2.1 clear-text entry is still read here: an upgrade that skipped
+    // 2.1 and 2.2 must not lose a configured key.
+    QString key = m_settings.value("apiKeyEnc", "").toString();
+    if (key.isEmpty()) {
+        const QString legacy = m_settings.value("apiKey", "").toString();
+        if (!legacy.isEmpty()) {
+            key = SecureStore::isAvailable() ? SecureStore::obfuscate(legacy) : legacy;
+        }
+    }
+    if (!key.isEmpty()) {
+        m_settings.setValue(prefix + "apiKeyEnc", key);
+    }
+
+    const QString model = m_settings.value("modelName", "").toString();
+    if (!model.isEmpty()) {
+        m_settings.setValue(prefix + "modelName", model);
+    }
+
+    const QStringList cached = m_settings.value("models/cachedList").toStringList();
+    if (!cached.isEmpty()) {
+        m_settings.setValue(prefix + "models/cachedList", cached);
+        m_settings.setValue(prefix + "models/visionList",
+                            m_settings.value("models/visionList").toStringList());
+        m_settings.setValue(prefix + "models/cacheTimestamp",
+                            m_settings.value("models/cacheTimestamp", 0).toLongLong());
+    }
+
+    m_settings.remove("apiKeyEnc");
+    m_settings.remove("apiKey");
+    m_settings.remove("modelName");
+    m_settings.remove("models");
+
+    m_settings.setValue("provider", mistral);
+    m_settings.sync();
+    secureSettingsFile();
+}
+
 void SettingsManager::persistApiKey()
 {
     if (m_apiKey.isEmpty()) {
-        m_settings.remove("apiKeyEnc");
+        m_settings.remove(providerKey("apiKeyEnc"));
         return;
     }
 
     // Without a persisted salt the ciphertext would be unreadable on the next
     // launch, so store the key as-is rather than destroy it. The file is still
     // owner-only either way.
-    m_settings.setValue("apiKeyEnc", SecureStore::isAvailable()
+    m_settings.setValue(providerKey("apiKeyEnc"), SecureStore::isAvailable()
                         ? SecureStore::obfuscate(m_apiKey)
                         : m_apiKey);
 }
@@ -508,7 +711,7 @@ void SettingsManager::persistApiKey()
 void SettingsManager::saveSettings()
 {
     persistApiKey();
-    m_settings.setValue("modelName", m_modelName);
+    m_settings.setValue(providerKey("modelName"), m_modelName);
     if (!m_nextMessageModel.isEmpty()) {
         m_settings.setValue("nextMessageModel", m_nextMessageModel);
     } else {

@@ -1,10 +1,10 @@
 # Architecture de SailCat
 
-Ce document décrit l'architecture technique de SailCat, une application Sailfish OS pour Le Chat de Mistral AI.
+Ce document décrit l'architecture technique de SailCat, une application de chat IA pour Sailfish OS, compatible Mistral AI et tout fournisseur parlant le dialecte OpenAI.
 
 ## Vue d'ensemble
 
-SailCat est une application native Sailfish OS construite avec Qt 5.6 et QML. Elle utilise l'API REST de Mistral AI avec support du streaming (Server-Sent Events) pour offrir des conversations en temps réel.
+SailCat est une application native Sailfish OS construite avec Qt 5.6 et QML. Elle utilise une API REST compatible OpenAI - Mistral AI, Scaleway, OVHcloud, Groq ou un endpoint personnalisé - avec support du streaming (Server-Sent Events) pour offrir des conversations en temps réel.
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -24,8 +24,8 @@ SailCat est une application native Sailfish OS construite avec Qt 5.6 et QML. El
 └──────────────────┬──────────────────────────┘
                    │ HTTPS/SSE
 ┌──────────────────┴──────────────────────────┐
-│         Mistral AI API                       │
-│    https://api.mistral.ai/v1/                │
+│      Fournisseur sélectionné                 │
+│  Mistral / Scaleway / OVH / Groq / custom    │
 └──────────────────────────────────────────────┘
 ```
 
@@ -35,10 +35,13 @@ SailCat est une application native Sailfish OS construite avec Qt 5.6 et QML. El
 
 #### MistralAPI (`mistralapi.h/cpp`)
 
-**Responsabilité**: Gestion de la communication avec l'API Mistral AI.
+**Responsabilité**: Gestion de la communication avec l'API du fournisseur actif.
+Malgré son nom, la classe n'est pas spécifique à Mistral: `setEndpoint()` lui fournit
+l'URL de base et les particularités du fournisseur (voir `providers.h/cpp`), et c'est
+`main()` qui l'appelle à chaque changement de fournisseur.
 
 **Fonctionnalités**:
-- Envoi de requêtes POST vers `/v1/chat/completions`
+- Envoi de requêtes POST vers `<base>/chat/completions`
 - Support du streaming via Server-Sent Events (SSE)
 - Parsing des événements SSE en temps réel
 - Gestion des erreurs réseau et API
@@ -100,9 +103,10 @@ La méthode `updateLastAssistantMessage()` permet d'afficher progressivement la 
 **Stockage**: `QSettings` (fichiers de configuration locaux)
 
 **Propriétés Q_PROPERTY**:
-- `apiKey` - Clé API Mistral de l'utilisateur
-- `modelName` - Modèle sélectionné (mistral-small-latest, etc.)
-- `useCustomKey` - Utiliser une clé personnelle ou le free tier
+- `providerId` - Fournisseur actif (mistral, scaleway, ovh, groq, custom)
+- `customBaseUrl` - URL de base pour un endpoint personnalisé
+- `apiKey` - Clé API du fournisseur actif, une par fournisseur
+- `modelName` - Modèle sélectionné, un par fournisseur
 
 **Méthodes Q_INVOKABLE**:
 - `availableModels()` - Liste des modèles disponibles
@@ -269,7 +273,7 @@ conversationModel.updateLastAssistantMessage()
 UI mis à jour en temps réel
 ```
 
-## Format de l'API Mistral
+## Format de l'API (dialecte OpenAI)
 
 ### Requête
 

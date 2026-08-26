@@ -27,10 +27,19 @@ Page {
 
     // A one-shot model chosen for the next message wins over the
     // per-conversation override, which wins over the global setting.
-    readonly property string activeModel:
+    readonly property string requestedModel:
         settingsManager.nextMessageModel !== "" ? settingsManager.nextMessageModel
         : (conversationModelOverride !== "" ? conversationModelOverride
                                             : settingsManager.modelName)
+
+    // An override recorded under another provider would be rejected by this
+    // one, so it is checked against the active catalogue. The two values read
+    // and discarded are what the binding depends on to re-evaluate: the guard
+    // falls back to the global model, on a list that changes with the provider.
+    readonly property string activeModel:
+        (settingsManager.providerId,
+         settingsManager.modelName,
+         settingsManager.resolveModel(requestedModel))
 
     onStatusChanged: {
         if (status === PageStatus.Active) {
@@ -124,7 +133,7 @@ Page {
         ViewPlaceholder {
             enabled: conversationModel.count === 0
             text: firstUse ? qsTr("Welcome to SailCat") : qsTr("Start a conversation")
-            hintText: firstUse ? qsTr("Configure your Mistral API key to get started") : qsTr("Type a message below")
+            hintText: firstUse ? qsTr("Pick a provider and enter its API key to get started") : qsTr("Type a message below")
         }
 
         delegate: MessageBubble {
@@ -465,13 +474,13 @@ Page {
                 }
 
                 SectionHeader {
-                    text: qsTr("What is Mistral AI?")
+                    text: qsTr("Which AI answers you?")
                 }
 
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: qsTr("Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.")
+                    text: qsTr("The one you pick. SailCat talks to Mistral AI, Scaleway, OVHcloud, Groq or any OpenAI-compatible endpoint, with your own account. Several of them have a free tier, and the European ones keep your conversations on this side of the Atlantic.")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -484,7 +493,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: qsTr("• Your conversations are stored locally on your device\n• No sync with Mistral's web interface\n• You need your own API key to use the app\n• Your data stays on your phone")
+                    text: qsTr("• Your conversations are stored locally on your device\n• No sync with any web interface\n• Each provider keeps its own key, stored scrambled\n• Your data stays on your phone")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor
@@ -497,7 +506,7 @@ Page {
                 Label {
                     x: Theme.horizontalPageMargin
                     width: parent.width - 2 * Theme.horizontalPageMargin
-                    text: qsTr("1. Get a free API key from console.mistral.ai\n2. Configure it in Settings\n3. Start chatting!")
+                    text: qsTr("1. Pick a provider in Settings\n2. Paste the API key it gives you\n3. Start chatting!")
                     wrapMode: Text.WordWrap
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.primaryColor

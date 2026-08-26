@@ -1,6 +1,6 @@
 Name:       harbour-sailcat
-Summary:    Le Chat de Mistral AI pour Sailfish OS
-Version:    2.2.1
+Summary:    Client de chat IA pour Sailfish OS
+Version:    2.3.0
 Release:    1
 Group:      Applications/Internet
 License:    MIT
@@ -15,17 +15,17 @@ BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  desktop-file-utils
 
 %description
-SailCat est un client élégant pour Le Chat de Mistral AI, intégré parfaitement
-dans l'interface utilisateur de Sailfish OS. Profitez de conversations intelligentes
-avec les modèles Mistral directement depuis votre appareil Sailfish.
+SailCat est un client élégant pour Mistral AI et tout fournisseur compatible
+OpenAI, intégré parfaitement dans l'interface utilisateur de Sailfish OS.
+Profitez de conversations intelligentes directement depuis votre appareil.
 
 Fonctionnalités:
-- Support du free tier de Mistral AI
-- Option pour utiliser votre propre clé API
+- Mistral AI, Scaleway, OVHcloud, Groq ou votre propre endpoint
+- Plusieurs de ces fournisseurs offrent un free tier
+- Clé API distincte par fournisseur, stockée brouillée
 - Streaming en temps réel des réponses
 - Interface native Sailfish avec composants Silica
 - Historique des conversations
-- Choix entre différents modèles (Small, Large)
 
 %prep
 %setup -q -n %{name}-%{version}

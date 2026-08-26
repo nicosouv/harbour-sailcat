@@ -4,12 +4,19 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QUrl>
 #include <QString>
 #include <QByteArray>
 #include <QTimer>
 #include <QJsonArray>
 #include <QVariant>
 
+#include "providers.h"
+
+// Talks the OpenAI chat-completions dialect, which every supported backend
+// speaks: only the endpoint and a few quirks come from the provider, through
+// setEndpoint(). The class keeps its name because the app started Mistral-only.
 class MistralAPI : public QObject
 {
     Q_OBJECT
@@ -21,6 +28,13 @@ public:
 
     bool isBusy() const;
     QString error() const;
+
+    // Points every request at a provider. Called once at startup and again on
+    // every provider change, from C++, so no caller can forget to.
+    void setEndpoint(const QString &baseUrl,
+                     Providers::ModelSource modelSource,
+                     bool streamUsageOption,
+                     bool keyRequired);
 
     Q_INVOKABLE void sendMessage(const QString &apiKey,
                                    const QString &modelName,
@@ -71,9 +85,17 @@ private:
     bool m_timedOut;
     QString m_error;
     QByteArray m_streamBuffer;
+    QString m_baseUrl;
+    Providers::ModelSource m_modelSource;
+    bool m_streamUsageOption;
+    bool m_keyRequired;
 
     void setIsBusy(bool busy);
     void setError(const QString &error);
+    // Endpoint URL, or an invalid one when no base URL is configured.
+    QUrl endpoint(const QString &path) const;
+    // Content type, bearer token when there is one, TLS pinning.
+    void prepareRequest(QNetworkRequest &request, const QString &apiKey) const;
     void processStreamData(const QByteArray &data);
     void parseStreamLine(const QString &line);
 };

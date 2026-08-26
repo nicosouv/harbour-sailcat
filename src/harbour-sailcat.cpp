@@ -13,6 +13,7 @@
 #include "mistralapi.h"
 #include "conversationmodel.h"
 #include "conversationmanager.h"
+#include "providers.h"
 #include "settingsmanager.h"
 
 int main(int argc, char *argv[])
@@ -34,6 +35,20 @@ int main(int argc, char *argv[])
     // The manager owns the streaming lifecycle so an answer survives the chat
     // page being popped off the stack mid-response.
     conversationManager.bindApi(&mistralApi);
+
+    // The API layer follows the selected provider from here rather than from
+    // QML: a page that forgot to reconfigure it would send the conversation to
+    // the wrong endpoint, with the wrong key.
+    auto applyProvider = [&mistralApi, &settingsManager]() {
+        const Providers::Provider provider =
+                Providers::byId(settingsManager.providerId());
+        mistralApi.setEndpoint(settingsManager.providerBaseUrl(),
+                               provider.modelSource,
+                               provider.streamUsageOption,
+                               provider.keyRequired);
+    };
+    applyProvider();
+    QObject::connect(&settingsManager, &SettingsManager::providerChanged, applyProvider);
 
     // Load initial translation based on settings
     QString language = settingsManager.language();

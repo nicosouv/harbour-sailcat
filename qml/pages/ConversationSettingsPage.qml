@@ -260,6 +260,7 @@ Page {
         var modelId = modelCombo.currentItem && modelCombo.currentItem.modelValue !== ""
                 ? modelCombo.currentItem.modelValue
                 : settingsManager.modelName
-        mistralApi.generateTitle(settingsManager.apiKey, modelId, digest, loadedId)
+        mistralApi.generateTitle(settingsManager.apiKey,
+                                 settingsManager.resolveModel(modelId), digest, loadedId)
     }
 }
