@@ -84,6 +84,21 @@ by name (`Providers::isChatModelId`) and by `max_completion_tokens == 0` where t
 provider fills it in. Image support is guessed from the name and defaults to *no*:
 the attachment button stays hidden rather than sending a request that will fail.
 
+## Counting usage
+
+The token ledger (`stats/modelTokens`) is keyed by model alone and predates the
+provider, so it cannot answer "which provider do I actually use". The statistics page
+therefore counts assistant messages, walking the stored conversations: that source
+knows both fields and stays correct retroactively, since a pre-2.3 answer carries a
+provider even when its model is empty. `getStatistics()` returns `providerUsage` and
+`modelAnswers` ranked most-used first, plus `topProvider` / `topModel` for the summary
+lines. Ties break on the name so the list does not reshuffle between calls.
+
+The history list gets `lastModel` - the model of the last answer, falling back to the
+conversation's pinned model when nothing has answered yet. It is deliberately *not*
+called `model`: that name shadows the delegate's own model object, which is the bug
+2.1.1 had to fix.
+
 ## Cost
 
 A model served by a free-tier provider costs nothing, whatever it costs at its vendor

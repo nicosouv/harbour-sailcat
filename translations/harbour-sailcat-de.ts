@@ -916,6 +916,30 @@
             <source>free</source>
             <translation>kostenlos</translation>
         </message>
+        <message>
+            <source>Providers and models</source>
+            <translation>Anbieter und Modelle</translation>
+        </message>
+        <message>
+            <source>Most used provider</source>
+            <translation>Meistgenutzter Anbieter</translation>
+        </message>
+        <message>
+            <source>Most used model</source>
+            <translation>Meistgenutztes Modell</translation>
+        </message>
+        <message>
+            <source>Answers per provider</source>
+            <translation>Antworten pro Anbieter</translation>
+        </message>
+        <message>
+            <source>Answers per model</source>
+            <translation>Antworten pro Modell</translation>
+        </message>
+        <message>
+            <source>Counted from the answers themselves. Answers received before this app recorded models appear under their provider only.</source>
+            <translation>Aus den Antworten selbst gezählt. Antworten von vor der Modellerfassung erscheinen nur unter ihrem Anbieter.</translation>
+        </message>
     </context>
     <context>
         <name>Categories</name>

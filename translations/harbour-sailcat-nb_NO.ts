@@ -951,6 +951,30 @@
             <source>free</source>
             <translation>gratis</translation>
         </message>
+        <message>
+            <source>Providers and models</source>
+            <translation>Leverandører og modeller</translation>
+        </message>
+        <message>
+            <source>Most used provider</source>
+            <translation>Mest brukte leverandør</translation>
+        </message>
+        <message>
+            <source>Most used model</source>
+            <translation>Mest brukte modell</translation>
+        </message>
+        <message>
+            <source>Answers per provider</source>
+            <translation>Svar per leverandør</translation>
+        </message>
+        <message>
+            <source>Answers per model</source>
+            <translation>Svar per modell</translation>
+        </message>
+        <message>
+            <source>Counted from the answers themselves. Answers received before this app recorded models appear under their provider only.</source>
+            <translation>Telt fra svarene selv. Svar mottatt før appen registrerte modeller vises bare under leverandøren sin.</translation>
+        </message>
     </context>
     <context>
         <name>Categories</name>

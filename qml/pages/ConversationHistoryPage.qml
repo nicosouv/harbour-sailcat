@@ -289,19 +289,6 @@ Page {
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    // Only for a conversation that does not talk to the
-                    // currently selected provider. Stamping every row with the
-                    // same name would be noise; the exception is the news.
-                    Label {
-                        text: settingsManager.providerNameFor(model.provider || "")
-                        visible: (model.provider || "") !== ""
-                                 && model.provider !== settingsManager.providerId
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor
-                                                            : Theme.highlightColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                    }
-
                     Label {
                         text: Qt.formatDateTime(new Date(model.updatedAt), "dd/MM/yyyy hh:mm")
                         anchors.verticalCenter: parent.verticalCenter
@@ -334,6 +321,26 @@ Page {
                         color: conversationItem.highlighted ? Theme.highlightColor : Theme.highlightColor
                         font.pixelSize: Theme.fontSizeExtraSmall
                     }
+                }
+
+                // Who answers in this conversation. On its own line rather than
+                // in the row above, which is already full on a narrow screen.
+                Label {
+                    width: parent.width
+                    text: {
+                        var provider = model.provider || ""
+                        if (provider === "") {
+                            return ""
+                        }
+                        var name = settingsManager.providerNameFor(provider)
+                        var used = model.lastModel || ""
+                        return used === "" ? name : name + " · " + used
+                    }
+                    visible: text !== ""
+                    color: conversationItem.highlighted ? Theme.secondaryHighlightColor
+                                                        : Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeTiny
+                    truncationMode: TruncationMode.Fade
                 }
             }
         }

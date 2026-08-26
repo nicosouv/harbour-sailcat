@@ -31,6 +31,30 @@ namespace {
 const int MAX_IMAGE_DIMENSION = 1024;
 const int JPEG_QUALITY = 85;
 
+// {key: count} to a list of {keyName: key, "count": n}, most used first.
+QVariantList rankCounts(const QVariantMap &counts, const QString &keyName)
+{
+    QList<QPair<int, QString> > ranked;
+    for (QVariantMap::const_iterator it = counts.constBegin();
+         it != counts.constEnd(); ++it) {
+        ranked.append(qMakePair(it.value().toInt(), it.key()));
+    }
+    std::sort(ranked.begin(), ranked.end(),
+              [](const QPair<int, QString> &a, const QPair<int, QString> &b) {
+        // Ties broken by name so the list does not reshuffle between calls
+        return a.first != b.first ? a.first > b.first : a.second < b.second;
+    });
+
+    QVariantList list;
+    for (int i = 0; i < ranked.count(); ++i) {
+        QVariantMap entry;
+        entry[keyName] = ranked.at(i).second;
+        entry["count"] = ranked.at(i).first;
+        list.append(entry);
+    }
+    return list;
+}
+
 }
 
 ConversationManager::ConversationManager(QObject *parent)
@@ -869,6 +893,15 @@ QJsonArray ConversationManager::getConversationsList() const
         obj["category"] = conv.category;
         obj["unread"] = conv.unread;
         obj["provider"] = conv.provider;
+        // What answered last, so the row can say more than the provider name.
+        // Falls back to the pinned model for a conversation with no answer yet.
+        QString lastModel;
+        for (int i = conv.messages.count() - 1; i >= 0 && lastModel.isEmpty(); --i) {
+            if (conv.messages.at(i).role == "assistant") {
+                lastModel = conv.messages.at(i).model;
+            }
+        }
+        obj["lastModel"] = lastModel.isEmpty() ? conv.model : lastModel;
         // Never add a key named "model" here: these objects are appended to a
         // ListModel, and a role called "model" shadows the delegate's own
         // model object, which silently turns model.title, model.id and every
@@ -1393,6 +1426,11 @@ QVariantMap ConversationManager::getStatistics() const
     qint64 totalAssistantChars = 0;
     QString longestConvTitle;
     QVariantMap categoryCounts;
+    // Counted from the answers themselves rather than from the token ledger:
+    // the ledger has no provider, and this way conversations written before
+    // 2.3 still count towards Mistral.
+    QVariantMap providerCounts;
+    QVariantMap modelCounts;
 
     // Activity distribution: last 14 days (oldest first) and hour of day
     QDate today = QDate::currentDate();
@@ -1420,6 +1458,16 @@ QVariantMap ConversationManager::getStatistics() const
             } else if (msg.role == "assistant") {
                 totalAssistantMessages++;
                 totalAssistantChars += msg.content.length();
+
+                if (!msg.provider.isEmpty()) {
+                    providerCounts[msg.provider] =
+                            providerCounts[msg.provider].toInt() + 1;
+                }
+                // Empty on pre-2.3 answers: the provider is known, the model
+                // never was, and a guess would be worse than a gap.
+                if (!msg.model.isEmpty()) {
+                    modelCounts[msg.model] = modelCounts[msg.model].toInt() + 1;
+                }
             }
 
             // Find longest message
@@ -1471,6 +1519,19 @@ QVariantMap ConversationManager::getStatistics() const
     stats["totalUserChars"] = totalUserChars;
     stats["totalAssistantChars"] = totalAssistantChars;
     stats["categoryCounts"] = categoryCounts;
+
+    const QVariantList providerUsage = rankCounts(providerCounts, "provider");
+    const QVariantList modelAnswers = rankCounts(modelCounts, "model");
+    stats["providerUsage"] = providerUsage;
+    stats["modelAnswers"] = modelAnswers;
+    stats["topProvider"] = providerUsage.isEmpty() ? QString()
+                         : providerUsage.first().toMap()["provider"].toString();
+    stats["topProviderCount"] = providerUsage.isEmpty() ? 0
+                              : providerUsage.first().toMap()["count"].toInt();
+    stats["topModel"] = modelAnswers.isEmpty() ? QString()
+                      : modelAnswers.first().toMap()["model"].toString();
+    stats["topModelCount"] = modelAnswers.isEmpty() ? 0
+                           : modelAnswers.first().toMap()["count"].toInt();
 
     // Token usage over time
     QJsonObject daily = QJsonDocument::fromJson(

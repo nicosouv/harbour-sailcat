@@ -951,6 +951,30 @@
             <source>free</source>
             <translation>free</translation>
         </message>
+        <message>
+            <source>Providers and models</source>
+            <translation>Providers and models</translation>
+        </message>
+        <message>
+            <source>Most used provider</source>
+            <translation>Most used provider</translation>
+        </message>
+        <message>
+            <source>Most used model</source>
+            <translation>Most used model</translation>
+        </message>
+        <message>
+            <source>Answers per provider</source>
+            <translation>Answers per provider</translation>
+        </message>
+        <message>
+            <source>Answers per model</source>
+            <translation>Answers per model</translation>
+        </message>
+        <message>
+            <source>Counted from the answers themselves. Answers received before this app recorded models appear under their provider only.</source>
+            <translation>Counted from the answers themselves. Answers received before this app recorded models appear under their provider only.</translation>
+        </message>
     </context>
     <context>
         <name>Categories</name>

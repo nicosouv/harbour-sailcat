@@ -916,6 +916,30 @@
             <source>free</source>
             <translation>ilmainen</translation>
         </message>
+        <message>
+            <source>Providers and models</source>
+            <translation>Palveluntarjoajat ja mallit</translation>
+        </message>
+        <message>
+            <source>Most used provider</source>
+            <translation>Käytetyin palveluntarjoaja</translation>
+        </message>
+        <message>
+            <source>Most used model</source>
+            <translation>Käytetyin malli</translation>
+        </message>
+        <message>
+            <source>Answers per provider</source>
+            <translation>Vastaukset palveluntarjoajittain</translation>
+        </message>
+        <message>
+            <source>Answers per model</source>
+            <translation>Vastaukset malleittain</translation>
+        </message>
+        <message>
+            <source>Counted from the answers themselves. Answers received before this app recorded models appear under their provider only.</source>
+            <translation>Laskettu itse vastauksista. Ennen mallien kirjaamista saadut vastaukset näkyvät vain palveluntarjoajansa kohdalla.</translation>
+        </message>
     </context>
     <context>
         <name>Categories</name>

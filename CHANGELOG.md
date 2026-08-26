@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Answers written before 2.3 are stamped with Mistral - the only provider that
   existed then - and show no model, which is genuinely not recoverable.
 
+- **Statistics know who answers.** A "Providers and models" section reports the most
+  used provider and the most used model, with a breakdown of answers per provider and
+  per model. Counted from the answers themselves rather than from the token ledger,
+  which carries no provider - so answers received before 2.3 count towards Mistral,
+  under their provider only since their model was never recorded.
+- The conversation history shows the provider and the model that answered last on each
+  conversation.
+
 ### Changed
 
 - The cost estimate reports "free" for a model served by a free-tier provider instead

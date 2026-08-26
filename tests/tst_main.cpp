@@ -351,6 +351,75 @@ private slots:
         QVERIFY(!json.at(1).toObject().contains("model"));
     }
 
+    void statisticsRankProvidersAndModels()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.setDefaultProvider("mistral");
+
+        ConversationModel *model = manager.currentConversation();
+        model->addUserMessage("one");
+        model->addAssistantMessage("a", "mistral-small-latest", "mistral");
+        model->addUserMessage("two");
+        model->addAssistantMessage("b", "mistral-small-latest", "mistral");
+        model->addUserMessage("three");
+        model->addAssistantMessage("c", "llama-3.3-70b-versatile", "groq");
+        // An answer from before 2.3: provider known, model never recorded
+        model->addUserMessage("four");
+        model->addAssistantMessage("d", QString(), "mistral");
+        manager.saveCurrentConversation();
+
+        const QVariantMap stats = manager.getStatistics();
+        QCOMPARE(stats["topProvider"].toString(), QString("mistral"));
+        QCOMPARE(stats["topProviderCount"].toInt(), 3);
+        QCOMPARE(stats["topModel"].toString(), QString("mistral-small-latest"));
+        QCOMPARE(stats["topModelCount"].toInt(), 2);
+
+        const QVariantList providers = stats["providerUsage"].toList();
+        QCOMPARE(providers.count(), 2);
+        // Most used first, and the groq answer is not lost
+        QCOMPARE(providers.at(1).toMap()["provider"].toString(), QString("groq"));
+        QCOMPARE(providers.at(1).toMap()["count"].toInt(), 1);
+
+        // The model-less answer counts for its provider but not as a model
+        const QVariantList models = stats["modelAnswers"].toList();
+        QCOMPARE(models.count(), 2);
+        int total = 0;
+        for (int i = 0; i < models.count(); ++i) {
+            total += models.at(i).toMap()["count"].toInt();
+        }
+        QCOMPARE(total, 3);
+    }
+
+    void historyListReportsTheModelThatAnswered()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.setDefaultProvider("groq");
+        manager.createNewConversation();
+
+        const QString id = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("hi");
+        manager.currentConversation()->addAssistantMessage(
+                    "hello", "llama-3.3-70b-versatile", "groq");
+        manager.saveCurrentConversation();
+
+        const QJsonArray list = manager.getConversationsList();
+        bool found = false;
+        for (int i = 0; i < list.count(); ++i) {
+            const QJsonObject obj = list.at(i).toObject();
+            if (obj["id"].toString() != id) {
+                continue;
+            }
+            found = true;
+            QCOMPARE(obj["provider"].toString(), QString("groq"));
+            QCOMPARE(obj["lastModel"].toString(), QString("llama-3.3-70b-versatile"));
+            // A role called "model" would shadow the delegate's model object
+            QVERIFY(!obj.contains("model"));
+        }
+        QVERIFY(found);
+    }
+
     void markdownExport()
     {
         ConversationManager manager;
