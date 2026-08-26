@@ -32,14 +32,20 @@ Page {
         : (conversationModelOverride !== "" ? conversationModelOverride
                                             : settingsManager.modelName)
 
-    // An override recorded under another provider would be rejected by this
-    // one, so it is checked against the active catalogue. The two values read
-    // and discarded are what the binding depends on to re-evaluate: the guard
-    // falls back to the global model, on a list that changes with the provider.
+    // The conversation is pinned to a provider, which is not necessarily the
+    // one selected in the settings: everything on this page asks about that
+    // one, from the key used to send to the models offered in the picker.
+    readonly property string conversationProvider: conversationManager.currentProviderId
+    readonly property string providerLabel:
+        settingsManager.providerNameFor(conversationProvider)
+    readonly property bool providerReady:
+        settingsManager.hasApiKeyFor(conversationProvider)
+
+    // A model override recorded under another provider would be rejected here,
+    // so it is checked against this provider's catalogue.
     readonly property string activeModel:
-        (settingsManager.providerId,
-         settingsManager.modelName,
-         settingsManager.resolveModel(requestedModel))
+        (settingsManager.modelName,
+         settingsManager.resolveModelFor(conversationProvider, requestedModel))
 
     onStatusChanged: {
         if (status === PageStatus.Active) {
@@ -90,9 +96,12 @@ Page {
 
         header: PageHeader {
             title: "SailCat"
-            // A trailing asterisk marks a model pinned to this conversation
-            description: chatPage.conversationModelOverride !== ""
-                         ? chatPage.activeModel + " *" : chatPage.activeModel
+            // Who is going to answer, spelled out: the provider is a property
+            // of the conversation, not of the app. A trailing asterisk marks a
+            // model pinned to this conversation.
+            description: chatPage.providerLabel + " \u00b7 "
+                         + (chatPage.conversationModelOverride !== ""
+                            ? chatPage.activeModel + " *" : chatPage.activeModel)
         }
 
         // The two pulleys used to carry the same seven entries, which made both
@@ -144,6 +153,8 @@ Page {
             pinned: model.pinned
             timestamp: model.timestamp
             imagePath: model.imagePath
+            messageModel: model.messageModel
+            messageProvider: model.provider
 
             onRegenerateRequested: chatPage.regenerateLastResponse()
             onEditRequested: chatPage.editMessage(index, model.content)
@@ -355,7 +366,8 @@ Page {
                 IconButton {
                     id: attachButton
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: settingsManager.isVisionModel(chatPage.activeModel)
+                    visible: settingsManager.isVisionModelFor(chatPage.conversationProvider,
+                                                              chatPage.activeModel)
                     icon.source: "image://theme/icon-m-attach"
                     icon.highlighted: chatPage.attachedImagePath !== ""
                     onClicked: {
@@ -374,7 +386,7 @@ Page {
                     height: Math.min(implicitHeight, Theme.itemSizeSmall * 2.5)
                     placeholderText: qsTr("Type a message...")
                     labelVisible: false
-                    enabled: !mistralApi.isBusy && settingsManager.hasApiKey
+                    enabled: !mistralApi.isBusy && chatPage.providerReady
                     font.pixelSize: Theme.fontSizeSmall
 
                     EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
@@ -388,7 +400,7 @@ Page {
                     icon.source: mistralApi.isBusy
                         ? "image://theme/icon-m-pause"
                         : "image://theme/icon-m-message"
-                    enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && settingsManager.hasApiKey) || mistralApi.isBusy
+                    enabled: (!mistralApi.isBusy && messageInput.text.trim().length > 0 && chatPage.providerReady) || mistralApi.isBusy
 
                     // Pulsing halo while a request is in flight
                     Rectangle {
@@ -561,7 +573,7 @@ Page {
         target: settingsManager
 
         onApiKeyChanged: {
-            firstUse = !settingsManager.hasApiKey
+            firstUse = !providerReady
         }
 
         onContextMessageLimitChanged: chatPage.refreshTrimIndicator()
@@ -616,8 +628,9 @@ Page {
                 var digest = conversationManager.conversationDigest(conversationId)
                 if (digest) {
                     chatPage.titleRequested = true
-                    mistralApi.generateTitle(settingsManager.apiKey,
-                                             chatPage.activeModel, digest, conversationId)
+                    mistralApi.generateTitle(
+                                settingsManager.apiKeyFor(chatPage.conversationProvider),
+                                chatPage.activeModel, digest, conversationId)
                 }
             }
         }
@@ -633,6 +646,7 @@ Page {
             chatPage.conversationTokens = stats.totalTokens || 0
             chatPage.refreshOverrides()
             chatPage.refreshTrimIndicator()
+            chatPage.fetchModelsIfNeeded()
             if (chatPage.status === PageStatus.Active) {
                 conversationManager.markConversationRead(
                             conversationManager.currentConversationId())
@@ -640,14 +654,23 @@ Page {
         }
     }
 
+    Connections {
+        target: mistralApi
+
+        // The catalogue is filed under the provider it was fetched for, never
+        // under the one that happens to be selected when it lands.
+        onModelsFetched: settingsManager.updateModelCache(models, providerId)
+    }
+
     Component.onCompleted: {
-        firstUse = !settingsManager.hasApiKey
+        firstUse = !providerReady
 
         var stats = conversationManager.getConversationStatistics(
                         conversationManager.currentConversationId())
         conversationTokens = stats.totalTokens || 0
         refreshOverrides()
         refreshTrimIndicator()
+        fetchModelsIfNeeded()
 
         // Show first launch dialog after a short delay to let PageStack settle
         if (settingsManager.isFirstLaunch()) {
@@ -660,6 +683,18 @@ Page {
         interval: 500
         repeat: false
         onTriggered: firstLaunchDialog.open()
+    }
+
+    // Each provider has its own catalogue and its own cache, so opening a
+    // conversation pinned elsewhere may be the first time we need that one.
+    function fetchModelsIfNeeded() {
+        if (mistralApi.isBusy) {
+            return
+        }
+        if (settingsManager.hasApiKeyFor(conversationProvider)
+                && settingsManager.modelCacheStaleFor(conversationProvider)) {
+            mistralApi.fetchModels(settingsManager.apiKeyFor(conversationProvider))
+        }
     }
 
     function refreshOverrides() {
@@ -691,7 +726,8 @@ Page {
         // Recorded before the call: the token statistics are attributed in C++
         conversationManager.setActiveModel(lastUsedModel)
 
-        mistralApi.sendMessage(settingsManager.apiKey, lastUsedModel, messages,
+        mistralApi.sendMessage(settingsManager.apiKeyFor(conversationProvider),
+                               lastUsedModel, messages,
                                settingsManager.temperature, settingsManager.maxTokens)
 
         // Reset next message model after sending
@@ -703,7 +739,7 @@ Page {
         var message = messageInput.text.trim()
         if (message.length === 0) return
 
-        if (!settingsManager.hasApiKey) {
+        if (!providerReady) {
             pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             return
         }
@@ -793,10 +829,21 @@ Page {
 
     ModelSelector {
         id: modelSelector
+        // The picker lists what this conversation's provider serves, which is
+        // not necessarily the provider selected in the settings.
+        providerId: chatPage.conversationProvider
+        currentModel: chatPage.activeModel
 
+        // Acts on this conversation rather than on the global default: the
+        // button sits next to its input, and the conversation may well be
+        // talking to another provider entirely.
         onModelSelected: function(selectedModel) {
-            settingsManager.modelName = selectedModel
-            exportNotification.previewSummary = qsTr("Model changed to %1").arg(selectedModel)
+            conversationManager.setConversationOverrides(
+                        conversationManager.currentConversationId(),
+                        selectedModel, chatPage.conversationPromptOverride)
+            chatPage.refreshOverrides()
+            exportNotification.previewSummary =
+                    qsTr("This conversation now uses %1").arg(selectedModel)
             exportNotification.previewBody = ""
             exportNotification.publish()
         }

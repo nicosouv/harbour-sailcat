@@ -21,6 +21,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   lower rate limit, so the app is usable before signing up anywhere.
 - Each provider keeps its own API key, its own default model and its own model cache.
   Switching provider swaps the whole set; a key is never sent to another host.
+- **A conversation is pinned to the provider it started with.** Changing the provider
+  in the settings decides what new conversations use; it does not silently redirect
+  an ongoing one. Each conversation can be moved to another provider from its own
+  settings page, which spells out that the rest of it goes elsewhere and that the
+  answers already received do not change.
+- The chat header names who is answering (`Groq - llama-3.3-70b-versatile`), the model
+  picker lists that provider's catalogue, and the history flags a conversation whose
+  provider is not the selected one.
+- **Every answer records the provider and model that produced it** and shows them
+  under the message, so a conversation that changed provider halfway stays readable.
+  Answers written before 2.3 are stamped with Mistral - the only provider that
+  existed then - and show no model, which is genuinely not recoverable.
 
 ### Changed
 

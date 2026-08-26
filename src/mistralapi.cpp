@@ -42,15 +42,17 @@ MistralAPI::MistralAPI(QObject *parent)
 
     // Sensible until the settings have been read.
     const Providers::Provider fallback = Providers::byId(Providers::defaultId());
-    setEndpoint(fallback.baseUrl, fallback.modelSource,
+    setEndpoint(fallback.id, fallback.baseUrl, fallback.modelSource,
                 fallback.streamUsageOption, fallback.keyRequired);
 }
 
-void MistralAPI::setEndpoint(const QString &baseUrl,
+void MistralAPI::setEndpoint(const QString &providerId,
+                             const QString &baseUrl,
                              Providers::ModelSource modelSource,
                              bool streamUsageOption,
                              bool keyRequired)
 {
+    m_providerId = providerId;
     m_baseUrl = baseUrl;
     m_modelSource = modelSource;
     m_streamUsageOption = streamUsageOption;
@@ -250,6 +252,9 @@ void MistralAPI::fetchModels(const QString &apiKey)
     prepareRequest(request, apiKey);
 
     QNetworkReply *reply = m_networkManager->get(request);
+    // Pinned to the reply: the active provider may change before it answers
+    reply->setProperty("providerId", m_providerId);
+    reply->setProperty("modelSource", int(m_modelSource));
 
     connect(reply, &QNetworkReply::finished,
             this, &MistralAPI::onModelsFetchFinished);
@@ -478,6 +483,10 @@ void MistralAPI::onModelsFetchFinished()
         return;
     }
 
+    const QString providerId = reply->property("providerId").toString();
+    const Providers::ModelSource modelSource =
+            Providers::ModelSource(reply->property("modelSource").toInt());
+
     QJsonArray data = doc.object()["data"].toArray();
     QStringList ids;
     QVariantList models;
@@ -488,7 +497,7 @@ void MistralAPI::onModelsFetchFinished()
         QJsonObject caps = modelObj["capabilities"].toObject();
         bool vision = false;
 
-        if (m_modelSource == Providers::MistralCatalogue) {
+        if (modelSource == Providers::MistralCatalogue) {
             // Keep only current chat models; dated aliases add noise
             if (!caps["completion_chat"].toBool() || !id.endsWith("-latest")) {
                 continue;
@@ -532,7 +541,7 @@ void MistralAPI::onModelsFetchFinished()
         return a.toMap()["id"].toString() < b.toMap()["id"].toString();
     });
 
-    emit modelsFetched(models);
+    emit modelsFetched(models, providerId);
 }
 
 void MistralAPI::parseStreamLine(const QString &line)

@@ -31,7 +31,8 @@ public:
 
     // Points every request at a provider. Called once at startup and again on
     // every provider change, from C++, so no caller can forget to.
-    void setEndpoint(const QString &baseUrl,
+    void setEndpoint(const QString &providerId,
+                     const QString &baseUrl,
                      Providers::ModelSource modelSource,
                      bool streamUsageOption,
                      bool keyRequired);
@@ -64,7 +65,9 @@ signals:
     void titleGenerated(const QString &title, const QString &category,
                         const QString &targetId);
     void titleGenerationFailed(const QString &targetId);
-    void modelsFetched(const QVariantList &models);
+    // The provider travels with the catalogue: by the time the answer lands,
+    // the user may have moved to a conversation pinned somewhere else.
+    void modelsFetched(const QVariantList &models, const QString &providerId);
     void modelsFetchFailed();
 
 private slots:
@@ -85,6 +88,7 @@ private:
     bool m_timedOut;
     QString m_error;
     QByteArray m_streamBuffer;
+    QString m_providerId;
     QString m_baseUrl;
     Providers::ModelSource m_modelSource;
     bool m_streamUsageOption;

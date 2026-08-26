@@ -10,6 +10,11 @@ struct Message {
     QString role;      // "user" or "assistant"
     QString content;
     QString imagePath; // local file attached to the message (vision models)
+    // Who answered. Recorded on assistant messages so a conversation that
+    // changed provider halfway stays readable. Empty on user messages, and on
+    // anything written before 2.3.
+    QString model;
+    QString provider;
     qint64 timestamp;
     bool pinned = false;
 };
@@ -25,7 +30,9 @@ public:
         ContentRole,
         TimestampRole,
         PinnedRole,
-        ImagePathRole
+        ImagePathRole,
+        ModelRole,
+        ProviderRole
     };
 
     explicit ConversationModel(QObject *parent = nullptr);
@@ -35,7 +42,9 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE void addUserMessage(const QString &content, const QString &imagePath = QString());
-    Q_INVOKABLE void addAssistantMessage(const QString &content);
+    Q_INVOKABLE void addAssistantMessage(const QString &content,
+                                        const QString &model = QString(),
+                                        const QString &provider = QString());
     Q_INVOKABLE void updateLastAssistantMessage(const QString &content);
     Q_INVOKABLE void removeLastMessageIfEmpty();
     Q_INVOKABLE void removeLastAssistantMessage();
@@ -48,7 +57,8 @@ public:
     Q_INVOKABLE QString getLastUserImagePath() const;
 
     void addMessage(const QString &role, const QString &content, qint64 timestamp,
-                    bool pinned = false, const QString &imagePath = QString());
+                    bool pinned = false, const QString &imagePath = QString(),
+                    const QString &model = QString(), const QString &provider = QString());
     QJsonArray toJsonArray() const;
 
     // Read-only view used by ConversationManager to build the API payload.

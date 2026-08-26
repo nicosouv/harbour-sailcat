@@ -146,7 +146,7 @@ Dialog {
             ComboBox {
                 id: providerComboBox
                 label: qsTr("Provider")
-                description: qsTr("Every backend speaks the same protocol; only the key and the model list change")
+                description: qsTr("Used by new conversations. An existing one keeps the provider it started with.")
                 width: parent.width
 
                 menu: ContextMenu {
@@ -616,7 +616,7 @@ Dialog {
         target: mistralApi
 
         onModelsFetched: {
-            settingsManager.updateModelCache(models)
+            settingsManager.updateModelCache(models, providerId)
             settingsPage.availableModelsList = settingsManager.availableModels()
             modelComboBox.selectCurrentModel()
             modelNameField.text = settingsManager.modelName

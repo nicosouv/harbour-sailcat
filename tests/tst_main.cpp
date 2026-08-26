@@ -2,6 +2,9 @@
 #include <QCoreApplication>
 #include <QSignalSpy>
 #include <QTemporaryDir>
+#include <QDir>
+#include <QFile>
+#include <QStandardPaths>
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -243,6 +246,109 @@ private slots:
         QVariantMap stats = manager.getConversationStatistics(id);
         QCOMPARE(stats["category"].toString(), QString("code"));
         QCOMPARE(stats["messageCount"].toInt(), 2);
+    }
+
+    void conversationIsPinnedToItsProvider()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.setDefaultProvider("groq");
+
+        // The conversation that exists already has no messages, so it follows
+        manager.createNewConversation();
+        const QString groqId = manager.currentConversationId();
+        QCOMPARE(manager.currentProviderId(), QString("groq"));
+
+        manager.currentConversation()->addUserMessage("hello");
+        manager.saveCurrentConversation();
+
+        // Changing the default is for new conversations only
+        manager.setDefaultProvider("mistral");
+        manager.loadConversation(groqId);
+        QCOMPARE(manager.currentProviderId(), QString("groq"));
+
+        manager.createNewConversation();
+        QCOMPARE(manager.currentProviderId(), QString("mistral"));
+
+        // And the pin survives a restart
+        manager.saveCurrentConversation();
+        ConversationManager reopened;
+        QCOMPARE(reopened.conversationProvider(groqId), QString("groq"));
+    }
+
+    void movingAConversationDropsItsModelOverride()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.setDefaultProvider("mistral");
+        manager.createNewConversation();
+
+        const QString id = manager.currentConversationId();
+        manager.setConversationOverrides(id, "mistral-large-latest", "Be brief");
+
+        manager.setConversationProvider(id, "groq");
+        QCOMPARE(manager.conversationProvider(id), QString("groq"));
+
+        const QVariantMap overrides = manager.getConversationOverrides(id);
+        // The model belonged to the provider we left; the prompt did not
+        QCOMPARE(overrides["model"].toString(), QString());
+        QCOMPARE(overrides["systemPrompt"].toString(), QString("Be brief"));
+    }
+
+    void answersRecordWhoProducedThem()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        manager.setDefaultProvider("groq");
+        manager.createNewConversation();
+
+        const QString id = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("hello");
+        manager.currentConversation()->addAssistantMessage(
+                    "hi", "llama-3.3-70b-versatile", "groq");
+        manager.saveCurrentConversation();
+
+        manager.createNewConversation();
+        manager.loadConversation(id);
+
+        const QJsonArray json = manager.currentConversation()->toJsonArray();
+        // The user turn stays as it was, the answer carries its origin
+        QVERIFY(!json.at(0).toObject().contains("provider"));
+        QCOMPARE(json.at(1).toObject()["provider"].toString(), QString("groq"));
+        QCOMPARE(json.at(1).toObject()["model"].toString(),
+                 QString("llama-3.3-70b-versatile"));
+    }
+
+    void preProviderConversationsAreStampedMistral()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+        const QString dir = QStandardPaths::writableLocation(
+                    QStandardPaths::AppDataLocation) + "/conversations";
+        QVERIFY(QDir().mkpath(dir));
+
+        // A file exactly as 2.2 wrote it: no provider anywhere
+        const QString id = "11111111-2222-3333-4444-555555555555";
+        QFile file(dir + "/" + id + ".json");
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("{\"id\":\"" + id.toUtf8() + "\",\"title\":\"Old chat\","
+                   "\"category\":\"code\",\"createdAt\":1000,\"updatedAt\":2000,"
+                   "\"messages\":["
+                   "{\"role\":\"user\",\"content\":\"q\",\"timestamp\":1000},"
+                   "{\"role\":\"assistant\",\"content\":\"a\",\"timestamp\":1001}]}");
+        file.close();
+
+        ConversationManager reopened;
+        // Only Mistral existed back then, so the answer's origin is known even
+        // though its model is not
+        QCOMPARE(reopened.conversationProvider(id), QString("mistral"));
+
+        reopened.loadConversation(id);
+        const QJsonArray json = reopened.currentConversation()->toJsonArray();
+        QCOMPARE(json.count(), 2);
+        QVERIFY(!json.at(0).toObject().contains("provider"));
+        QCOMPARE(json.at(1).toObject()["provider"].toString(), QString("mistral"));
+        QVERIFY(!json.at(1).toObject().contains("model"));
     }
 
     void markdownExport()

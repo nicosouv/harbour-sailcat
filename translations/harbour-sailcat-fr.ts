@@ -72,8 +72,8 @@
             <translation>Échec de l'export</translation>
         </message>
         <message>
-            <source>Model changed to %1</source>
-            <translation>Modèle changé pour %1</translation>
+            <source>This conversation now uses %1</source>
+            <translation>Cette conversation utilise maintenant %1</translation>
         </message>
         <message>
             <source>Pinned messages</source>
@@ -448,8 +448,8 @@
             <translation>Fournisseur</translation>
         </message>
         <message>
-            <source>Every backend speaks the same protocol; only the key and the model list change</source>
-            <translation>Tous parlent le même protocole ; seuls la clé et la liste de modèles changent</translation>
+            <source>Used by new conversations. An existing one keeps the provider it started with.</source>
+            <translation>Utilisé par les nouvelles conversations. Une conversation existante garde le fournisseur avec lequel elle a démarré.</translation>
         </message>
         <message>
             <source>%1 - free tier</source>
@@ -1094,16 +1094,16 @@
             <translation>Utilisé par la page de statistiques</translation>
         </message>
         <message>
-            <source>Model</source>
-            <translation>Modèle</translation>
+            <source>Provider and model</source>
+            <translation>Fournisseur et modèle</translation>
         </message>
         <message>
             <source>Model for this conversation</source>
             <translation>Modèle pour cette conversation</translation>
         </message>
         <message>
-            <source>Overrides the model chosen in settings</source>
-            <translation>Remplace le modèle choisi dans les réglages</translation>
+            <source>Overrides the default model of that provider</source>
+            <translation>Remplace le modèle par défaut de ce fournisseur</translation>
         </message>
         <message>
             <source>Use default (%1)</source>
@@ -1140,6 +1140,22 @@
         <message>
             <source>Reads the conversation and proposes a title and a category.</source>
             <translation>Lit la conversation et propose un titre et une catégorie.</translation>
+        </message>
+        <message>
+            <source>Answers come from</source>
+            <translation>Les réponses viennent de</translation>
+        </message>
+        <message>
+            <source>This conversation only. New conversations use the provider set in Settings.</source>
+            <translation>Cette conversation seulement. Les nouvelles utilisent le fournisseur défini dans les Paramètres.</translation>
+        </message>
+        <message>
+            <source>The rest of this conversation goes to %1, using its own API key. The answers already received do not change.</source>
+            <translation>La suite de cette conversation part chez %1, avec sa propre clé API. Les réponses déjà reçues ne changent pas.</translation>
+        </message>
+        <message>
+            <source>No API key for this provider yet - add it in Settings before sending.</source>
+            <translation>Pas encore de clé API pour ce fournisseur - ajoutez-la dans les Paramètres avant d'envoyer.</translation>
         </message>
     </context>
     <context>

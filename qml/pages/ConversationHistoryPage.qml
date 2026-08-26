@@ -289,6 +289,19 @@ Page {
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
+                    // Only for a conversation that does not talk to the
+                    // currently selected provider. Stamping every row with the
+                    // same name would be noise; the exception is the news.
+                    Label {
+                        text: settingsManager.providerNameFor(model.provider || "")
+                        visible: (model.provider || "") !== ""
+                                 && model.provider !== settingsManager.providerId
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor
+                                                            : Theme.highlightColor
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                    }
+
                     Label {
                         text: Qt.formatDateTime(new Date(model.updatedAt), "dd/MM/yyyy hh:mm")
                         anchors.verticalCenter: parent.verticalCenter

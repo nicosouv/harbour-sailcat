@@ -173,16 +173,100 @@ QVariantList SettingsManager::availableProviders() const
     return list;
 }
 
-QString SettingsManager::resolveModel(const QString &candidate) const
+QString SettingsManager::providerNameFor(const QString &providerId) const
 {
-    if (candidate.isEmpty()) {
+    return Providers::byId(providerId).name;
+}
+
+QString SettingsManager::baseUrlFor(const QString &providerId) const
+{
+    const Providers::Provider provider = Providers::byId(providerId);
+    if (!provider.baseUrl.isEmpty()) {
+        return provider.baseUrl;
+    }
+
+    QString url = m_customBaseUrl.trimmed();
+    while (url.endsWith('/')) {
+        url.chop(1);
+    }
+    return url;
+}
+
+QString SettingsManager::apiKeyFor(const QString &providerId) const
+{
+    if (providerId == m_providerId) {
+        return m_apiKey;
+    }
+
+    const QString stored = m_settings.value(providerKeyFor(providerId, "apiKeyEnc"), "").toString();
+    return stored.isEmpty() ? QString() : SecureStore::deobfuscate(stored);
+}
+
+bool SettingsManager::hasApiKeyFor(const QString &providerId) const
+{
+    if (baseUrlFor(providerId).isEmpty()) {
+        return false;
+    }
+    return !apiKeyFor(providerId).isEmpty() || !Providers::byId(providerId).keyRequired;
+}
+
+QString SettingsManager::modelNameFor(const QString &providerId) const
+{
+    if (providerId == m_providerId) {
         return m_modelName;
     }
+    return m_settings.value(providerKeyFor(providerId, "modelName"),
+                            Providers::byId(providerId).defaultModel).toString();
+}
+
+QStringList SettingsManager::availableModelsFor(const QString &providerId) const
+{
+    const QStringList cached = cachedModelsFor(providerId);
+    if (!cached.isEmpty()) {
+        return cached;
+    }
+    return Providers::byId(providerId).fallbackModels;
+}
+
+bool SettingsManager::isVisionModelFor(const QString &providerId,
+                                       const QString &modelId) const
+{
+    if (!cachedModelsFor(providerId).isEmpty()) {
+        return cachedVisionModelsFor(providerId).contains(modelId);
+    }
+    return Providers::looksLikeVisionModel(modelId);
+}
+
+QString SettingsManager::resolveModelFor(const QString &providerId,
+                                         const QString &candidate) const
+{
+    const QString fallback = modelNameFor(providerId);
+    if (candidate.isEmpty()) {
+        return fallback;
+    }
+
     // Nothing fetched yet: no grounds to reject anything.
-    if (m_cachedModels.isEmpty() || m_cachedModels.contains(candidate)) {
+    const QStringList cached = cachedModelsFor(providerId);
+    if (cached.isEmpty() || cached.contains(candidate)) {
         return candidate;
     }
-    return m_modelName;
+    return fallback;
+}
+
+bool SettingsManager::modelCacheStaleFor(const QString &providerId) const
+{
+    if (cachedModelsFor(providerId).isEmpty()) {
+        return true;
+    }
+    const qint64 cachedAt = m_settings.value(
+                providerKeyFor(providerId, "models/cacheTimestamp"), 0).toLongLong();
+    const qint64 now = QDateTime::currentMSecsSinceEpoch() / 1000;
+    return (now - cachedAt) > 24 * 3600;
+}
+
+QString SettingsManager::resolveModel(const QString &candidate) const
+{
+    return resolveModelFor(m_providerId, candidate);
 }
 
 QString SettingsManager::apiKey() const
@@ -426,12 +510,9 @@ double SettingsManager::estimatedCost(const QString &modelId,
 
 QStringList SettingsManager::availableModels() const
 {
-    if (!m_cachedModels.isEmpty()) {
-        return m_cachedModels;
-    }
     // Fallback until the catalogue has been fetched once. A custom endpoint
     // has none, so the field is left free-form there.
-    return Providers::byId(m_providerId).fallbackModels;
+    return availableModelsFor(m_providerId);
 }
 
 QStringList SettingsManager::availableChatStyles() const
@@ -445,14 +526,16 @@ QStringList SettingsManager::availableChatStyles() const
 
 bool SettingsManager::isVisionModel(const QString &modelId) const
 {
-    if (!m_cachedModels.isEmpty()) {
-        return m_cachedVisionModels.contains(modelId);
-    }
-    return Providers::looksLikeVisionModel(modelId);
+    return isVisionModelFor(m_providerId, modelId);
 }
 
-void SettingsManager::updateModelCache(const QVariantList &models)
+void SettingsManager::updateModelCache(const QVariantList &models,
+                                       const QString &providerId)
 {
+    // A conversation pinned to another provider can trigger a fetch, and its
+    // catalogue must land under that provider, not under the selected one.
+    const QString target = providerId.isEmpty() ? m_providerId : providerId;
+
     QStringList ids;
     QStringList visionIds;
 
@@ -472,20 +555,27 @@ void SettingsManager::updateModelCache(const QVariantList &models)
         return;
     }
 
-    m_cachedModels = ids;
-    m_cachedVisionModels = visionIds;
-    m_settings.setValue(providerKey("models/cachedList"), m_cachedModels);
-    m_settings.setValue(providerKey("models/visionList"), m_cachedVisionModels);
-    m_settings.setValue(providerKey("models/cacheTimestamp"),
+    m_settings.setValue(providerKeyFor(target, "models/cachedList"), ids);
+    m_settings.setValue(providerKeyFor(target, "models/visionList"), visionIds);
+    m_settings.setValue(providerKeyFor(target, "models/cacheTimestamp"),
                         QDateTime::currentMSecsSinceEpoch() / 1000);
+
     // A stored model the provider does not serve would fail on every send.
     // Not a model switch the user made, so the stat is left alone.
-    if (!m_cachedModels.contains(m_modelName)) {
-        const QString fallback = Providers::byId(m_providerId).defaultModel;
-        m_modelName = m_cachedModels.contains(fallback) ? fallback
-                                                        : m_cachedModels.first();
-        m_settings.setValue(providerKey("modelName"), m_modelName);
-        emit modelNameChanged();
+    const QString stored = modelNameFor(target);
+    if (!ids.contains(stored)) {
+        const QString fallback = Providers::byId(target).defaultModel;
+        const QString replacement = ids.contains(fallback) ? fallback : ids.first();
+        m_settings.setValue(providerKeyFor(target, "modelName"), replacement);
+        if (target == m_providerId) {
+            m_modelName = replacement;
+            emit modelNameChanged();
+        }
+    }
+
+    if (target == m_providerId) {
+        m_cachedModels = ids;
+        m_cachedVisionModels = visionIds;
     }
 
     m_settings.sync();
@@ -495,12 +585,7 @@ void SettingsManager::updateModelCache(const QVariantList &models)
 
 bool SettingsManager::modelCacheStale() const
 {
-    if (m_cachedModels.isEmpty()) {
-        return true;
-    }
-    qint64 cachedAt = m_settings.value(providerKey("models/cacheTimestamp"), 0).toLongLong();
-    qint64 now = QDateTime::currentMSecsSinceEpoch() / 1000;
-    return (now - cachedAt) > 24 * 3600;
+    return modelCacheStaleFor(m_providerId);
 }
 
 QStringList SettingsManager::availableLanguages() const
@@ -620,7 +705,29 @@ void SettingsManager::loadSettings()
 
 QString SettingsManager::providerKey(const QString &key) const
 {
-    return QString("providers/%1/%2").arg(m_providerId, key);
+    return providerKeyFor(m_providerId, key);
+}
+
+QString SettingsManager::providerKeyFor(const QString &providerId,
+                                        const QString &key) const
+{
+    return QString("providers/%1/%2").arg(providerId, key);
+}
+
+QStringList SettingsManager::cachedModelsFor(const QString &providerId) const
+{
+    if (providerId == m_providerId) {
+        return m_cachedModels;
+    }
+    return m_settings.value(providerKeyFor(providerId, "models/cachedList")).toStringList();
+}
+
+QStringList SettingsManager::cachedVisionModelsFor(const QString &providerId) const
+{
+    if (providerId == m_providerId) {
+        return m_cachedVisionModels;
+    }
+    return m_settings.value(providerKeyFor(providerId, "models/visionList")).toStringList();
 }
 
 void SettingsManager::loadProviderSettings()

@@ -30,7 +30,11 @@ Page {
     property string loadedCategory: ""
     property string loadedModel: ""
 
-    property var modelOptions: [""].concat(settingsManager.availableModels())
+    // Provider of this conversation, and the models it serves. Both are read
+    // fresh on reload(): the page is reused for whatever conversation is open.
+    property string loadedProvider: ""
+    property var providerOptions: settingsManager.availableProviders()
+    property var modelOptions: [""]
     property var categoryOptions: Categories.all()
 
     onStatusChanged: {
@@ -122,22 +126,65 @@ Page {
             }
 
             SectionHeader {
-                text: qsTr("Model")
+                text: qsTr("Provider and model")
+            }
+
+            ComboBox {
+                id: providerCombo
+                width: parent.width
+                label: qsTr("Answers come from")
+                description: qsTr("This conversation only. New conversations use the provider set in Settings.")
+
+                menu: ContextMenu {
+                    Repeater {
+                        model: conversationSettings.providerOptions
+
+                        MenuItem {
+                            text: modelData.name
+                            property string providerValue: modelData.id
+                            onClicked: conversationSettings.changeProvider(providerValue)
+                        }
+                    }
+                }
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                visible: conversationSettings.loadedProvider !== settingsManager.providerId
+                text: qsTr("The rest of this conversation goes to %1, using its own API key. The answers already received do not change.")
+                      .arg(settingsManager.providerNameFor(conversationSettings.loadedProvider))
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                visible: !settingsManager.hasApiKeyFor(conversationSettings.loadedProvider)
+                text: qsTr("No API key for this provider yet - add it in Settings before sending.")
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.errorColor
+                wrapMode: Text.WordWrap
             }
 
             ComboBox {
                 id: modelCombo
                 width: parent.width
                 label: qsTr("Model for this conversation")
-                description: qsTr("Overrides the model chosen in settings")
+                description: qsTr("Overrides the default model of that provider")
 
                 menu: ContextMenu {
                     Repeater {
                         model: conversationSettings.modelOptions
 
                         MenuItem {
-                            text: modelData === "" ? qsTr("Use default (%1)").arg(settingsManager.modelName)
-                                                   : modelData
+                            text: modelData === ""
+                                  ? qsTr("Use default (%1)").arg(
+                                        settingsManager.modelNameFor(
+                                            conversationSettings.loadedProvider))
+                                  : modelData
                             property string modelValue: modelData
                         }
                     }
@@ -208,6 +255,8 @@ Page {
         loadedPrompt = overrides.systemPrompt || ""
         loadedCategory = overrides.category || "other"
         loadedModel = overrides.model || ""
+        loadedProvider = overrides.provider || settingsManager.providerId
+        refreshModelOptions()
 
         titleField.text = loadedTitle
         usePromptSwitch.checked = loadedPrompt !== ""
@@ -217,8 +266,37 @@ Page {
         categoryCombo.currentIndex = categoryIndex >= 0 ? categoryIndex
                                                         : categoryOptions.length - 1
 
+        var providerIndex = 0
+        for (var p = 0; p < providerOptions.length; p++) {
+            if (providerOptions[p].id === loadedProvider) {
+                providerIndex = p
+                break
+            }
+        }
+        providerCombo.currentIndex = providerIndex
+
         var modelIndex = modelOptions.indexOf(loadedModel)
         modelCombo.currentIndex = modelIndex >= 0 ? modelIndex : 0
+    }
+
+    function refreshModelOptions() {
+        modelOptions = [""].concat(settingsManager.availableModelsFor(loadedProvider))
+    }
+
+    // Applied immediately rather than on leaving the page: the model list right
+    // below belongs to the provider, and the warning has to appear at once.
+    function changeProvider(providerValue) {
+        if (loadedId === "" || providerValue === loadedProvider) {
+            return
+        }
+
+        conversationManager.setConversationProvider(loadedId, providerValue)
+        loadedProvider = providerValue
+        // Dropped in C++ with the provider: the previous model does not exist
+        // here, and the combo has to agree with what was stored.
+        loadedModel = ""
+        refreshModelOptions()
+        modelCombo.currentIndex = 0
     }
 
     function apply() {
@@ -259,8 +337,10 @@ Page {
         // model this conversation would use for a normal message.
         var modelId = modelCombo.currentItem && modelCombo.currentItem.modelValue !== ""
                 ? modelCombo.currentItem.modelValue
-                : settingsManager.modelName
-        mistralApi.generateTitle(settingsManager.apiKey,
-                                 settingsManager.resolveModel(modelId), digest, loadedId)
+                : settingsManager.modelNameFor(loadedProvider)
+        mistralApi.generateTitle(
+                    settingsManager.apiKeyFor(loadedProvider),
+                    settingsManager.resolveModelFor(loadedProvider, modelId),
+                    digest, loadedId)
     }
 }

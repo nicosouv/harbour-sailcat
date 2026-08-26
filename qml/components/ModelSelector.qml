@@ -6,6 +6,10 @@ Dialog {
     allowedOrientations: Orientation.All
 
     property var onModelSelected: function(model) {}
+    // Provider whose catalogue is listed, and the model currently in use for
+    // whatever asked: both belong to a conversation, not to the app.
+    property string providerId: settingsManager.providerId
+    property string currentModel: settingsManager.modelName
 
     function prettyModelName(id) {
         var parts = id.replace(/-latest$/, "").split("-")
@@ -16,12 +20,13 @@ Dialog {
     }
 
     Component.onCompleted: {
-        var models = settingsManager.availableModels()
+        var models = settingsManager.availableModelsFor(providerId)
         for (var i = 0; i < models.length; i++) {
             modelListModel.append({
                 name: prettyModelName(models[i]),
                 value: models[i],
-                desc: settingsManager.isVisionModel(models[i]) ? qsTr("Vision capable") : ""
+                desc: settingsManager.isVisionModelFor(providerId, models[i])
+                      ? qsTr("Vision capable") : ""
             })
         }
     }
@@ -37,6 +42,7 @@ Dialog {
         // As the list header, the dialog banner keeps the items below it
         header: DialogHeader {
             title: qsTr("Select Model")
+            description: settingsManager.providerNameFor(modelSelectorDialog.providerId)
         }
 
         delegate: ListItem {
@@ -74,7 +80,7 @@ Dialog {
                             verticalCenter: parent.verticalCenter
                         }
                         source: "image://theme/icon-s-accept"
-                        visible: value === settingsManager.modelName
+                        visible: value === modelSelectorDialog.currentModel
                     }
                 }
 

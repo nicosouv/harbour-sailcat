@@ -1,6 +1,7 @@
 #include "conversationmanager.h"
 #include "categories.h"
 #include "mistralapi.h"
+#include "providers.h"
 #include "securestore.h"
 
 #include <QBuffer>
@@ -99,9 +100,12 @@ void ConversationManager::onMessageSent()
         emit streamingConversationIdChanged();
     }
 
+    m_streamingProvider = currentProviderId();
+
     // Added only once the request is actually in flight, so a rejected send
     // never leaves an empty assistant bubble behind.
-    m_currentConversation->addAssistantMessage(QString());
+    m_currentConversation->addAssistantMessage(QString(), m_activeModel,
+                                               m_streamingProvider);
     m_streamTimer->start();
 }
 
@@ -155,6 +159,8 @@ void ConversationManager::finishBackgroundResponse()
         msg.role = "assistant";
         msg.content = m_streamBuffer;
         msg.timestamp = QDateTime::currentMSecsSinceEpoch();
+        msg.model = m_activeModel;
+        msg.provider = m_streamingProvider;
         conv->messages.append(msg);
     }
 
@@ -263,6 +269,7 @@ QJsonObject ConversationManager::conversationToJson(const Conversation &conv) co
     obj["id"] = conv.id;
     obj["title"] = conv.title;
     obj["category"] = conv.category;
+    obj["provider"] = conv.provider;
     obj["model"] = conv.model;
     obj["systemPrompt"] = conv.systemPrompt;
     obj["unread"] = conv.unread;
@@ -291,6 +298,12 @@ Conversation ConversationManager::conversationFromJson(const QJsonObject &obj)
     conv.id = obj["id"].toString();
     conv.title = obj["title"].toString();
     conv.category = obj["category"].toString();
+    // Written since 2.3. Anything older can only have talked to Mistral, and
+    // saying so explicitly beats letting it drift with the default setting.
+    conv.provider = obj["provider"].toString();
+    if (conv.provider.isEmpty()) {
+        conv.provider = Providers::defaultId();
+    }
     conv.model = obj["model"].toString();
     conv.systemPrompt = obj["systemPrompt"].toString();
     conv.unread = obj["unread"].toBool();
@@ -307,6 +320,15 @@ Conversation ConversationManager::conversationFromJson(const QJsonObject &obj)
         msg.timestamp = msgObj["timestamp"].toVariant().toLongLong();
         msg.pinned = msgObj["pinned"].toBool();
         msg.imagePath = msgObj["imagePath"].toString();
+        msg.model = msgObj["model"].toString();
+        msg.provider = msgObj["provider"].toString();
+        // Retroactive stamp. An answer written before 2.3 carries neither
+        // field, and only one provider existed then, so its origin is known
+        // even though its model is not: the badge shows the provider alone
+        // rather than inventing a model name.
+        if (msg.role == "assistant" && msg.provider.isEmpty()) {
+            msg.provider = conv.provider;
+        }
         conv.messages.append(msg);
     }
 
@@ -435,6 +457,8 @@ void ConversationManager::createNewConversation()
     Conversation newConv;
     newConv.id = generateConversationId();
     newConv.title = ""; // Generated from the first exchange
+    newConv.provider = m_defaultProvider.isEmpty() ? Providers::defaultId()
+                                                   : m_defaultProvider;
     newConv.createdAt = QDateTime::currentMSecsSinceEpoch();
     newConv.updatedAt = newConv.createdAt;
 
@@ -447,6 +471,7 @@ void ConversationManager::createNewConversation()
     m_settings.sync();
 
     emit currentConversationChanged();
+    emit currentProviderIdChanged();
     emit conversationCountChanged();
 }
 
@@ -468,7 +493,8 @@ void ConversationManager::loadConversation(const QString &conversationId)
     // Load messages preserving their original timestamps
     for (const Message &msg : conv->messages) {
         m_currentConversation->addMessage(msg.role, msg.content, msg.timestamp,
-                                          msg.pinned, msg.imagePath);
+                                          msg.pinned, msg.imagePath,
+                                          msg.model, msg.provider);
     }
 
     // Coming back to a conversation that is still receiving an answer: the
@@ -481,6 +507,7 @@ void ConversationManager::loadConversation(const QString &conversationId)
     m_settings.sync();
 
     emit currentConversationChanged();
+    emit currentProviderIdChanged();
 }
 
 void ConversationManager::deleteConversation(const QString &conversationId)
@@ -743,6 +770,7 @@ QVariantMap ConversationManager::getConversationOverrides(const QString &convers
     overrides["systemPrompt"] = QString();
     overrides["title"] = QString();
     overrides["category"] = QString();
+    overrides["provider"] = m_defaultProvider;
 
     const Conversation *conv = findConversation(conversationId);
     if (conv) {
@@ -750,9 +778,64 @@ QVariantMap ConversationManager::getConversationOverrides(const QString &convers
         overrides["systemPrompt"] = conv->systemPrompt;
         overrides["title"] = conv->title;
         overrides["category"] = conv->category;
+        overrides["provider"] = conv->provider;
     }
 
     return overrides;
+}
+
+QString ConversationManager::currentProviderId() const
+{
+    return conversationProvider(m_currentConversationId);
+}
+
+QString ConversationManager::conversationProvider(const QString &conversationId) const
+{
+    const Conversation *conv = findConversation(conversationId);
+    if (conv && !conv->provider.isEmpty()) {
+        return conv->provider;
+    }
+    return m_defaultProvider.isEmpty() ? Providers::defaultId() : m_defaultProvider;
+}
+
+void ConversationManager::setDefaultProvider(const QString &providerId)
+{
+    if (providerId.isEmpty() || m_defaultProvider == providerId) {
+        return;
+    }
+    m_defaultProvider = providerId;
+
+    // A conversation with no messages has not committed to anything yet, so it
+    // follows the new default rather than stranding the user on the provider
+    // that happened to be selected when the app started.
+    Conversation *conv = findConversation(m_currentConversationId);
+    if (conv && conv->messages.isEmpty() && conv->provider != providerId) {
+        conv->provider = providerId;
+        markDirty(conv->id);
+        saveDirtyConversations();
+        emit currentProviderIdChanged();
+    }
+}
+
+void ConversationManager::setConversationProvider(const QString &conversationId,
+                                                  const QString &providerId)
+{
+    Conversation *conv = findConversation(conversationId);
+    if (!conv || providerId.isEmpty() || conv->provider == providerId) {
+        return;
+    }
+
+    conv->provider = providerId;
+    // The model override was picked from the previous provider's catalogue and
+    // would be rejected by the new one. Dropping it falls back to that
+    // provider's default, which is the only model we know it serves.
+    conv->model.clear();
+    markDirty(conversationId);
+    saveDirtyConversations();
+
+    if (conversationId == m_currentConversationId) {
+        emit currentProviderIdChanged();
+    }
 }
 
 void ConversationManager::setConversationOverrides(const QString &conversationId,
@@ -785,6 +868,7 @@ QJsonArray ConversationManager::getConversationsList() const
         obj["messageCount"] = conv.messages.count();
         obj["category"] = conv.category;
         obj["unread"] = conv.unread;
+        obj["provider"] = conv.provider;
         // Never add a key named "model" here: these objects are appended to a
         // ListModel, and a role called "model" shadows the delegate's own
         // model object, which silently turns model.title, model.id and every
@@ -817,6 +901,7 @@ QVariant ConversationManager::getConversationDetails(const QString &conversation
     details["title"] = conv->title;
     details["createdAt"] = conv->createdAt;
     details["updatedAt"] = conv->updatedAt;
+    details["provider"] = conv->provider;
 
     QVariantList messagesList;
     for (const Message &msg : conv->messages) {
@@ -825,6 +910,8 @@ QVariant ConversationManager::getConversationDetails(const QString &conversation
         msgMap["content"] = msg.content;
         msgMap["timestamp"] = msg.timestamp;
         msgMap["imagePath"] = msg.imagePath;
+        msgMap["messageModel"] = msg.model;
+        msgMap["provider"] = msg.provider;
         messagesList.append(msgMap);
     }
     details["messages"] = messagesList;

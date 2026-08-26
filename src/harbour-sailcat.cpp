@@ -36,19 +36,31 @@ int main(int argc, char *argv[])
     // page being popped off the stack mid-response.
     conversationManager.bindApi(&mistralApi);
 
-    // The API layer follows the selected provider from here rather than from
-    // QML: a page that forgot to reconfigure it would send the conversation to
-    // the wrong endpoint, with the wrong key.
-    auto applyProvider = [&mistralApi, &settingsManager]() {
-        const Providers::Provider provider =
-                Providers::byId(settingsManager.providerId());
-        mistralApi.setEndpoint(settingsManager.providerBaseUrl(),
+    // The API layer follows the conversation on screen from here rather than
+    // from QML: a page that forgot to reconfigure it would send the
+    // conversation to the wrong endpoint, with the wrong key. A conversation is
+    // pinned to its own provider, so this is not necessarily the selected one.
+    auto applyProvider = [&mistralApi, &settingsManager, &conversationManager]() {
+        const QString providerId = conversationManager.currentProviderId();
+        const Providers::Provider provider = Providers::byId(providerId);
+        mistralApi.setEndpoint(providerId,
+                               settingsManager.baseUrlFor(providerId),
                                provider.modelSource,
                                provider.streamUsageOption,
                                provider.keyRequired);
     };
+
+    // The default only decides what a new conversation starts with.
+    conversationManager.setDefaultProvider(settingsManager.providerId());
     applyProvider();
-    QObject::connect(&settingsManager, &SettingsManager::providerChanged, applyProvider);
+
+    QObject::connect(&settingsManager, &SettingsManager::providerChanged,
+                     [&settingsManager, &conversationManager, applyProvider]() {
+        conversationManager.setDefaultProvider(settingsManager.providerId());
+        applyProvider();
+    });
+    QObject::connect(&conversationManager,
+                     &ConversationManager::currentProviderIdChanged, applyProvider);
 
     // Load initial translation based on settings
     QString language = settingsManager.language();

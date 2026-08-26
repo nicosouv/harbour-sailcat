@@ -13,6 +13,10 @@ ListItem {
     property bool pinned: false
     property double timestamp: 0
     property string imagePath: ""
+    // Who produced this answer. Both empty on user turns; on assistant turns
+    // written before 2.3 the provider is known and the model is not.
+    property string messageModel: ""
+    property string messageProvider: ""
 
     signal regenerateRequested()
     signal editRequested()
@@ -187,6 +191,25 @@ ListItem {
             horizontalAlignment: messageItem.textAlignment
             font.pixelSize: Theme.fontSizeTiny
             color: Theme.secondaryColor
+        }
+
+        // Origin of the answer. A conversation may have changed provider
+        // halfway through, and without this the transcript would not say so.
+        Label {
+            width: parent.width
+            text: {
+                if (messageItem.messageProvider === "") {
+                    return ""
+                }
+                var name = settingsManager.providerNameFor(messageItem.messageProvider)
+                return messageItem.messageModel === ""
+                        ? name : name + " \u00b7 " + messageItem.messageModel
+            }
+            visible: !messageItem.isUser && text !== "" && content !== ""
+            horizontalAlignment: messageItem.textAlignment
+            font.pixelSize: Theme.fontSizeTiny
+            color: Theme.secondaryColor
+            truncationMode: TruncationMode.Fade
         }
     }
 

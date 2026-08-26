@@ -90,6 +90,19 @@ public:
     // One entry per provider: id, name, region, keyUrl, keyRequired, freeTier.
     Q_INVOKABLE QVariantList availableProviders() const;
 
+    // Same questions, asked about a provider that is not the active one. A
+    // conversation is pinned to its own provider, so the chat page has to
+    // reason about that one rather than about the global selection.
+    Q_INVOKABLE QString providerNameFor(const QString &providerId) const;
+    Q_INVOKABLE QString baseUrlFor(const QString &providerId) const;
+    Q_INVOKABLE QString apiKeyFor(const QString &providerId) const;
+    Q_INVOKABLE bool hasApiKeyFor(const QString &providerId) const;
+    Q_INVOKABLE QString modelNameFor(const QString &providerId) const;
+    Q_INVOKABLE QStringList availableModelsFor(const QString &providerId) const;
+    Q_INVOKABLE bool isVisionModelFor(const QString &providerId, const QString &modelId) const;
+    Q_INVOKABLE QString resolveModelFor(const QString &providerId, const QString &candidate) const;
+    Q_INVOKABLE bool modelCacheStaleFor(const QString &providerId) const;
+
     // Keeps a model override from following the user to another provider:
     // returns the candidate when the active provider knows it, the provider
     // default otherwise. An unfetched catalogue accepts anything.
@@ -99,7 +112,10 @@ public:
     Q_INVOKABLE QStringList availableLanguages() const;
     Q_INVOKABLE QStringList availableChatStyles() const;
     Q_INVOKABLE bool isVisionModel(const QString &modelId) const;
-    Q_INVOKABLE void updateModelCache(const QVariantList &models);
+    // providerId empty means the active provider. A fetch made for a
+    // conversation pinned elsewhere must not overwrite the active cache.
+    Q_INVOKABLE void updateModelCache(const QVariantList &models,
+                                      const QString &providerId = QString());
     Q_INVOKABLE bool modelCacheStale() const;
     Q_INVOKABLE int modelSwitches() const;
     Q_INVOKABLE void clearApiKey();
@@ -162,6 +178,9 @@ private:
 
     // "providers/<id>/<key>", the per-provider half of the settings file.
     QString providerKey(const QString &key) const;
+    QString providerKeyFor(const QString &providerId, const QString &key) const;
+    QStringList cachedModelsFor(const QString &providerId) const;
+    QStringList cachedVisionModelsFor(const QString &providerId) const;
     // Reads key, model name and model cache for the active provider.
     void loadProviderSettings();
     // Moves the pre-2.3 single-provider entries under providers/mistral/.

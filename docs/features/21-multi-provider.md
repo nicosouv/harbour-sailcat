@@ -41,6 +41,41 @@ The pre-2.3 top-level entries are moved under `providers/mistral/` on first laun
 and the pre-2.1 clear-text key is still read during that move - an install that
 skipped two releases must not lose its key.
 
+## A conversation belongs to a provider
+
+The alternative was a single global selection that every conversation follows, and it
+fails the only question that matters when two providers are configured: who answered
+this? A conversation therefore stores its own `provider`, set when it is created from
+the default in the settings, and changing that default afterwards only affects new
+conversations. An empty conversation is the exception - it has committed to nothing,
+so it follows the default rather than stranding the user on whatever was selected at
+startup.
+
+Moving a conversation is explicit, from its settings page, and drops the model
+override: it was picked from the previous provider's catalogue and would be rejected
+by the new one.
+
+`main()` keeps the endpoint in step by connecting both
+`ConversationManager::currentProviderIdChanged` and `SettingsManager::providerChanged`
+to `MistralAPI::setEndpoint`. QML still never configures the endpoint; it only asks
+`SettingsManager` for the key, the models and the labels *of a given provider*, which
+is what the `...For(providerId)` family is for.
+
+## Retroactive data
+
+Two things are known about a file written before 2.3 and one is not:
+
+| | Recovered | How |
+|---|---|---|
+| Conversation provider | yes | Only Mistral existed, so `conversationFromJson` stamps `mistral` |
+| Answer provider | yes | Same reasoning, applied to every assistant message |
+| Answer model | no | Never recorded anywhere, and the conversation's model override cannot stand in for it - it may have been set long after the answers |
+
+So an old answer shows `Mistral AI` and no model, rather than a plausible-looking
+model name that would be a guess. The stamp happens on load and is written out with
+the next save; user turns are left untouched, and neither field is written when empty,
+so a file only grows the keys it has a real answer for.
+
 ## Catalogue filtering
 
 `/v1/models` returns embeddings, speech, image and moderation models next to the chat

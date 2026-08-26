@@ -30,6 +30,10 @@ QVariant ConversationModel::data(const QModelIndex &index, int role) const
         return message.pinned;
     case ImagePathRole:
         return message.imagePath;
+    case ModelRole:
+        return message.model;
+    case ProviderRole:
+        return message.provider;
     default:
         return QVariant();
     }
@@ -43,11 +47,16 @@ QHash<int, QByteArray> ConversationModel::roleNames() const
     roles[TimestampRole] = "timestamp";
     roles[PinnedRole] = "pinned";
     roles[ImagePathRole] = "imagePath";
+    // Not "model": a role by that name shadows the delegate's own model
+    // object and silently turns every other lookup into undefined.
+    roles[ModelRole] = "messageModel";
+    roles[ProviderRole] = "provider";
     return roles;
 }
 
 void ConversationModel::addMessage(const QString &role, const QString &content, qint64 timestamp,
-                                   bool pinned, const QString &imagePath)
+                                   bool pinned, const QString &imagePath,
+                                   const QString &model, const QString &provider)
 {
     Message msg;
     msg.role = role;
@@ -55,6 +64,8 @@ void ConversationModel::addMessage(const QString &role, const QString &content, 
     msg.timestamp = timestamp;
     msg.pinned = pinned;
     msg.imagePath = imagePath;
+    msg.model = model;
+    msg.provider = provider;
 
     beginInsertRows(QModelIndex(), m_messages.count(), m_messages.count());
     m_messages.append(msg);
@@ -68,9 +79,12 @@ void ConversationModel::addUserMessage(const QString &content, const QString &im
     addMessage("user", content, QDateTime::currentMSecsSinceEpoch(), false, imagePath);
 }
 
-void ConversationModel::addAssistantMessage(const QString &content)
+void ConversationModel::addAssistantMessage(const QString &content,
+                                            const QString &model,
+                                            const QString &provider)
 {
-    addMessage("assistant", content, QDateTime::currentMSecsSinceEpoch());
+    addMessage("assistant", content, QDateTime::currentMSecsSinceEpoch(),
+               false, QString(), model, provider);
 }
 
 void ConversationModel::updateLastAssistantMessage(const QString &content)
@@ -209,6 +223,14 @@ QJsonArray ConversationModel::toJsonArray() const
         msgObj["timestamp"] = msg.timestamp;
         msgObj["pinned"] = msg.pinned;
         msgObj["imagePath"] = msg.imagePath;
+        // Only on the messages that have them, which keeps user turns and
+        // pre-2.3 files exactly as they were
+        if (!msg.model.isEmpty()) {
+            msgObj["model"] = msg.model;
+        }
+        if (!msg.provider.isEmpty()) {
+            msgObj["provider"] = msg.provider;
+        }
         messages.append(msgObj);
     }
 

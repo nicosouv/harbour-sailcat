@@ -74,13 +74,15 @@ namespaces:
 
 2. **ConversationModel** (`src/conversationmodel.*`)
    - QAbstractListModel for displaying messages in ListView
-   - Stores messages with role ("user"/"assistant"), content, timestamp, pinned, imagePath
+   - Stores messages with role ("user"/"assistant"), content, timestamp, pinned,
+     imagePath, and - on answers - the model and provider that produced them
    - Key methods:
      - `addUserMessage()` - Add new user message
      - `addAssistantMessage()` - Start new assistant response
      - `updateLastAssistantMessage()` - Update during streaming
      - `messages()` - Read-only view used by ConversationManager
-   - Roles: `RoleRole`, `ContentRole`, `TimestampRole`, `PinnedRole`, `ImagePathRole`
+   - Roles: `RoleRole`, `ContentRole`, `TimestampRole`, `PinnedRole`, `ImagePathRole`,
+     `ModelRole` (exposed as `messageModel`, never `model`), `ProviderRole`
 
 3. **ConversationManager** (`src/conversationmanager.*`)
    - Owns the conversation list and the current ConversationModel
@@ -90,7 +92,10 @@ namespaces:
    - `buildApiMessages(contextLimit, systemPrompt)` is the **single** place a request
      payload is built: trims history, expands images into multimodal parts,
      prepends the system prompt, drops the pending empty assistant bubble
-   - Per-conversation overrides: `model`, `systemPrompt`, `category`, title
+   - Per-conversation overrides: `provider`, `model`, `systemPrompt`, `category`, title.
+     A conversation is **pinned to its provider**: the setting only decides what a new
+     conversation starts with, and moving one is an explicit action that drops the
+     model override
    - Statistics, fun stats, search, markdown export, cost input (`modelUsage`)
 
 4. **SettingsManager** (`src/settingsmanager.*`)
@@ -161,6 +166,10 @@ Invariants worth keeping:
   request the API layer rejects must not leave a placeholder behind.
 - Nothing but `buildApiMessages()` assembles a payload. Regenerate, retry and send
   all go through `dispatchRequest()`.
+- **The endpoint follows the conversation, not the settings.** `main()` connects both
+  `ConversationManager::currentProviderIdChanged` and `SettingsManager::providerChanged`
+  to `MistralAPI::setEndpoint`. QML asks `SettingsManager` about a *given* provider
+  through the `...For(providerId)` family; it never configures the API layer itself.
 - **No QML owns streaming state.** `ConversationManager::bindApi()` wires the API
   signals and accumulates the answer, because the chat page is destroyed whenever
   the user swipes back to the history. Anything that must survive that (accumulation,
@@ -250,6 +259,9 @@ journalctl -f | grep sailcat
    to a host other than the one it was entered for. See `src/securestore.*`.
 6. **Category identifiers** - `src/categories.cpp` and `qml/components/Categories.js`
    hold the same list twice; changing one without the other silently degrades to "Other".
+7. **Never expose a QML role or list key named `model`** - it shadows the delegate's own
+   model object and turns every other lookup into `undefined`. The message model exposes
+   `messageModel`; the conversation list has no such key at all.
 
 ### File Structure
 ```
