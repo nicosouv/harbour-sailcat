@@ -12,8 +12,8 @@
             <translation>Welcome to SailCat</translation>
         </message>
         <message>
-            <source>Configure your Mistral API key to get started</source>
-            <translation>Configure your Mistral API key to get started</translation>
+            <source>Pick a provider and enter its API key to get started</source>
+            <translation>Wähle einen Anbieter und gib seinen API-Schlüssel ein, um zu starten</translation>
         </message>
         <message>
             <source>Start a conversation</source>
@@ -28,12 +28,12 @@
             <translation>Type a message...</translation>
         </message>
         <message>
-            <source>1. Get a free API key from console.mistral.ai
-2. Configure it in Settings
+            <source>1. Pick a provider in Settings
+2. Paste the API key it gives you
 3. Start chatting!</source>
-            <translation>1. Holen Sie sich einen kostenlosen API-Schlüssel auf console.mistral.ai
-2. Konfigurieren Sie ihn in den Einstellungen
-3. Los geht's!</translation>
+            <translation>1. Wähle einen Anbieter in den Einstellungen
+2. Füge den API-Schlüssel ein, den du bekommst
+3. Losplaudern!</translation>
         </message>
         <message>
             <source>Conversation exported</source>
@@ -56,12 +56,12 @@
             <translation>Erste Schritte</translation>
         </message>
         <message>
-            <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
-            <translation>Mistral AI ist ein europäisches KI-Unternehmen, das hochmoderne Sprachmodelle anbietet. SailCat nutzt dessen API, um intelligente Unterhaltungen auf Sailfish OS zu bringen.</translation>
+            <source>The one you pick. SailCat talks to Mistral AI, Scaleway, OVHcloud, Groq or any OpenAI-compatible endpoint, with your own account. Several of them have a free tier, and the European ones keep your conversations on this side of the Atlantic.</source>
+            <translation>Die, die du wählst. SailCat spricht mit Mistral AI, Scaleway, OVHcloud, Groq oder jedem OpenAI-kompatiblen Endpunkt, mit deinem eigenen Konto. Mehrere davon haben ein kostenloses Kontingent, und die europäischen behalten deine Unterhaltungen auf dieser Seite des Atlantiks.</translation>
         </message>
         <message>
-            <source>Model changed to %1</source>
-            <translation>Modell geändert zu %1</translation>
+            <source>This conversation now uses %1</source>
+            <translation>Diese Unterhaltung nutzt jetzt %1</translation>
         </message>
         <message>
             <source>Pinned messages</source>
@@ -80,18 +80,18 @@
             <translation>Tokens: %1 gesamt - zuletzt: %2 ein / %3 aus</translation>
         </message>
         <message>
-            <source>What is Mistral AI?</source>
-            <translation>Was ist Mistral AI?</translation>
+            <source>Which AI answers you?</source>
+            <translation>Welche KI antwortet dir?</translation>
         </message>
         <message>
             <source>• Your conversations are stored locally on your device
-• No sync with Mistral's web interface
-• You need your own API key to use the app
+• No sync with any web interface
+• Each provider keeps its own key, stored scrambled
 • Your data stays on your phone</source>
-            <translation>• Ihre Unterhaltungen werden lokal auf Ihrem Gerät gespeichert
-• Keine Synchronisierung mit Mistrals Weboberfläche
-• Sie benötigen einen eigenen API-Schlüssel
-• Ihre Daten bleiben auf Ihrem Telefon</translation>
+            <translation>• Deine Unterhaltungen werden lokal auf deinem Gerät gespeichert
+• Keine Synchronisierung mit einer Weboberfläche
+• Jeder Anbieter hat seinen eigenen Schlüssel, verschleiert gespeichert
+• Deine Daten bleiben auf deinem Telefon</translation>
         </message>
         <message>
             <source>Prompt library</source>
@@ -146,6 +146,10 @@
             <source>Request timed out. Please check your connection.</source>
             <translation>Zeitüberschreitung der Anfrage. Bitte prüfen Sie Ihre Verbindung.</translation>
         </message>
+        <message>
+            <source>No endpoint configured. Please pick a provider in settings.</source>
+            <translation>Kein Endpunkt konfiguriert. Bitte wähle einen Anbieter in den Einstellungen.</translation>
+        </message>
     </context>
     <context>
         <name>SettingsPage</name>
@@ -162,12 +166,12 @@
             <translation>API Configuration</translation>
         </message>
         <message>
-            <source>To get a free API key, visit console.mistral.ai</source>
-            <translation>To get a free API key, visit console.mistral.ai</translation>
+            <source>To get an API key, visit %1</source>
+            <translation>Für einen API-Schlüssel besuche %1</translation>
         </message>
         <message>
-            <source>Mistral API Key</source>
-            <translation>Mistral API Key</translation>
+            <source>%1 API key</source>
+            <translation>%1 API-Schlüssel</translation>
         </message>
         <message>
             <source>Enter your API key</source>
@@ -186,8 +190,8 @@
             <translation>Model</translation>
         </message>
         <message>
-            <source>Mistral Model</source>
-            <translation>Mistral Model</translation>
+            <source>Model</source>
+            <translation>Modell</translation>
         </message>
         <message>
             <source>Select the model to use</source>
@@ -266,12 +270,12 @@
             <translation>Persona</translation>
         </message>
         <message>
-            <source>Powered by Mistral AI • MIT License</source>
-            <translation>Powered by Mistral AI • MIT-Lizenz</translation>
+            <source>Powered by %1 • MIT License</source>
+            <translation>Bereitgestellt von %1 • MIT-Lizenz</translation>
         </message>
         <message>
-            <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS.</source>
-            <translation>SailCat ist ein eleganter Client für Mistral AI Chat, speziell entwickelt für Sailfish OS.</translation>
+            <source>SailCat is an elegant chat client for Mistral AI and other OpenAI-compatible providers, designed for Sailfish OS.</source>
+            <translation>SailCat ist ein eleganter Chat-Client für Mistral AI und andere OpenAI-kompatible Anbieter, entwickelt für Sailfish OS.</translation>
         </message>
         <message>
             <source>Select the language for the interface</source>
@@ -315,11 +319,11 @@
         </message>
         <message>
             <source>• Conversations stored locally
-• No sync with Mistral web
-• Requires personal API key</source>
-            <translation>• Unterhaltungen werden lokal gespeichert
-• Keine Synchronisierung mit Mistral Web
-• Eigener API-Schlüssel erforderlich</translation>
+• No sync with any web interface
+• Uses your own account with the provider</source>
+            <translation>• Unterhaltungen lokal gespeichert
+• Keine Synchronisierung mit einer Weboberfläche
+• Nutzt dein eigenes Konto beim Anbieter</translation>
         </message>
         <message>
             <source>Prompt library</source>
@@ -330,8 +334,8 @@
             <translation>API-Schlüssel anzeigen</translation>
         </message>
         <message>
-            <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
-            <translation>Der Schlüssel wird verschleiert in einer nur für Sie lesbaren Datei gespeichert und über TLS an api.mistral.ai gesendet. Sonst verlässt er das Gerät nicht.</translation>
+            <source>The key is stored scrambled in an owner-only file on this device and is only ever sent to %1. Each provider keeps its own key.</source>
+            <translation>Der Schlüssel wird verschleiert in einer nur für dich lesbaren Datei auf diesem Gerät gespeichert und ausschließlich an %1 gesendet. Jeder Anbieter hat seinen eigenen Schlüssel.</translation>
         </message>
         <message>
             <source>Appearance</source>
@@ -403,6 +407,42 @@
         <message>
             <source>Full width rows with a tinted background on your messages.</source>
             <translation>Zeilen über die volle Breite, Ihre Nachrichten farbig hinterlegt.</translation>
+        </message>
+        <message>
+            <source>Provider</source>
+            <translation>Anbieter</translation>
+        </message>
+        <message>
+            <source>Used by new conversations. An existing one keeps the provider it started with.</source>
+            <translation>Wird von neuen Unterhaltungen genutzt. Eine bestehende behält den Anbieter, mit dem sie begonnen hat.</translation>
+        </message>
+        <message>
+            <source>%1 - free tier</source>
+            <translation>%1 - kostenloses Kontingent</translation>
+        </message>
+        <message>
+            <source>Hosted in %1</source>
+            <translation>Gehostet in %1</translation>
+        </message>
+        <message>
+            <source>Endpoint base URL</source>
+            <translation>Basis-URL des Endpunkts</translation>
+        </message>
+        <message>
+            <source>Anything OpenAI-compatible, up to a llama.cpp or Ollama server on your own network.</source>
+            <translation>Alles OpenAI-Kompatible, bis hin zu einem llama.cpp- oder Ollama-Server in deinem eigenen Netzwerk.</translation>
+        </message>
+        <message>
+            <source>%1 API key (optional)</source>
+            <translation>%1 API-Schlüssel (optional)</translation>
+        </message>
+        <message>
+            <source>Leave empty to stay anonymous</source>
+            <translation>Leer lassen, um anonym zu bleiben</translation>
+        </message>
+        <message>
+            <source>Model identifier</source>
+            <translation>Modellkennung</translation>
         </message>
     </context>
     <context>
@@ -869,8 +909,12 @@
             <translation>Gesamt</translation>
         </message>
         <message>
-            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
-            <translation>Schätzung auf Basis der öffentlichen Listenpreise, in US-Dollar. Gezählt wird nur die von dieser App erfasste Nutzung - die echte Rechnung steht in Ihrer Mistral-Konsole.</translation>
+            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your provider console for the real invoice.</source>
+            <translation>Schätzung auf Basis öffentlicher Listenpreise, in US-Dollar. Nur die von dieser App erfasste Nutzung zählt - die echte Rechnung steht in der Konsole deines Anbieters.</translation>
+        </message>
+        <message>
+            <source>free</source>
+            <translation>kostenlos</translation>
         </message>
     </context>
     <context>
@@ -1015,16 +1059,16 @@
             <translation>Wird von der Statistikseite verwendet</translation>
         </message>
         <message>
-            <source>Model</source>
-            <translation>Model</translation>
+            <source>Provider and model</source>
+            <translation>Anbieter und Modell</translation>
         </message>
         <message>
             <source>Model for this conversation</source>
             <translation>Modell für diese Unterhaltung</translation>
         </message>
         <message>
-            <source>Overrides the model chosen in settings</source>
-            <translation>Überschreibt das in den Einstellungen gewählte Modell</translation>
+            <source>Overrides the default model of that provider</source>
+            <translation>Überschreibt das Standardmodell dieses Anbieters</translation>
         </message>
         <message>
             <source>Use default (%1)</source>
@@ -1061,6 +1105,22 @@
         <message>
             <source>Reads the conversation and proposes a title and a category.</source>
             <translation>Liest die Unterhaltung und schlägt Titel und Kategorie vor.</translation>
+        </message>
+        <message>
+            <source>Answers come from</source>
+            <translation>Antworten kommen von</translation>
+        </message>
+        <message>
+            <source>This conversation only. New conversations use the provider set in Settings.</source>
+            <translation>Nur diese Unterhaltung. Neue nutzen den in den Einstellungen gewählten Anbieter.</translation>
+        </message>
+        <message>
+            <source>The rest of this conversation goes to %1, using its own API key. The answers already received do not change.</source>
+            <translation>Der Rest dieser Unterhaltung geht an %1, mit dessen eigenem API-Schlüssel. Bereits erhaltene Antworten ändern sich nicht.</translation>
+        </message>
+        <message>
+            <source>No API key for this provider yet - add it in Settings before sending.</source>
+            <translation>Noch kein API-Schlüssel für diesen Anbieter - füge ihn in den Einstellungen hinzu, bevor du sendest.</translation>
         </message>
     </context>
     <context>
@@ -1163,6 +1223,25 @@
         <message>
             <source>Copy</source>
             <translation>Kopieren</translation>
+        </message>
+    </context>
+    <context>
+        <name>QObject</name>
+        <message>
+            <source>France (EU)</source>
+            <translation>Frankreich (EU)</translation>
+        </message>
+        <message>
+            <source>United States</source>
+            <translation>Vereinigte Staaten</translation>
+        </message>
+        <message>
+            <source>Wherever you point it</source>
+            <translation>Wohin du zeigst</translation>
+        </message>
+        <message>
+            <source>Custom endpoint</source>
+            <translation>Eigener Endpunkt</translation>
         </message>
     </context>
 </TS>

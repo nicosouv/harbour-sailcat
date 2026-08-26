@@ -12,8 +12,8 @@
             <translation>Welcome to SailCat</translation>
         </message>
         <message>
-            <source>Configure your Mistral API key to get started</source>
-            <translation>Configure your Mistral API key to get started</translation>
+            <source>Pick a provider and enter its API key to get started</source>
+            <translation>Valitse palveluntarjoaja ja syötä sen API-avain aloittaaksesi</translation>
         </message>
         <message>
             <source>Start a conversation</source>
@@ -28,11 +28,11 @@
             <translation>Type a message...</translation>
         </message>
         <message>
-            <source>1. Get a free API key from console.mistral.ai
-2. Configure it in Settings
+            <source>1. Pick a provider in Settings
+2. Paste the API key it gives you
 3. Start chatting!</source>
-            <translation>1. Hanki ilmainen API-avain osoitteesta console.mistral.ai
-2. Määritä se asetuksissa
+            <translation>1. Valitse palveluntarjoaja asetuksista
+2. Liitä sen antama API-avain
 3. Aloita keskustelu!</translation>
         </message>
         <message>
@@ -56,12 +56,12 @@
             <translation>Aloittaminen</translation>
         </message>
         <message>
-            <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
-            <translation>Mistral AI on eurooppalainen tekoäly-yritys, joka tarjoaa huippuluokan kielimalleja. SailCat käyttää sen API:a tuodakseen älykkäät keskustelut Sailfish OS:lle.</translation>
+            <source>The one you pick. SailCat talks to Mistral AI, Scaleway, OVHcloud, Groq or any OpenAI-compatible endpoint, with your own account. Several of them have a free tier, and the European ones keep your conversations on this side of the Atlantic.</source>
+            <translation>Se, jonka valitset. SailCat puhuu Mistral AI:n, Scalewayn, OVHcloudin, Groqin tai minkä tahansa OpenAI-yhteensopivan päätepisteen kanssa omalla tililläsi. Useilla on ilmainen taso, ja eurooppalaiset pitävät keskustelusi tällä puolella Atlanttia.</translation>
         </message>
         <message>
-            <source>Model changed to %1</source>
-            <translation>Malliksi vaihdettu %1</translation>
+            <source>This conversation now uses %1</source>
+            <translation>Tämä keskustelu käyttää nyt mallia %1</translation>
         </message>
         <message>
             <source>Pinned messages</source>
@@ -80,17 +80,17 @@
             <translation>Tokenit: %1 yhteensä - viimeisin: %2 sisään / %3 ulos</translation>
         </message>
         <message>
-            <source>What is Mistral AI?</source>
-            <translation>Mikä on Mistral AI?</translation>
+            <source>Which AI answers you?</source>
+            <translation>Mikä tekoäly vastaa sinulle?</translation>
         </message>
         <message>
             <source>• Your conversations are stored locally on your device
-• No sync with Mistral's web interface
-• You need your own API key to use the app
+• No sync with any web interface
+• Each provider keeps its own key, stored scrambled
 • Your data stays on your phone</source>
             <translation>• Keskustelusi tallennetaan paikallisesti laitteellesi
-• Ei synkronointia Mistralin verkkokäyttöliittymän kanssa
-• Tarvitset oman API-avaimen
+• Ei synkronointia minkään verkkokäyttöliittymän kanssa
+• Jokaisella palveluntarjoajalla on oma avaimensa, salattuna
 • Tietosi pysyvät puhelimessasi</translation>
         </message>
         <message>
@@ -146,6 +146,10 @@
             <source>Request timed out. Please check your connection.</source>
             <translation>Pyyntö aikakatkaistiin. Tarkista yhteytesi.</translation>
         </message>
+        <message>
+            <source>No endpoint configured. Please pick a provider in settings.</source>
+            <translation>Päätepistettä ei ole määritetty. Valitse palveluntarjoaja asetuksista.</translation>
+        </message>
     </context>
     <context>
         <name>SettingsPage</name>
@@ -162,12 +166,12 @@
             <translation>API Configuration</translation>
         </message>
         <message>
-            <source>To get a free API key, visit console.mistral.ai</source>
-            <translation>To get a free API key, visit console.mistral.ai</translation>
+            <source>To get an API key, visit %1</source>
+            <translation>Saat API-avaimen osoitteesta %1</translation>
         </message>
         <message>
-            <source>Mistral API Key</source>
-            <translation>Mistral API Key</translation>
+            <source>%1 API key</source>
+            <translation>%1-API-avain</translation>
         </message>
         <message>
             <source>Enter your API key</source>
@@ -186,8 +190,8 @@
             <translation>Model</translation>
         </message>
         <message>
-            <source>Mistral Model</source>
-            <translation>Mistral Model</translation>
+            <source>Model</source>
+            <translation>Malli</translation>
         </message>
         <message>
             <source>Select the model to use</source>
@@ -266,12 +270,12 @@
             <translation>Persoona</translation>
         </message>
         <message>
-            <source>Powered by Mistral AI • MIT License</source>
-            <translation>Moottorina Mistral AI • MIT-lisenssi</translation>
+            <source>Powered by %1 • MIT License</source>
+            <translation>Taustalla %1 • MIT-lisenssi</translation>
         </message>
         <message>
-            <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS.</source>
-            <translation>SailCat on tyylikäs Mistral AI Chat -asiakasohjelma, suunniteltu erityisesti Sailfish OS:lle.</translation>
+            <source>SailCat is an elegant chat client for Mistral AI and other OpenAI-compatible providers, designed for Sailfish OS.</source>
+            <translation>SailCat on tyylikäs chat-asiakas Mistral AI:lle ja muille OpenAI-yhteensopiville palveluntarjoajille, suunniteltu Sailfish OS:lle.</translation>
         </message>
         <message>
             <source>Select the language for the interface</source>
@@ -315,11 +319,11 @@
         </message>
         <message>
             <source>• Conversations stored locally
-• No sync with Mistral web
-• Requires personal API key</source>
+• No sync with any web interface
+• Uses your own account with the provider</source>
             <translation>• Keskustelut tallennetaan paikallisesti
-• Ei synkronointia Mistral webin kanssa
-• Vaatii oman API-avaimen</translation>
+• Ei synkronointia verkkokäyttöliittymän kanssa
+• Käyttää omaa tiliäsi palveluntarjoajalla</translation>
         </message>
         <message>
             <source>Prompt library</source>
@@ -330,8 +334,8 @@
             <translation>Näytä API-avain</translation>
         </message>
         <message>
-            <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
-            <translation>Avain tallennetaan sekoitettuna tiedostoon, jonka vain sinä voit lukea, ja lähetetään api.mistral.ai-osoitteeseen TLS-yhteydellä. Muuten se ei poistu laitteelta.</translation>
+            <source>The key is stored scrambled in an owner-only file on this device and is only ever sent to %1. Each provider keeps its own key.</source>
+            <translation>Avain tallennetaan salattuna vain sinun luettavissa olevaan tiedostoon tällä laitteella, ja se lähetetään vain palveluun %1. Jokaisella palveluntarjoajalla on oma avaimensa.</translation>
         </message>
         <message>
             <source>Appearance</source>
@@ -403,6 +407,42 @@
         <message>
             <source>Full width rows with a tinted background on your messages.</source>
             <translation>Koko leveyden rivit, omat viestisi sävytetyllä taustalla.</translation>
+        </message>
+        <message>
+            <source>Provider</source>
+            <translation>Palveluntarjoaja</translation>
+        </message>
+        <message>
+            <source>Used by new conversations. An existing one keeps the provider it started with.</source>
+            <translation>Käytetään uusissa keskusteluissa. Olemassa oleva keskustelu säilyttää palveluntarjoajan, jolla se aloitettiin.</translation>
+        </message>
+        <message>
+            <source>%1 - free tier</source>
+            <translation>%1 - ilmainen taso</translation>
+        </message>
+        <message>
+            <source>Hosted in %1</source>
+            <translation>Sijainti: %1</translation>
+        </message>
+        <message>
+            <source>Endpoint base URL</source>
+            <translation>Päätepisteen perus-URL</translation>
+        </message>
+        <message>
+            <source>Anything OpenAI-compatible, up to a llama.cpp or Ollama server on your own network.</source>
+            <translation>Mikä tahansa OpenAI-yhteensopiva, jopa oma llama.cpp- tai Ollama-palvelin verkossasi.</translation>
+        </message>
+        <message>
+            <source>%1 API key (optional)</source>
+            <translation>%1-API-avain (valinnainen)</translation>
+        </message>
+        <message>
+            <source>Leave empty to stay anonymous</source>
+            <translation>Jätä tyhjäksi pysyäksesi nimettömänä</translation>
+        </message>
+        <message>
+            <source>Model identifier</source>
+            <translation>Mallin tunniste</translation>
         </message>
     </context>
     <context>
@@ -869,8 +909,12 @@
             <translation>Yhteensä</translation>
         </message>
         <message>
-            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
-            <translation>Arvio perustuu julkisiin listahintoihin Yhdysvaltain dollareina. Vain tämän sovelluksen kirjaama käyttö lasketaan - tarkista todellinen lasku Mistral-konsolista.</translation>
+            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your provider console for the real invoice.</source>
+            <translation>Arvio julkisiin listahintoihin perustuen, Yhdysvaltain dollareina. Vain tämän sovelluksen kirjaama käyttö lasketaan - tarkista todellinen lasku palveluntarjoajasi konsolista.</translation>
+        </message>
+        <message>
+            <source>free</source>
+            <translation>ilmainen</translation>
         </message>
     </context>
     <context>
@@ -1015,16 +1059,16 @@
             <translation>Käytetään tilastosivulla</translation>
         </message>
         <message>
-            <source>Model</source>
-            <translation>Model</translation>
+            <source>Provider and model</source>
+            <translation>Palveluntarjoaja ja malli</translation>
         </message>
         <message>
             <source>Model for this conversation</source>
             <translation>Tämän keskustelun malli</translation>
         </message>
         <message>
-            <source>Overrides the model chosen in settings</source>
-            <translation>Ohittaa asetuksissa valitun mallin</translation>
+            <source>Overrides the default model of that provider</source>
+            <translation>Korvaa kyseisen palveluntarjoajan oletusmallin</translation>
         </message>
         <message>
             <source>Use default (%1)</source>
@@ -1061,6 +1105,22 @@
         <message>
             <source>Reads the conversation and proposes a title and a category.</source>
             <translation>Lukee keskustelun ja ehdottaa otsikkoa ja luokkaa.</translation>
+        </message>
+        <message>
+            <source>Answers come from</source>
+            <translation>Vastaukset tulevat palvelusta</translation>
+        </message>
+        <message>
+            <source>This conversation only. New conversations use the provider set in Settings.</source>
+            <translation>Vain tämä keskustelu. Uudet käyttävät asetuksissa valittua palveluntarjoajaa.</translation>
+        </message>
+        <message>
+            <source>The rest of this conversation goes to %1, using its own API key. The answers already received do not change.</source>
+            <translation>Loppuosa tästä keskustelusta menee palveluun %1 sen omalla API-avaimella. Jo saadut vastaukset eivät muutu.</translation>
+        </message>
+        <message>
+            <source>No API key for this provider yet - add it in Settings before sending.</source>
+            <translation>Tälle palveluntarjoajalle ei ole vielä API-avainta - lisää se asetuksiin ennen lähettämistä.</translation>
         </message>
     </context>
     <context>
@@ -1163,6 +1223,25 @@
         <message>
             <source>Copy</source>
             <translation>Kopioi</translation>
+        </message>
+    </context>
+    <context>
+        <name>QObject</name>
+        <message>
+            <source>France (EU)</source>
+            <translation>Ranska (EU)</translation>
+        </message>
+        <message>
+            <source>United States</source>
+            <translation>Yhdysvallat</translation>
+        </message>
+        <message>
+            <source>Wherever you point it</source>
+            <translation>Minne osoitat</translation>
+        </message>
+        <message>
+            <source>Custom endpoint</source>
+            <translation>Mukautettu päätepiste</translation>
         </message>
     </context>
 </TS>

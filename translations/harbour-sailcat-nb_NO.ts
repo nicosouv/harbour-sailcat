@@ -16,8 +16,8 @@
             <translation>Velkommen til SailCat</translation>
         </message>
         <message>
-            <source>Configure your Mistral API key to get started</source>
-            <translation>Konfigurer din Mistral API-nøkkel for å komme i gang</translation>
+            <source>Pick a provider and enter its API key to get started</source>
+            <translation>Velg en leverandør og skriv inn API-nøkkelen for å komme i gang</translation>
         </message>
         <message>
             <source>Start a conversation</source>
@@ -36,12 +36,12 @@
             <translation>Kom i gang</translation>
         </message>
         <message>
-            <source>What is Mistral AI?</source>
-            <translation>Hva er Mistral AI?</translation>
+            <source>Which AI answers you?</source>
+            <translation>Hvilken KI svarer deg?</translation>
         </message>
         <message>
-            <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
-            <translation>Mistral AI er et europeisk KI-selskap som leverer toppmoderne språkmodeller. SailCat bruker deres API for å bringe intelligente samtaler til Sailfish OS.</translation>
+            <source>The one you pick. SailCat talks to Mistral AI, Scaleway, OVHcloud, Groq or any OpenAI-compatible endpoint, with your own account. Several of them have a free tier, and the European ones keep your conversations on this side of the Atlantic.</source>
+            <translation>Den du velger. SailCat snakker med Mistral AI, Scaleway, OVHcloud, Groq eller et hvilket som helst OpenAI-kompatibelt endepunkt, med din egen konto. Flere har et gratisnivå, og de europeiske holder samtalene dine på denne siden av Atlanteren.</translation>
         </message>
         <message>
             <source>Privacy &amp; Storage</source>
@@ -52,12 +52,12 @@
             <translation>Komme i gang</translation>
         </message>
         <message>
-            <source>1. Get a free API key from console.mistral.ai
-2. Configure it in Settings
+            <source>1. Pick a provider in Settings
+2. Paste the API key it gives you
 3. Start chatting!</source>
-            <translation>1. Hent en gratis API-nøkkel fra console.mistral.ai
-2. Konfigurer den i Innstillinger
-3. Start chattingen!</translation>
+            <translation>1. Velg en leverandør i Innstillinger
+2. Lim inn API-nøkkelen du får
+3. Begynn å prate!</translation>
         </message>
         <message>
             <source>Conversation exported</source>
@@ -72,8 +72,8 @@
             <translation>Eksport feilet</translation>
         </message>
         <message>
-            <source>Model changed to %1</source>
-            <translation>Modell endret til %1</translation>
+            <source>This conversation now uses %1</source>
+            <translation>Denne samtalen bruker nå %1</translation>
         </message>
         <message>
             <source>Pinned messages</source>
@@ -85,13 +85,13 @@
         </message>
         <message>
             <source>• Your conversations are stored locally on your device
-• No sync with Mistral's web interface
-• You need your own API key to use the app
+• No sync with any web interface
+• Each provider keeps its own key, stored scrambled
 • Your data stays on your phone</source>
-            <translation>• Samtalene dine lagres lokalt på enheten din
-• Ingen synkronisering med Mistrals nettgrensesnitt
-• Du trenger din egen API-nøkkel for å bruke appen
-• Dataene dine forblir på telefonen</translation>
+            <translation>• Samtalene dine lagres lokalt på enheten
+• Ingen synkronisering med noe webgrensesnitt
+• Hver leverandør har sin egen nøkkel, lagret forvrengt
+• Dataene dine blir på telefonen</translation>
         </message>
         <message>
             <source>Prompt library</source>
@@ -181,6 +181,10 @@
             <source>Request timed out. Please check your connection.</source>
             <translation>Forespørselen ble tidsavbrutt. Vennligst sjekk tilkoblingen din.</translation>
         </message>
+        <message>
+            <source>No endpoint configured. Please pick a provider in settings.</source>
+            <translation>Ingen endepunkt konfigurert. Velg en leverandør i innstillingene.</translation>
+        </message>
     </context>
     <context>
         <name>SettingsPage</name>
@@ -201,12 +205,12 @@
             <translation>API-konfigurasjon</translation>
         </message>
         <message>
-            <source>To get a free API key, visit console.mistral.ai</source>
-            <translation>Besøk console.mistral.ai for å hente en gratis API-nøkkel</translation>
+            <source>To get an API key, visit %1</source>
+            <translation>For å få en API-nøkkel, gå til %1</translation>
         </message>
         <message>
-            <source>Mistral API Key</source>
-            <translation>Mistral API-nøkkel</translation>
+            <source>%1 API key</source>
+            <translation>%1 API-nøkkel</translation>
         </message>
         <message>
             <source>Enter your API key</source>
@@ -237,16 +241,16 @@
             <translation>Modell</translation>
         </message>
         <message>
-            <source>Mistral Model</source>
-            <translation>Mistral-modell</translation>
+            <source>Model</source>
+            <translation>Modell</translation>
         </message>
         <message>
             <source>Select the model to use</source>
             <translation>Velg modellen som skal brukes</translation>
         </message>
         <message>
-            <source>Powered by Mistral AI • MIT License</source>
-            <translation>Drevet av Mistral AI • MIT-lisens</translation>
+            <source>Powered by %1 • MIT License</source>
+            <translation>Drevet av %1 • MIT-lisens</translation>
         </message>
         <message>
             <source>Made with &lt;3 for Sailfish OS</source>
@@ -313,8 +317,8 @@
             <translation>Persona</translation>
         </message>
         <message>
-            <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS.</source>
-            <translation>SailCat er en elegant klient for Mistral AI Chat, spesielt utviklet for Sailfish OS.</translation>
+            <source>SailCat is an elegant chat client for Mistral AI and other OpenAI-compatible providers, designed for Sailfish OS.</source>
+            <translation>SailCat er en elegant chat-klient for Mistral AI og andre OpenAI-kompatible leverandører, laget for Sailfish OS.</translation>
         </message>
         <message>
             <source>Source code on GitHub</source>
@@ -350,11 +354,11 @@
         </message>
         <message>
             <source>• Conversations stored locally
-• No sync with Mistral web
-• Requires personal API key</source>
+• No sync with any web interface
+• Uses your own account with the provider</source>
             <translation>• Samtaler lagres lokalt
-• Ingen synkronisering med Mistral på nett
-• Krever personlig API-nøkkel</translation>
+• Ingen synkronisering med noe webgrensesnitt
+• Bruker din egen konto hos leverandøren</translation>
         </message>
         <message>
             <source>Prompt library</source>
@@ -365,8 +369,8 @@
             <translation>Vis API-nøkkel</translation>
         </message>
         <message>
-            <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
-            <translation>Nøkkelen lagres kryptert i en fil bare du kan lese, og sendes til api.mistral.ai over TLS. Den forlater ikke enheten på annen måte.</translation>
+            <source>The key is stored scrambled in an owner-only file on this device and is only ever sent to %1. Each provider keeps its own key.</source>
+            <translation>Nøkkelen lagres forvrengt i en fil bare du kan lese på denne enheten, og sendes bare til %1. Hver leverandør har sin egen nøkkel.</translation>
         </message>
         <message>
             <source>Appearance</source>
@@ -438,6 +442,42 @@
         <message>
             <source>Full width rows with a tinted background on your messages.</source>
             <translation>Rader i full bredde med farget bakgrunn på dine meldinger.</translation>
+        </message>
+        <message>
+            <source>Provider</source>
+            <translation>Leverandør</translation>
+        </message>
+        <message>
+            <source>Used by new conversations. An existing one keeps the provider it started with.</source>
+            <translation>Brukes av nye samtaler. En eksisterende samtale beholder leverandøren den startet med.</translation>
+        </message>
+        <message>
+            <source>%1 - free tier</source>
+            <translation>%1 - gratisnivå</translation>
+        </message>
+        <message>
+            <source>Hosted in %1</source>
+            <translation>Driftet i %1</translation>
+        </message>
+        <message>
+            <source>Endpoint base URL</source>
+            <translation>Basis-URL for endepunktet</translation>
+        </message>
+        <message>
+            <source>Anything OpenAI-compatible, up to a llama.cpp or Ollama server on your own network.</source>
+            <translation>Alt som er OpenAI-kompatibelt, helt til en llama.cpp- eller Ollama-server på ditt eget nettverk.</translation>
+        </message>
+        <message>
+            <source>%1 API key (optional)</source>
+            <translation>%1 API-nøkkel (valgfri)</translation>
+        </message>
+        <message>
+            <source>Leave empty to stay anonymous</source>
+            <translation>La stå tom for å være anonym</translation>
+        </message>
+        <message>
+            <source>Model identifier</source>
+            <translation>Modellidentifikator</translation>
         </message>
     </context>
     <context>
@@ -904,8 +944,12 @@
             <translation>Totalt</translation>
         </message>
         <message>
-            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
-            <translation>Estimat basert på offentlige listepriser, i amerikanske dollar. Bare bruk registrert av denne appen telles - sjekk Mistral-konsollen for den faktiske fakturaen.</translation>
+            <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your provider console for the real invoice.</source>
+            <translation>Estimat basert på offentlige listepriser, i amerikanske dollar. Bare bruk registrert av denne appen telles - sjekk leverandørens konsoll for den virkelige fakturaen.</translation>
+        </message>
+        <message>
+            <source>free</source>
+            <translation>gratis</translation>
         </message>
     </context>
     <context>
@@ -1050,16 +1094,16 @@
             <translation>Brukes av statistikksiden</translation>
         </message>
         <message>
-            <source>Model</source>
-            <translation>Modell</translation>
+            <source>Provider and model</source>
+            <translation>Leverandør og modell</translation>
         </message>
         <message>
             <source>Model for this conversation</source>
             <translation>Modell for denne samtalen</translation>
         </message>
         <message>
-            <source>Overrides the model chosen in settings</source>
-            <translation>Overstyrer modellen valgt i innstillingene</translation>
+            <source>Overrides the default model of that provider</source>
+            <translation>Overstyrer standardmodellen til den leverandøren</translation>
         </message>
         <message>
             <source>Use default (%1)</source>
@@ -1096,6 +1140,22 @@
         <message>
             <source>Reads the conversation and proposes a title and a category.</source>
             <translation>Leser samtalen og foreslår en tittel og en kategori.</translation>
+        </message>
+        <message>
+            <source>Answers come from</source>
+            <translation>Svarene kommer fra</translation>
+        </message>
+        <message>
+            <source>This conversation only. New conversations use the provider set in Settings.</source>
+            <translation>Bare denne samtalen. Nye bruker leverandøren som er valgt i Innstillinger.</translation>
+        </message>
+        <message>
+            <source>The rest of this conversation goes to %1, using its own API key. The answers already received do not change.</source>
+            <translation>Resten av denne samtalen går til %1, med leverandørens egen API-nøkkel. Svar du allerede har fått, endres ikke.</translation>
+        </message>
+        <message>
+            <source>No API key for this provider yet - add it in Settings before sending.</source>
+            <translation>Ingen API-nøkkel for denne leverandøren ennå - legg den til i Innstillinger før du sender.</translation>
         </message>
     </context>
     <context>
@@ -1163,6 +1223,25 @@
         <message>
             <source>Enter the prompt text...</source>
             <translation>Skriv inn promptteksten...</translation>
+        </message>
+    </context>
+    <context>
+        <name>QObject</name>
+        <message>
+            <source>France (EU)</source>
+            <translation>Frankrike (EU)</translation>
+        </message>
+        <message>
+            <source>United States</source>
+            <translation>USA</translation>
+        </message>
+        <message>
+            <source>Wherever you point it</source>
+            <translation>Dit du peker den</translation>
+        </message>
+        <message>
+            <source>Custom endpoint</source>
+            <translation>Egendefinert endepunkt</translation>
         </message>
     </context>
 </TS>
