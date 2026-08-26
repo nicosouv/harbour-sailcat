@@ -39,10 +39,31 @@ Dialog {
         anchors.fill: parent
         model: modelListModel
 
-        // As the list header, the dialog banner keeps the items below it
-        header: DialogHeader {
-            title: qsTr("Select Model")
-            description: settingsManager.providerNameFor(modelSelectorDialog.providerId)
+        // As the list header, the dialog banner keeps the items below it.
+        // The provider goes in a label of its own: DialogHeader has no
+        // description, unlike PageHeader.
+        header: Column {
+            width: modelSelectorDialog.width
+            spacing: Theme.paddingSmall
+
+            DialogHeader {
+                title: qsTr("Select Model")
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: settingsManager.providerNameFor(modelSelectorDialog.providerId)
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                truncationMode: TruncationMode.Fade
+            }
+
+            // Positioner padding needs QtQuick 2.6; this file imports 2.0
+            Item {
+                width: 1
+                height: Theme.paddingMedium
+            }
         }
 
         delegate: ListItem {
