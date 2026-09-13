@@ -9,6 +9,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QJsonArray>
 #include <QVariant>
 
@@ -69,6 +70,9 @@ signals:
     // the user may have moved to a conversation pinned somewhere else.
     void modelsFetched(const QVariantList &models, const QString &providerId);
     void modelsFetchFailed();
+    // The provider turned the request away (429/503) and it will be sent
+    // again: the answer is still coming, so this is not an error yet.
+    void rateLimited(int seconds, int attempt, int maxAttempts);
 
 private slots:
     void onReadyRead();
@@ -77,6 +81,7 @@ private slots:
     void onTitleGenerationFinished();
     void onModelsFetchFinished();
     void onTimeout();
+    void sendPendingChatRequest();
 
 private:
     friend class TestMistralAPI;
@@ -84,6 +89,10 @@ private:
     QNetworkAccessManager *m_networkManager;
     QNetworkReply *m_currentReply;
     QTimer *m_timeoutTimer;
+    // Holds a chat request back, either to space it out or to retry it.
+    QTimer *m_requestTimer;
+    // Since the last request actually left, whatever its kind.
+    QElapsedTimer m_lastRequestAt;
     bool m_isBusy;
     bool m_timedOut;
     QString m_error;
@@ -93,6 +102,14 @@ private:
     Providers::ModelSource m_modelSource;
     bool m_streamUsageOption;
     bool m_keyRequired;
+    int m_minRequestIntervalMs;
+    int m_retryCount;
+    // Content already reached the screen: resending would duplicate it.
+    bool m_streamStarted;
+    // The chat request as sent, kept in memory only, so a rate-limited call
+    // can go out again without the UI having to know it ever failed.
+    QString m_pendingApiKey;
+    QByteArray m_pendingBody;
 
     void setIsBusy(bool busy);
     void setError(const QString &error);
@@ -102,6 +119,14 @@ private:
     void prepareRequest(QNetworkRequest &request, const QString &apiKey) const;
     void processStreamData(const QByteArray &data);
     void parseStreamLine(const QString &line);
+    // True while the same request is still worth sending again.
+    bool shouldRetry(int httpStatus) const;
+    // Milliseconds to wait before a request may leave, 0 when the gate is open.
+    int throttleDelayMs() const;
+    void noteRequestSent();
+    // Sends the stored chat request, after extraDelayMs and the throttle.
+    void queueChatRequest(int extraDelayMs);
+    void forgetPendingRequest();
 };
 
 #endif // MISTRALAPI_H

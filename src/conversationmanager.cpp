@@ -603,16 +603,7 @@ void ConversationManager::setConversationCategory(const QString &conversationId,
     // The model routinely falls back to "other" even when the topic is
     // obvious; give the local classifier the final say in that case.
     if (resolved == "other") {
-        QString text;
-        for (const Message &msg : conv->messages) {
-            if (msg.role == "user") {
-                text += msg.content + " ";
-                if (text.length() > 2000) {
-                    break;
-                }
-            }
-        }
-        const QString guessed = Categories::classify(text);
+        const QString guessed = Categories::classify(userText(*conv));
         if (!guessed.isEmpty()) {
             resolved = guessed;
         }
@@ -627,6 +618,38 @@ void ConversationManager::setConversationCategory(const QString &conversationId,
     saveDirtyConversations();
 }
 
+void ConversationManager::autoLabelConversation(const QString &conversationId)
+{
+    Conversation *conv = findConversation(conversationId);
+    if (!conv || conv->messages.isEmpty()) {
+        return;
+    }
+
+    bool changed = false;
+
+    if (conv->title.isEmpty()) {
+        conv->title = generateConversationTitle(conv->messages);
+        changed = !conv->title.isEmpty();
+    }
+
+    // A category the user picked by hand is never overwritten; "other" is not
+    // a choice, it is what the app falls back to.
+    if (conv->category.isEmpty() || conv->category == "other") {
+        const QString guessed = Categories::classify(userText(*conv));
+        if (!guessed.isEmpty() && guessed != conv->category) {
+            conv->category = guessed;
+            changed = true;
+        }
+    }
+
+    if (!changed) {
+        return;
+    }
+
+    markDirty(conversationId);
+    saveDirtyConversations();
+}
+
 int ConversationManager::recategorizeConversations()
 {
     int changed = 0;
@@ -636,17 +659,7 @@ int ConversationManager::recategorizeConversations()
             continue;
         }
 
-        QString text;
-        for (const Message &msg : conv.messages) {
-            if (msg.role == "user") {
-                text += msg.content + " ";
-                if (text.length() > 2000) {
-                    break;
-                }
-            }
-        }
-
-        const QString guessed = Categories::classify(text);
+        const QString guessed = Categories::classify(userText(conv));
         if (guessed.isEmpty() || guessed == conv.category) {
             continue;
         }
@@ -1643,6 +1656,21 @@ QString ConversationManager::generateConversationId() const
     // Qt 5.6 doesn't have QUuid::WithoutBraces, so we manually remove braces
     QString uuid = QUuid::createUuid().toString();
     return uuid.mid(1, uuid.length() - 2);  // Remove { and }
+}
+
+QString ConversationManager::userText(const Conversation &conv)
+{
+    QString text;
+    for (const Message &msg : conv.messages) {
+        if (msg.role != "user") {
+            continue;
+        }
+        text += msg.content + " ";
+        if (text.length() > 2000) {
+            break;
+        }
+    }
+    return text;
 }
 
 QString ConversationManager::generateConversationTitle(const QList<Message> &messages) const

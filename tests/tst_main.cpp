@@ -197,6 +197,49 @@ private slots:
         QCOMPARE(spy.count(), 0);
     }
 
+    // A free tier turns requests away routinely; the policy that decides
+    // whether to send the same one again is worth pinning down.
+    void retriesRateLimitedRequest()
+    {
+        MistralAPI api;
+        api.m_pendingBody = "{}";
+
+        QVERIFY(api.shouldRetry(429));
+        QVERIFY(api.shouldRetry(503));
+        QVERIFY(!api.shouldRetry(200));
+        QVERIFY(!api.shouldRetry(401));  // a bad key stays bad
+
+        // Nothing to resend, half an answer already on screen, or out of
+        // attempts: all three mean the request is done for.
+        api.m_pendingBody.clear();
+        QVERIFY(!api.shouldRetry(429));
+
+        api.m_pendingBody = "{}";
+        api.m_streamStarted = true;
+        QVERIFY(!api.shouldRetry(429));
+
+        api.m_streamStarted = false;
+        api.m_retryCount = 3;
+        QVERIFY(!api.shouldRetry(429));
+    }
+
+    void spacesRequestsOutPerProvider()
+    {
+        MistralAPI api;
+
+        // Nothing sent yet: the first request leaves immediately.
+        QCOMPARE(api.throttleDelayMs(), 0);
+
+        api.noteRequestSent();
+        QVERIFY(api.throttleDelayMs() > 0);
+
+        // A custom endpoint is the user's own machine as often as not.
+        api.setEndpoint("custom", "http://192.168.0.2:8080/v1",
+                        Providers::OpenAiCatalogue, false, false);
+        api.noteRequestSent();
+        QCOMPARE(api.throttleDelayMs(), 0);
+    }
+
     void multipleLinesOneChunk()
     {
         MistralAPI api;
@@ -349,6 +392,44 @@ private slots:
         QVERIFY(!json.at(0).toObject().contains("provider"));
         QCOMPARE(json.at(1).toObject()["provider"].toString(), QString("mistral"));
         QVERIFY(!json.at(1).toObject().contains("model"));
+    }
+
+    // The alternative to spending a request on a title: it has to produce
+    // something usable on its own.
+    void localLabellingNeedsNoRequest()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+
+        const QString id = manager.currentConversationId();
+        ConversationModel *model = manager.currentConversation();
+        model->addUserMessage("The app crashed with a segfault, "
+                              "how do I fix this traceback?");
+        model->addAssistantMessage("Run it under a debugger.");
+        manager.saveCurrentConversation();
+
+        manager.autoLabelConversation(id);
+
+        const QVariantMap labels = manager.getConversationOverrides(id);
+        QVERIFY(!labels["title"].toString().isEmpty());
+        // The local classifier had something to work with
+        QCOMPARE(labels["category"].toString(), QString("debugging"));
+    }
+
+    void localLabellingKeepsAChosenCategory()
+    {
+        ConversationManager manager;
+        manager.purgeAllConversations();
+
+        const QString id = manager.currentConversationId();
+        manager.currentConversation()->addUserMessage("A python traceback again");
+        manager.saveCurrentConversation();
+        manager.setConversationCategory(id, "cooking");
+
+        manager.autoLabelConversation(id);
+
+        QCOMPARE(manager.getConversationOverrides(id)["category"].toString(),
+                 QString("cooking"));
     }
 
     void statisticsRankProvidersAndModels()

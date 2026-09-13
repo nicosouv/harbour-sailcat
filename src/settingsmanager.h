@@ -31,6 +31,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString systemPrompt READ systemPrompt WRITE setSystemPrompt NOTIFY systemPromptChanged)
     Q_PROPERTY(int contextMessageLimit READ contextMessageLimit WRITE setContextMessageLimit NOTIFY contextMessageLimitChanged)
     Q_PROPERTY(QString chatStyle READ chatStyle WRITE setChatStyle NOTIFY chatStyleChanged)
+    Q_PROPERTY(QString autoTitleMode READ autoTitleMode WRITE setAutoTitleMode NOTIFY autoTitleModeChanged)
     Q_PROPERTY(bool showTimestamps READ showTimestamps WRITE setShowTimestamps NOTIFY showTimestampsChanged)
     Q_PROPERTY(QVariantList savedPrompts READ savedPrompts NOTIFY savedPromptsChanged)
     Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
@@ -78,6 +79,13 @@ public:
     QString chatStyle() const;
     void setChatStyle(const QString &style);
 
+    // How a conversation gets its title and category after the first answer:
+    // "ai" spends an extra request on it, "local" names it from the question
+    // and classifies it offline, "off" leaves both alone. Free tiers count
+    // requests, and that one is the only call the app makes on its own.
+    QString autoTitleMode() const;
+    void setAutoTitleMode(const QString &mode);
+
     bool showTimestamps() const;
     void setShowTimestamps(bool show);
 
@@ -111,6 +119,7 @@ public:
     Q_INVOKABLE QStringList availableModels() const;
     Q_INVOKABLE QStringList availableLanguages() const;
     Q_INVOKABLE QStringList availableChatStyles() const;
+    Q_INVOKABLE QStringList availableAutoTitleModes() const;
     Q_INVOKABLE bool isVisionModel(const QString &modelId) const;
     // providerId empty means the active provider. A fetch made for a
     // conversation pinned elsewhere must not overwrite the active cache.
@@ -148,6 +157,7 @@ signals:
     void availableModelsChanged();
     void contextMessageLimitChanged();
     void chatStyleChanged();
+    void autoTitleModeChanged();
     void showTimestampsChanged();
     void savedPromptsChanged();
 
@@ -164,6 +174,7 @@ private:
     QString m_systemPrompt;
     int m_contextMessageLimit;
     QString m_chatStyle;
+    QString m_autoTitleMode;
     bool m_showTimestamps;
     QStringList m_cachedModels;
     QStringList m_cachedVisionModels;

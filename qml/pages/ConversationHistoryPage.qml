@@ -11,7 +11,6 @@ Page {
     property string searchQuery: ""
     property var dayCounts: []
     property int maxDayCount: 0
-    property int maxMessages: 1
 
     SilicaListView {
         id: conversationsList
@@ -19,7 +18,7 @@ Page {
 
         header: Column {
             width: parent.width
-            spacing: 0
+            spacing: Theme.paddingMedium
 
             PageHeader {
                 title: qsTr("Conversation History")
@@ -45,34 +44,16 @@ Page {
                 onTriggered: performSearch()
             }
 
-            // Storage info section
-            BackgroundItem {
-                width: parent.width
-                height: storageInfoColumn.height + Theme.paddingLarge * 2
-
-                Column {
-                    id: storageInfoColumn
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        leftMargin: Theme.horizontalPageMargin
-                        rightMargin: Theme.horizontalPageMargin
-                        verticalCenter: parent.verticalCenter
-                    }
-                    spacing: Theme.paddingSmall
-
-                    Label {
-                        text: qsTr("Storage used: %1").arg(storageSize)
-                        font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.secondaryColor
-                    }
-
-                    Label {
-                        text: qsTr("%n conversation(s)", "", conversationManager.conversationCount)
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                        color: Theme.secondaryColor
-                    }
-                }
+            // Count and storage on one line: two labels for six words was a
+            // paragraph where a caption does.
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: qsTr("%n conversation(s)", "", conversationManager.conversationCount)
+                      + "  ·  " + storageSize
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                truncationMode: TruncationMode.Fade
             }
 
             // 14-day activity chart with staggered grow-in
@@ -135,8 +116,16 @@ Page {
             }
 
             Separator {
-                width: parent.width
-                color: Theme.highlightColor
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                x: Theme.horizontalPageMargin
+                color: Theme.rgba(Theme.highlightColor, 0.4)
+            }
+
+            // Keeps the first row off the separator. Column has no padding in
+            // the Qt version Sailfish ships.
+            Item {
+                width: 1
+                height: Theme.paddingSmall
             }
         }
 
@@ -146,7 +135,9 @@ Page {
 
         delegate: ListItem {
             id: conversationItem
-            contentHeight: Theme.itemSizeLarge
+            // Grows with its content instead of squeezing four lines into a
+            // fixed height: these rows carry a lot more than they used to.
+            contentHeight: rowContent.height + 2 * Theme.paddingLarge
 
             onClicked: {
                 conversationManager.loadConversation(model.id)
@@ -187,7 +178,8 @@ Page {
                 }
             }
 
-            Column {
+            Row {
+                id: rowContent
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -195,152 +187,101 @@ Page {
                     rightMargin: Theme.horizontalPageMargin
                     verticalCenter: parent.verticalCenter
                 }
-                spacing: Theme.paddingSmall
+                spacing: Theme.paddingMedium
 
-                Row {
-                    width: parent.width
+                // Carries the provider, the streaming pulse and the unread
+                // light at once, which frees the title line.
+                ProviderBadge {
+                    id: providerBadge
+                    anchors.verticalCenter: parent.verticalCenter
+                    provider: model.provider || ""
+                    streaming: model.id === conversationManager.streamingConversationId
+                    unread: model.unread ? true : false
+                }
+
+                Column {
+                    width: parent.width - providerBadge.width - parent.spacing
                     spacing: Theme.paddingSmall
 
-                    // Pulses while an answer is still being written to this
-                    // conversation, then stays lit until it has been read.
-                    Item {
-                        id: statusDot
-                        property bool streaming: model.id === conversationManager.streamingConversationId
-                        visible: streaming || (model.unread ? true : false)
-                        width: visible ? Theme.paddingMedium : 0
-                        height: Theme.paddingMedium
-                        anchors.verticalCenter: parent.verticalCenter
-
-                        Rectangle {
-                            id: dot
-                            anchors.centerIn: parent
-                            width: Theme.paddingMedium
-                            height: width
-                            radius: width / 2
-                            color: Theme.highlightColor
-
-                            SequentialAnimation {
-                                running: statusDot.streaming
-                                loops: Animation.Infinite
-                                alwaysRunToEnd: true
-                                NumberAnimation {
-                                    target: dot; property: "opacity"
-                                    from: 1; to: 0.25; duration: 600
-                                }
-                                NumberAnimation {
-                                    target: dot; property: "opacity"
-                                    from: 0.25; to: 1; duration: 600
-                                }
-                            }
-                        }
-                    }
-
                     Label {
-                        width: parent.width - statusDot.width
-                               - (statusDot.visible ? parent.spacing : 0)
+                        width: parent.width
                         text: model.title || qsTr("Empty conversation")
                         color: conversationItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                         font.pixelSize: Theme.fontSizeMedium
-                        font.bold: statusDot.visible
+                        font.bold: providerBadge.streaming || providerBadge.unread
                         truncationMode: TruncationMode.Fade
                     }
-                }
 
-                // Show match preview when searching
-                Loader {
-                    width: parent.width
-                    active: searchQuery.length > 0 && (model.matchPreview ? true : false)
-                    sourceComponent: Label {
+                    // Show match preview when searching
+                    Loader {
                         width: parent.width
-                        text: model.matchPreview || ""
-                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                        wrapMode: Text.Wrap
-                        maximumLineCount: 2
-                        elide: Text.ElideRight
-                    }
-                }
-
-                // Conversation size relative to the biggest one
-                Rectangle {
-                    width: parent.width
-                    height: Math.max(3, Theme.paddingSmall / 3)
-                    radius: height / 2
-                    color: Theme.rgba(Theme.secondaryHighlightColor, 0.3)
-                    visible: (model.messageCount || 0) > 0
-
-                    Rectangle {
-                        height: parent.height
-                        radius: parent.radius
-                        color: Theme.highlightColor
-                        width: parent.width * ((model.messageCount || 0) / Math.max(1, historyPage.maxMessages))
-
-                        Behavior on width {
-                            NumberAnimation { duration: 450; easing.type: Easing.OutQuad }
+                        active: searchQuery.length > 0 && (model.matchPreview ? true : false)
+                        sourceComponent: Label {
+                            width: parent.width
+                            text: model.matchPreview || ""
+                            color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                            font.pixelSize: Theme.fontSizeExtraSmall
+                            wrapMode: Text.Wrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
                         }
                     }
-                }
 
-                Row {
-                    spacing: Theme.paddingMedium
+                    Row {
+                        width: parent.width
+                        spacing: Theme.paddingMedium
 
-                    CategoryChip {
-                        category: model.category || ""
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    Label {
-                        text: Qt.formatDateTime(new Date(model.updatedAt), "dd/MM/yyyy hh:mm")
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                    }
-
-                    Label {
-                        text: "•"
-                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                    }
-
-                    Label {
-                        text: qsTr("%n message(s)", "", model.messageCount)
-                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                    }
-
-                    Label {
-                        text: "•"
-                        visible: searchQuery.length > 0 && model.matchCount > 0
-                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                    }
-
-                    Label {
-                        text: qsTr("%n match(es)", "", model.matchCount || 0)
-                        visible: searchQuery.length > 0 && model.matchCount > 0
-                        color: conversationItem.highlighted ? Theme.highlightColor : Theme.highlightColor
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                    }
-                }
-
-                // Who answers in this conversation. On its own line rather than
-                // in the row above, which is already full on a narrow screen.
-                Label {
-                    width: parent.width
-                    text: {
-                        var provider = model.provider || ""
-                        if (provider === "") {
-                            return ""
+                        CategoryChip {
+                            id: categoryChip
+                            category: model.category || ""
+                            anchors.verticalCenter: parent.verticalCenter
                         }
-                        var name = settingsManager.providerNameFor(provider)
-                        var used = model.lastModel || ""
-                        return used === "" ? name : name + " · " + used
+
+                        // Date and size in one label rather than three items
+                        // separated by bullets of their own.
+                        Label {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - (categoryChip.visible
+                                                   ? categoryChip.width + parent.spacing : 0)
+                                   - (matchLabel.visible
+                                      ? matchLabel.width + parent.spacing : 0)
+                            text: historyPage.formatWhen(model.updatedAt) + "  ·  "
+                                  + qsTr("%n message(s)", "", model.messageCount)
+                            color: conversationItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                            font.pixelSize: Theme.fontSizeExtraSmall
+                            truncationMode: TruncationMode.Fade
+                        }
+
+                        Label {
+                            id: matchLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: qsTr("%n match(es)", "", model.matchCount || 0)
+                            visible: searchQuery.length > 0 && model.matchCount > 0
+                            color: Theme.highlightColor
+                            font.pixelSize: Theme.fontSizeExtraSmall
+                        }
                     }
-                    visible: text !== ""
-                    color: conversationItem.highlighted ? Theme.secondaryHighlightColor
-                                                        : Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeTiny
-                    truncationMode: TruncationMode.Fade
+
+                    // Who answers here. The badge already says which provider,
+                    // so this line is mostly about the model.
+                    Label {
+                        width: parent.width
+                        text: {
+                            var provider = model.provider || ""
+                            if (provider === "") {
+                                return ""
+                            }
+                            var name = settingsManager.providerNameFor(provider)
+                            var used = model.lastModel || ""
+                            return used === "" ? name : name + " · " + used
+                        }
+                        visible: text !== ""
+                        color: conversationItem.highlighted ? Theme.secondaryHighlightColor
+                                                            : Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeTiny
+                        opacity: 0.8
+                        truncationMode: TruncationMode.Fade
+                    }
                 }
             }
         }
@@ -444,12 +385,25 @@ Page {
             if (dayCounts[j] > max) max = dayCounts[j]
         }
         maxDayCount = max
+    }
 
-        var maxMsg = 1
-        for (var k = 0; k < conversations.length; k++) {
-            if (conversations[k].messageCount > maxMsg) maxMsg = conversations[k].messageCount
+    // Short and relative: on this page the exact minute of a month-old
+    // conversation is noise, "12/08" is not.
+    function formatWhen(timestamp) {
+        var date = new Date(timestamp)
+        var now = new Date()
+
+        if (date.toDateString() === now.toDateString()) {
+            return Qt.formatDateTime(date, "hh:mm")
         }
-        maxMessages = maxMsg
+        var yesterday = new Date(now.getTime() - 24 * 3600 * 1000)
+        if (date.toDateString() === yesterday.toDateString()) {
+            return qsTr("Yesterday")
+        }
+        if (date.getFullYear() === now.getFullYear()) {
+            return Qt.formatDateTime(date, "dd/MM")
+        }
+        return Qt.formatDateTime(date, "dd/MM/yyyy")
     }
 
     function performSearch() {

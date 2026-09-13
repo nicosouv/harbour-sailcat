@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.3.0] - 2026-08-26
+## [2.3.0] - 2026-09-13
 
 ### Added
 
@@ -41,14 +41,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under their provider only since their model was never recorded.
 - The conversation history shows the provider and the model that answered last on each
   conversation.
+- **Automatic titles are a setting now** (`Settings > Generation > Automatic titles`).
+  Naming a conversation used to cost one request to the model after the first answer -
+  the only call the app ever made on its own, and on a free tier it competes with the
+  next question. The default works it out on the phone instead: the first question
+  becomes the title, and the local classifier that already backs "Auto-label
+  conversations" picks the category. "Ask the model" restores the old behaviour, "Off"
+  does neither. "Suggest a title" in a conversation's settings still asks the model.
+- Each conversation in the history carries a coloured provider badge, which also shows
+  the streaming pulse and the unread light.
 
 ### Changed
 
+- **The history rows had run out of room.** They grow with their content now, the date
+  is relative ("14:32", "Yesterday", "12/08"), the relative-size bar is gone - the
+  message count already said it - and the provider is a badge rather than a fourth
+  line of text.
 - The cost estimate reports "free" for a model served by a free-tier provider instead
   of pricing it from the Mistral list, and the model picker hides the image
   attachment button unless the catalogue says the model can read images.
 - A per-conversation model override is checked against the active provider before
   every request: a Mistral model id is not sent to Groq.
+
+### Fixed
+
+- **`429 Too Many Requests` no longer loses the answer.** Mistral's free tier allows
+  about one request per second; the app sent whatever it had whenever it had it and
+  reported the rejection as a raw transfer error. Requests are now spaced out by
+  1.2 s - whether they carry a question, a title or a model catalogue - and a
+  rejection (429, 502, 503, 529) is retried up to three times, waiting as long as the
+  provider asks or 2 s, 4 s, 8 s otherwise. While it waits, the chat says so with a
+  countdown instead of showing an error, and the question is not lost. A custom
+  endpoint is exempt: nobody rate-limits their own llama.cpp.
+- When the attempts do run out, the error says what happened instead of quoting the
+  transfer layer.
 
 ## [2.2.1] - 2026-08-19
 

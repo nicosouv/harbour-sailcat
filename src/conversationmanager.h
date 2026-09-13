@@ -57,6 +57,10 @@ public:
     Q_INVOKABLE void updateCurrentConversationTitle(const QString &newTitle);
     Q_INVOKABLE void updateCurrentConversationCategory(const QString &category);
     Q_INVOKABLE void setConversationCategory(const QString &conversationId, const QString &category);
+    // Title and category without asking a model: the first question makes the
+    // title, the local keyword classifier makes the category. Costs nothing,
+    // which is the whole point when the provider counts requests.
+    Q_INVOKABLE void autoLabelConversation(const QString &conversationId);
     Q_INVOKABLE void saveCurrentConversation();
     Q_INVOKABLE QJsonArray getConversationsList() const;
     Q_INVOKABLE QVariant getConversationDetails(const QString &conversationId) const;
@@ -158,6 +162,8 @@ private:
 
     QString generateConversationId() const;
     QString generateConversationTitle(const QList<Message> &messages) const;
+    // The user side of a conversation, clipped, as fed to the classifier.
+    static QString userText(const Conversation &conv);
 
     QString conversationsDir() const;
     QString conversationFilePath(const QString &id) const;

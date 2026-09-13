@@ -54,6 +54,7 @@ SettingsManager::SettingsManager(QObject *parent)
     , m_maxTokens(0)
     , m_contextMessageLimit(0)
     , m_chatStyle("flat")
+    , m_autoTitleMode("local")
     , m_showTimestamps(true)
     , m_modelSwitches(0)
 {
@@ -402,6 +403,23 @@ void SettingsManager::setChatStyle(const QString &style)
     }
 }
 
+QString SettingsManager::autoTitleMode() const
+{
+    return m_autoTitleMode;
+}
+
+void SettingsManager::setAutoTitleMode(const QString &mode)
+{
+    if (!availableAutoTitleModes().contains(mode)) {
+        return;
+    }
+    if (m_autoTitleMode != mode) {
+        m_autoTitleMode = mode;
+        saveSettings();
+        emit autoTitleModeChanged();
+    }
+}
+
 bool SettingsManager::showTimestamps() const
 {
     return m_showTimestamps;
@@ -513,6 +531,14 @@ QStringList SettingsManager::availableModels() const
     // Fallback until the catalogue has been fetched once. A custom endpoint
     // has none, so the field is left free-form there.
     return availableModelsFor(m_providerId);
+}
+
+QStringList SettingsManager::availableAutoTitleModes() const
+{
+    return QStringList()
+        << "local"  // first question as title, category from the local classifier
+        << "ai"     // one extra request per conversation, best titles
+        << "off";   // no title, no category
 }
 
 QStringList SettingsManager::availableChatStyles() const
@@ -679,6 +705,10 @@ void SettingsManager::loadSettings()
     if (!availableChatStyles().contains(m_chatStyle)) {
         m_chatStyle = "flat";
     }
+    m_autoTitleMode = m_settings.value("generation/autoTitleMode", "local").toString();
+    if (!availableAutoTitleModes().contains(m_autoTitleMode)) {
+        m_autoTitleMode = "local";
+    }
     m_showTimestamps = m_settings.value("ui/showTimestamps", true).toBool();
     m_modelSwitches = m_settings.value("stats/modelSwitches", 0).toInt();
 
@@ -829,6 +859,7 @@ void SettingsManager::saveSettings()
     m_settings.setValue("generation/maxTokens", m_maxTokens);
     m_settings.setValue("generation/systemPrompt", m_systemPrompt);
     m_settings.setValue("generation/contextMessageLimit", m_contextMessageLimit);
+    m_settings.setValue("generation/autoTitleMode", m_autoTitleMode);
     m_settings.setValue("ui/chatStyle", m_chatStyle);
     m_settings.setValue("ui/showTimestamps", m_showTimestamps);
     m_settings.sync();

@@ -68,8 +68,14 @@ namespaces:
    - Implements SSE streaming parser for real-time responses
    - Parses `data: [DONE]` and JSON chunks from stream
    - Enforces TLS 1.2+, peer verification and no redirects on every request
+   - Spaces requests out (1.2 s, every kind of call, every provider but `custom`)
+     and resends a `429`/`502`/`503`/`529` up to three times, honouring
+     `Retry-After`. The retry is invisible above this layer: `messageSent()` fires
+     once, when the request is accepted rather than per attempt, and `isBusy` never
+     drops in between. See `docs/features/22-rate-limits.md`
    - Signals: `streamingResponse()`, `responseCompleted()`, `messageSent()`,
-     `usageReceived()`, `sideRequestUsage()`, `titleGenerated()`, `modelsFetched()`
+     `usageReceived()`, `sideRequestUsage()`, `titleGenerated()`, `modelsFetched()`,
+     `rateLimited()`
    - Properties: `isBusy`, `error`
 
 2. **ConversationModel** (`src/conversationmodel.*`)
@@ -92,6 +98,8 @@ namespaces:
    - `buildApiMessages(contextLimit, systemPrompt)` is the **single** place a request
      payload is built: trims history, expands images into multimodal parts,
      prepends the system prompt, drops the pending empty assistant bubble
+   - `autoLabelConversation()` gives a conversation a title and a category without
+     a request, which is what `autoTitleMode` defaults to
    - Per-conversation overrides: `provider`, `model`, `systemPrompt`, `category`, title.
      A conversation is **pinned to its provider**: the setting only decides what a new
      conversation starts with, and moving one is an explicit action that drops the
@@ -106,7 +114,11 @@ namespaces:
      model override from being sent to a provider that does not serve it
    - Properties: `providerId`, `customBaseUrl`, `apiKey`, `modelName`,
      `nextMessageModel`, `language`, `temperature`, `maxTokens`, `systemPrompt`,
-     `contextMessageLimit`, `chatStyle`, `showTimestamps`, `savedPrompts`
+     `contextMessageLimit`, `chatStyle`, `autoTitleMode`, `showTimestamps`,
+     `savedPrompts`
+   - `autoTitleMode` (`local` by default, `ai`, `off`) decides whether naming a
+     conversation is worth a request. On a free tier it is the only call the app
+     makes on its own
    - `modelPricing()` / `estimatedCost()` back the cost estimate in the stats page
    - `appVersion` exposes `APP_VERSION`, injected by qmake from the spec version
 
@@ -124,7 +136,8 @@ Helpers (plain namespaces, not QObjects):
   tier). See `docs/features/21-multi-provider.md`.
 - **Categories** (`src/categories.*`) - the 28 conversation categories and a local
   keyword classifier used when the model answers "other". Display labels and colors
-  live in `qml/components/Categories.js` and **must stay in sync**.
+  live in `qml/components/Categories.js` and **must stay in sync**. The classifier
+  also backs the default titling mode, so it is no longer only a fallback.
 
 ### Frontend (QML/Silica)
 
@@ -140,6 +153,10 @@ Helpers (plain namespaces, not QObjects):
 - **qml/cover/CoverPage.qml** - Active cover, follows the answer while streaming
 - **qml/components/MessageBubble.qml** - Message delegate, implements the four chat
   styles (`flat`, `bubbles`, `compact`, `cards`) and the markdown renderer
+- **qml/components/ProviderBadge.qml** - Coloured initial standing in for a provider
+  logo, doubling as the streaming pulse and the unread light. Colors and glyphs live
+  in `qml/components/ProvidersUi.js`, keyed by the ids in `src/providers.cpp`. No
+  third-party logo ships in the package
 
 ### Data Flow
 
@@ -259,6 +276,8 @@ journalctl -f | grep sailcat
    to a host other than the one it was entered for. See `src/securestore.*`.
 6. **Category identifiers** - `src/categories.cpp` and `qml/components/Categories.js`
    hold the same list twice; changing one without the other silently degrades to "Other".
+   `qml/components/ProvidersUi.js` keys off the provider ids the same way, and falls
+   back to the neutral custom-endpoint colour.
 7. **Never expose a QML role or list key named `model`** - it shadows the delegate's own
    model object and turns every other lookup into `undefined`. The message model exposes
    `messageModel`; the conversation list has no such key at all.

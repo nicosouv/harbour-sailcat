@@ -9,6 +9,7 @@ Dialog {
     property var providerList: settingsManager.availableProviders()
     property var availableModelsList: settingsManager.availableModels()
     property var chatStyleList: settingsManager.availableChatStyles()
+    property var autoTitleModeList: settingsManager.availableAutoTitleModes()
     property bool revealKey: false
 
     canAccept: true
@@ -483,6 +484,46 @@ Dialog {
                 label: qsTr("Messages kept")
             }
 
+            ComboBox {
+                id: autoTitleComboBox
+                label: qsTr("Automatic titles")
+                width: parent.width
+
+                menu: ContextMenu {
+                    Repeater {
+                        model: settingsPage.autoTitleModeList
+
+                        MenuItem {
+                            text: settingsPage.autoTitleLabel(modelData)
+                            property string modeValue: modelData
+                        }
+                    }
+                }
+
+                Component.onCompleted: {
+                    var index = settingsPage.autoTitleModeList.indexOf(
+                                settingsManager.autoTitleMode)
+                    currentIndex = index >= 0 ? index : 0
+                }
+
+                onCurrentItemChanged: {
+                    if (currentItem) {
+                        settingsManager.autoTitleMode = currentItem.modeValue
+                    }
+                }
+            }
+
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * Theme.horizontalPageMargin
+                text: autoTitleComboBox.currentItem
+                      ? settingsPage.autoTitleDescription(autoTitleComboBox.currentItem.modeValue)
+                      : ""
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.WordWrap
+            }
+
             // System Prompt Section
             SectionHeader {
                 text: qsTr("System prompt")
@@ -664,6 +705,22 @@ Dialog {
         case "compact": return qsTr("Compact")
         case "cards": return qsTr("Cards")
         default: return qsTr("Flat")
+        }
+    }
+
+    function autoTitleLabel(mode) {
+        switch (mode) {
+        case "ai": return qsTr("Ask the model")
+        case "off": return qsTr("Off")
+        default: return qsTr("On device")
+        }
+    }
+
+    function autoTitleDescription(mode) {
+        switch (mode) {
+        case "ai": return qsTr("Best titles, but one extra request per conversation. Free tiers count those.")
+        case "off": return qsTr("Conversations keep their first question as a title and stay uncategorized.")
+        default: return qsTr("Titles and categories worked out on the phone. Costs nothing, no request sent.")
         }
     }
 

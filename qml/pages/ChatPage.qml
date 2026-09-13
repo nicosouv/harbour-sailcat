@@ -20,6 +20,12 @@ Page {
     property string lastUsedModel: ""
     property int trimmedMessages: 0
 
+    // Set while a rate-limited request waits its turn again. The answer is
+    // still coming, so this is a notice, not an error.
+    property int retrySeconds: 0
+    property int retryAttempt: 0
+    property int retryAttempts: 0
+
     // Mirrors of the per-conversation overrides. Kept as properties rather
     // than read on demand so bindings actually re-evaluate when they change.
     property string conversationModelOverride: ""
@@ -245,6 +251,40 @@ Page {
                       : qsTr("Tokens: %1 total").arg(chatPage.conversationTokens)
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.secondaryColor
+            }
+        }
+
+        // Rate limit notice. Not an error: the request is on its way back out,
+        // so it gets the highlight colour and no dismiss button.
+        Rectangle {
+            width: parent.width
+            height: chatPage.retryAttempt > 0
+                    ? retryLabel.height + Theme.paddingMedium * 2 : 0
+            color: Theme.rgba(Theme.highlightColor, 0.15)
+            visible: height > 0
+
+            Behavior on height { NumberAnimation { duration: 200 } }
+
+            Label {
+                id: retryLabel
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    leftMargin: Theme.horizontalPageMargin
+                    rightMargin: Theme.horizontalPageMargin
+                }
+                text: chatPage.retrySeconds > 0
+                      ? qsTr("Provider busy - retrying in %1 s (%2/%3)")
+                            .arg(chatPage.retrySeconds)
+                            .arg(chatPage.retryAttempt)
+                            .arg(chatPage.retryAttempts)
+                      : qsTr("Provider busy - retrying (%1/%2)")
+                            .arg(chatPage.retryAttempt)
+                            .arg(chatPage.retryAttempts)
+                color: Theme.highlightColor
+                wrapMode: Text.Wrap
+                font.pixelSize: Theme.fontSizeExtraSmall
             }
         }
 
@@ -556,7 +596,18 @@ Page {
 
         // Streaming itself is handled by ConversationManager, so a response
         // keeps landing in the model even when this page has been popped.
-        onMessageSent: messageListView.positionViewAtEnd()
+        onMessageSent: {
+            chatPage.clearRetryNotice()
+            messageListView.positionViewAtEnd()
+        }
+
+        // The provider said "not now": the request goes out again on its own.
+        onRateLimited: {
+            chatPage.retrySeconds = seconds
+            chatPage.retryAttempt = attempt
+            chatPage.retryAttempts = maxAttempts
+            retryCountdown.restart()
+        }
 
         onTitleGenerated: {
             // Another page may have asked for a title on a different
@@ -583,6 +634,7 @@ Page {
         target: conversationManager
 
         onStreamingUpdated: {
+            chatPage.clearRetryNotice()
             // Only emitted for the conversation on screen, but the page may
             // have scrolled away from the bottom
             if (chatPage.autoScroll) {
@@ -603,6 +655,7 @@ Page {
         }
 
         onResponseFinished: {
+            chatPage.clearRetryNotice()
             // Answers that landed in another conversation are none of this
             // page's business
             if (conversationId !== conversationManager.currentConversationId()) {
@@ -625,13 +678,8 @@ Page {
             // the first answer landed keeps its fallback title, and "Suggest a
             // title" is there to fix it.
             if (!chatPage.titleRequested && conversationModel.count === 2) {
-                var digest = conversationManager.conversationDigest(conversationId)
-                if (digest) {
-                    chatPage.titleRequested = true
-                    mistralApi.generateTitle(
-                                settingsManager.apiKeyFor(chatPage.conversationProvider),
-                                chatPage.activeModel, digest, conversationId)
-                }
+                chatPage.titleRequested = true
+                chatPage.labelConversation(conversationId)
             }
         }
 
@@ -678,6 +726,20 @@ Page {
         }
     }
 
+    // Ticks the notice down so the wait is visibly finite.
+    Timer {
+        id: retryCountdown
+        interval: 1000
+        repeat: true
+        onTriggered: {
+            if (chatPage.retrySeconds > 0) {
+                chatPage.retrySeconds--
+            } else {
+                stop()
+            }
+        }
+    }
+
     Timer {
         id: firstLaunchTimer
         interval: 500
@@ -695,6 +757,32 @@ Page {
                 && settingsManager.modelCacheStaleFor(conversationProvider)) {
             mistralApi.fetchModels(settingsManager.apiKeyFor(conversationProvider))
         }
+    }
+
+    // Naming a conversation is the only request the app makes on its own.
+    // Which is why it is a setting: on a free tier, every call counts.
+    function labelConversation(conversationId) {
+        var mode = settingsManager.autoTitleMode
+        if (mode === "off") {
+            return
+        }
+        if (mode === "local") {
+            conversationManager.autoLabelConversation(conversationId)
+            return
+        }
+
+        var digest = conversationManager.conversationDigest(conversationId)
+        if (digest) {
+            mistralApi.generateTitle(
+                        settingsManager.apiKeyFor(chatPage.conversationProvider),
+                        chatPage.activeModel, digest, conversationId)
+        }
+    }
+
+    function clearRetryNotice() {
+        retryCountdown.stop()
+        chatPage.retrySeconds = 0
+        chatPage.retryAttempt = 0
     }
 
     function refreshOverrides() {

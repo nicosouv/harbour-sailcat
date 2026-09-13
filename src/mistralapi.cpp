@@ -11,6 +11,40 @@
 
 static const int REQUEST_TIMEOUT_MS = 60000;
 
+// Free tiers are strict: Mistral answers one request per second and turns the
+// rest away with a 429. Space every call out rather than discovering the limit
+// by hitting it.
+static const int MIN_REQUEST_INTERVAL_MS = 1200;
+static const int MAX_RATE_LIMIT_RETRIES = 3;
+// Doubled on each attempt: 2s, 4s, 8s.
+static const int RATE_LIMIT_BACKOFF_MS = 2000;
+static const int RATE_LIMIT_MAX_WAIT_MS = 30000;
+
+// Statuses that mean "not now" rather than "no": the same request sent again
+// a moment later usually goes through.
+static bool isTransientStatus(int status)
+{
+    return status == 429      // rate limited
+            || status == 502  // bad gateway, seen when a provider recycles a node
+            || status == 503  // capacity exhausted
+            || status == 529; // overloaded, used by some OpenAI-compatible hosts
+}
+
+// How long the provider wants us to wait. Retry-After is either a number of
+// seconds or an HTTP date; only the first form is worth honouring here, the
+// backoff covers the rest.
+static int retryDelayMs(QNetworkReply *reply, int attempt)
+{
+    if (reply) {
+        bool ok = false;
+        const int seconds = reply->rawHeader("Retry-After").trimmed().toInt(&ok);
+        if (ok && seconds > 0) {
+            return qBound(1000, seconds * 1000, RATE_LIMIT_MAX_WAIT_MS);
+        }
+    }
+    return qMin(RATE_LIMIT_BACKOFF_MS << attempt, RATE_LIMIT_MAX_WAIT_MS);
+}
+
 // Require a verified peer and refuse the legacy TLS versions rather than
 // inheriting the platform default. A custom endpoint may well be plain HTTP on
 // the local network, in which case none of this applies and Qt ignores it.
@@ -30,15 +64,23 @@ MistralAPI::MistralAPI(QObject *parent)
     , m_networkManager(new QNetworkAccessManager(this))
     , m_currentReply(nullptr)
     , m_timeoutTimer(new QTimer(this))
+    , m_requestTimer(new QTimer(this))
     , m_isBusy(false)
     , m_timedOut(false)
     , m_modelSource(Providers::MistralCatalogue)
     , m_streamUsageOption(false)
     , m_keyRequired(true)
+    , m_minRequestIntervalMs(MIN_REQUEST_INTERVAL_MS)
+    , m_retryCount(0)
+    , m_streamStarted(false)
 {
     m_timeoutTimer->setSingleShot(true);
     m_timeoutTimer->setInterval(REQUEST_TIMEOUT_MS);
     connect(m_timeoutTimer, &QTimer::timeout, this, &MistralAPI::onTimeout);
+
+    m_requestTimer->setSingleShot(true);
+    connect(m_requestTimer, &QTimer::timeout,
+            this, &MistralAPI::sendPendingChatRequest);
 
     // Sensible until the settings have been read.
     const Providers::Provider fallback = Providers::byId(Providers::defaultId());
@@ -57,6 +99,27 @@ void MistralAPI::setEndpoint(const QString &providerId,
     m_modelSource = modelSource;
     m_streamUsageOption = streamUsageOption;
     m_keyRequired = keyRequired;
+    // A custom endpoint is the user's own machine as often as not; nobody
+    // rate-limits their own llama.cpp.
+    m_minRequestIntervalMs = (providerId == QLatin1String("custom"))
+            ? 0 : MIN_REQUEST_INTERVAL_MS;
+}
+
+int MistralAPI::throttleDelayMs() const
+{
+    if (m_minRequestIntervalMs <= 0 || !m_lastRequestAt.isValid()) {
+        return 0;
+    }
+    const qint64 elapsed = m_lastRequestAt.elapsed();
+    if (elapsed >= m_minRequestIntervalMs) {
+        return 0;
+    }
+    return int(m_minRequestIntervalMs - elapsed);
+}
+
+void MistralAPI::noteRequestSent()
+{
+    m_lastRequestAt.start();
 }
 
 QUrl MistralAPI::endpoint(const QString &path) const
@@ -141,6 +204,8 @@ void MistralAPI::sendMessage(const QString &apiKey,
     setError(QString());
     m_streamBuffer.clear();
     m_timedOut = false;
+    m_retryCount = 0;
+    m_streamStarted = false;
 
     // Build JSON request
     QJsonObject requestBody;
@@ -165,15 +230,44 @@ void MistralAPI::sendMessage(const QString &apiKey,
     }
 
     QJsonDocument doc(requestBody);
-    QByteArray jsonData = doc.toJson();
 
-    // Configure HTTP request
+    // Kept whole: a rate-limited request has to go out again byte for byte,
+    // and the caller must not have to know that it ever came back.
+    m_pendingApiKey = apiKey;
+    m_pendingBody = doc.toJson();
+
+    // Announced here rather than once the POST leaves: the request may be held
+    // back for a moment, and the empty assistant bubble has to belong to the
+    // conversation that asked, not to whichever one is open a second later.
+    // Every reason to refuse has been checked above; what can still fail from
+    // here on ends in responseCompleted(), which clears the bubble.
+    emit messageSent();
+
+    queueChatRequest(0);
+}
+
+void MistralAPI::queueChatRequest(int extraDelayMs)
+{
+    const int delay = qMax(extraDelayMs, throttleDelayMs());
+    if (delay <= 0) {
+        sendPendingChatRequest();
+        return;
+    }
+    m_requestTimer->start(delay);
+}
+
+void MistralAPI::sendPendingChatRequest()
+{
+    if (m_pendingBody.isEmpty()) {
+        return;
+    }
+
     QNetworkRequest request(endpoint("/chat/completions"));
     request.setRawHeader("Accept", "text/event-stream");
-    prepareRequest(request, apiKey);
+    prepareRequest(request, m_pendingApiKey);
 
-    // Send request
-    m_currentReply = m_networkManager->post(request, jsonData);
+    noteRequestSent();
+    m_currentReply = m_networkManager->post(request, m_pendingBody);
 
     connect(m_currentReply, &QNetworkReply::readyRead,
             this, &MistralAPI::onReadyRead);
@@ -183,8 +277,13 @@ void MistralAPI::sendMessage(const QString &apiKey,
             this, SLOT(onError(QNetworkReply::NetworkError)));
 
     m_timeoutTimer->start();
+}
 
-    emit messageSent();
+void MistralAPI::forgetPendingRequest()
+{
+    m_pendingApiKey.clear();
+    m_pendingBody.clear();
+    m_retryCount = 0;
 }
 
 void MistralAPI::generateTitle(const QString &apiKey,
@@ -195,6 +294,20 @@ void MistralAPI::generateTitle(const QString &apiKey,
     if ((apiKey.isEmpty() && m_keyRequired) || m_baseUrl.isEmpty()
             || conversationText.trimmed().isEmpty()) {
         emit titleGenerationFailed(targetId);
+        return;
+    }
+
+    // Spaced out like any other call: a title request sent on the heels of
+    // the answer it summarises is exactly what trips a one-per-second limit.
+    const int wait = throttleDelayMs();
+    if (wait > 0) {
+        const QString key = apiKey;
+        const QString model = modelName;
+        const QString text = conversationText;
+        const QString id = targetId;
+        QTimer::singleShot(wait, this, [this, key, model, text, id]() {
+            generateTitle(key, model, text, id);
+        });
         return;
     }
 
@@ -232,6 +345,7 @@ void MistralAPI::generateTitle(const QString &apiKey,
     prepareRequest(request, apiKey);
 
     // Send request
+    noteRequestSent();
     QNetworkReply *reply = m_networkManager->post(request, jsonData);
     // Carried on the reply so the result can be routed back to the right
     // conversation: several of these can be in flight at once.
@@ -248,9 +362,17 @@ void MistralAPI::fetchModels(const QString &apiKey)
         return;
     }
 
+    const int wait = throttleDelayMs();
+    if (wait > 0) {
+        const QString key = apiKey;
+        QTimer::singleShot(wait, this, [this, key]() { fetchModels(key); });
+        return;
+    }
+
     QNetworkRequest request(endpoint("/models"));
     prepareRequest(request, apiKey);
 
+    noteRequestSent();
     QNetworkReply *reply = m_networkManager->get(request);
     // Pinned to the reply: the active provider may change before it answers
     reply->setProperty("providerId", m_providerId);
@@ -262,7 +384,19 @@ void MistralAPI::fetchModels(const QString &apiKey)
 
 void MistralAPI::cancelRequest()
 {
+    // Cancelled while the request is still held back: there is no reply to
+    // abort, but the UI is busy and the exchange has to be closed anyway.
+    if (m_requestTimer->isActive()) {
+        m_requestTimer->stop();
+        forgetPendingRequest();
+        setIsBusy(false);
+        emit responseCompleted();
+        return;
+    }
+
     if (m_currentReply) {
+        // A cancelled request must never come back as a retry.
+        forgetPendingRequest();
         m_currentReply->abort();
     }
 }
@@ -282,6 +416,15 @@ void MistralAPI::onReadyRead()
     processStreamData(m_currentReply->readAll());
 }
 
+bool MistralAPI::shouldRetry(int httpStatus) const
+{
+    return isTransientStatus(httpStatus)
+            && !m_pendingBody.isEmpty()
+            && !m_streamStarted   // half an answer is already on screen
+            && !m_timedOut
+            && m_retryCount < MAX_RATE_LIMIT_RETRIES;
+}
+
 void MistralAPI::onFinished()
 {
     if (!m_currentReply)
@@ -295,10 +438,28 @@ void MistralAPI::onFinished()
         if (!remaining.isEmpty()) {
             processStreamData(remaining);
         }
+    } else {
+        const int status = m_currentReply->attribute(
+                    QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        if (shouldRetry(status)) {
+            const int wait = retryDelayMs(m_currentReply, m_retryCount);
+            m_currentReply->deleteLater();
+            m_currentReply = nullptr;
+            ++m_retryCount;
+
+            // Deliberately still busy and still the same exchange: the empty
+            // assistant bubble stays, the user is told to hold on, and nothing
+            // downstream has to know the provider said no.
+            emit rateLimited(qMax(1, (wait + 500) / 1000),
+                             m_retryCount, MAX_RATE_LIMIT_RETRIES);
+            queueChatRequest(wait);
+            return;
+        }
     }
 
     m_currentReply->deleteLater();
     m_currentReply = nullptr;
+    forgetPendingRequest();
     setIsBusy(false);
 
     emit responseCompleted();
@@ -314,6 +475,22 @@ void MistralAPI::onError(QNetworkReply::NetworkError error)
         if (m_timedOut) {
             setError(tr("Request timed out. Please check your connection."));
         }
+        return;
+    }
+
+    const int status = m_currentReply->attribute(
+                QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    // Nothing to report yet: onFinished() is about to send the same request
+    // again, and an error banner flashing between attempts is pure noise.
+    if (shouldRetry(status)) {
+        return;
+    }
+
+    if (status == 429) {
+        setError(tr("Rate limit reached. Free tiers allow about one request "
+                    "per second - wait a few seconds before sending again."));
+        qWarning() << "Rate limited, gave up after" << m_retryCount << "retries";
         return;
     }
 
@@ -581,6 +758,7 @@ void MistralAPI::parseStreamLine(const QString &line)
         if (delta.contains("content")) {
             QString content = delta["content"].toString();
             if (!content.isEmpty()) {
+                m_streamStarted = true;
                 emit streamingResponse(content);
             }
         }
