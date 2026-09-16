@@ -1,6 +1,6 @@
 Name:       harbour-sailcat
 Summary:    Client de chat IA pour Sailfish OS
-Version:    2.3.0
+Version:    2.3.1
 Release:    1
 Group:      Applications/Internet
 License:    MIT

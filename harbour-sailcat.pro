@@ -6,7 +6,7 @@ QT += network
 
 # Version is passed by the spec file (%qmake5 VERSION=%{version})
 isEmpty(VERSION) {
-    VERSION = 2.3.0
+    VERSION = 2.3.1
 }
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
