@@ -39,6 +39,7 @@ Dialog {
             settingsManager.chatStyle = chatStyleComboBox.currentItem.styleValue
         }
         settingsManager.showTimestamps = timestampsSwitch.checked
+        settingsManager.enterKeySends = enterSendsSwitch.checked
 
         if (systemPromptComboBox.currentItem) {
             var preset = systemPromptComboBox.currentItem.promptValue
@@ -362,6 +363,13 @@ Dialog {
                 text: qsTr("Show timestamps")
                 description: qsTr("Display the time under each message")
                 checked: settingsManager.showTimestamps
+            }
+
+            TextSwitch {
+                id: enterSendsSwitch
+                text: qsTr("Enter sends the message")
+                description: qsTr("Turn this off to type a new line with Enter and send with the message button")
+                checked: settingsManager.enterKeySends
             }
 
             // Model Selection Section

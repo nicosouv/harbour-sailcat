@@ -33,6 +33,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString chatStyle READ chatStyle WRITE setChatStyle NOTIFY chatStyleChanged)
     Q_PROPERTY(QString autoTitleMode READ autoTitleMode WRITE setAutoTitleMode NOTIFY autoTitleModeChanged)
     Q_PROPERTY(bool showTimestamps READ showTimestamps WRITE setShowTimestamps NOTIFY showTimestampsChanged)
+    Q_PROPERTY(bool enterKeySends READ enterKeySends WRITE setEnterKeySends NOTIFY enterKeySendsChanged)
     Q_PROPERTY(QVariantList savedPrompts READ savedPrompts NOTIFY savedPromptsChanged)
     Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
 
@@ -88,6 +89,9 @@ public:
 
     bool showTimestamps() const;
     void setShowTimestamps(bool show);
+
+    bool enterKeySends() const;
+    void setEnterKeySends(bool sends);
 
     QVariantList savedPrompts() const;
 
@@ -159,6 +163,7 @@ signals:
     void chatStyleChanged();
     void autoTitleModeChanged();
     void showTimestampsChanged();
+    void enterKeySendsChanged();
     void savedPromptsChanged();
 
 private:
@@ -176,6 +181,7 @@ private:
     QString m_chatStyle;
     QString m_autoTitleMode;
     bool m_showTimestamps;
+    bool m_enterKeySends;
     QStringList m_cachedModels;
     QStringList m_cachedVisionModels;
     QVariantList m_savedPrompts;

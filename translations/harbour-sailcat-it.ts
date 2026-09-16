@@ -935,6 +935,14 @@
         <translation>Mostra l&apos;ora sotto ogni messaggio</translation>
     </message>
     <message>
+        <source>Enter sends the message</source>
+        <translation>Invio manda il messaggio</translation>
+    </message>
+    <message>
+        <source>Turn this off to type a new line with Enter and send with the message button</source>
+        <translation>Disattiva per andare a capo con Invio e inviare con il pulsante messaggio</translation>
+    </message>
+    <message>
         <source>Limit conversation context</source>
         <translation>Limita il contesto</translation>
     </message>

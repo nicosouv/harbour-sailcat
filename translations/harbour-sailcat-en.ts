@@ -935,6 +935,14 @@
         <translation>Display the time under each message</translation>
     </message>
     <message>
+        <source>Enter sends the message</source>
+        <translation>Enter sends the message</translation>
+    </message>
+    <message>
+        <source>Turn this off to type a new line with Enter and send with the message button</source>
+        <translation>Turn this off to type a new line with Enter and send with the message button</translation>
+    </message>
+    <message>
         <source>Limit conversation context</source>
         <translation>Limit conversation context</translation>
     </message>

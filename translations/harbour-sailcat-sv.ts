@@ -935,6 +935,14 @@
         <translation>Visa tiden under varje meddelande</translation>
     </message>
     <message>
+        <source>Enter sends the message</source>
+        <translation>Enter skickar meddelandet</translation>
+    </message>
+    <message>
+        <source>Turn this off to type a new line with Enter and send with the message button</source>
+        <translation>Stäng av för att göra radbrytning med Enter och skicka med meddelandeknappen</translation>
+    </message>
+    <message>
         <source>Limit conversation context</source>
         <translation>Begränsa samtalskontext</translation>
     </message>

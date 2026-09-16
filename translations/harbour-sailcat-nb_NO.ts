@@ -935,6 +935,14 @@
         <translation>Vis klokkeslett under hver melding</translation>
     </message>
     <message>
+        <source>Enter sends the message</source>
+        <translation>Enter sender meldingen</translation>
+    </message>
+    <message>
+        <source>Turn this off to type a new line with Enter and send with the message button</source>
+        <translation>Slå av for å sette inn linjeskift med Enter og sende med meldingsknappen</translation>
+    </message>
+    <message>
         <source>Limit conversation context</source>
         <translation>Begrens samtalekontekst</translation>
     </message>

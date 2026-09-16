@@ -56,6 +56,7 @@ SettingsManager::SettingsManager(QObject *parent)
     , m_chatStyle("flat")
     , m_autoTitleMode("local")
     , m_showTimestamps(true)
+    , m_enterKeySends(true)
     , m_modelSwitches(0)
 {
     loadSettings();
@@ -434,6 +435,20 @@ void SettingsManager::setShowTimestamps(bool show)
     }
 }
 
+bool SettingsManager::enterKeySends() const
+{
+    return m_enterKeySends;
+}
+
+void SettingsManager::setEnterKeySends(bool sends)
+{
+    if (m_enterKeySends != sends) {
+        m_enterKeySends = sends;
+        saveSettings();
+        emit enterKeySendsChanged();
+    }
+}
+
 QVariantList SettingsManager::savedPrompts() const
 {
     return m_savedPrompts;
@@ -711,6 +726,7 @@ void SettingsManager::loadSettings()
         m_autoTitleMode = "local";
     }
     m_showTimestamps = m_settings.value("ui/showTimestamps", true).toBool();
+    m_enterKeySends = m_settings.value("ui/enterKeySends", true).toBool();
     m_modelSwitches = m_settings.value("stats/modelSwitches", 0).toInt();
 
     m_savedPrompts.clear();
@@ -863,6 +879,7 @@ void SettingsManager::saveSettings()
     m_settings.setValue("generation/autoTitleMode", m_autoTitleMode);
     m_settings.setValue("ui/chatStyle", m_chatStyle);
     m_settings.setValue("ui/showTimestamps", m_showTimestamps);
+    m_settings.setValue("ui/enterKeySends", m_enterKeySends);
     m_settings.sync();
     secureSettingsFile();
 }

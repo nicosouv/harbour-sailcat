@@ -935,6 +935,14 @@
         <translation>Näytä kellonaika jokaisen viestin alla</translation>
     </message>
     <message>
+        <source>Enter sends the message</source>
+        <translation>Enter lähettää viestin</translation>
+    </message>
+    <message>
+        <source>Turn this off to type a new line with Enter and send with the message button</source>
+        <translation>Poista käytöstä, niin Enter tekee rivinvaihdon ja viesti lähetetään viestipainikkeella</translation>
+    </message>
+    <message>
         <source>Limit conversation context</source>
         <translation>Rajoita keskustelun kontekstia</translation>
     </message>

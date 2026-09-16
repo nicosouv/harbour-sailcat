@@ -429,7 +429,10 @@ Page {
                     enabled: !mistralApi.isBusy && chatPage.providerReady
                     font.pixelSize: Theme.fontSizeSmall
 
-                    EnterKey.enabled: text.trim().length > 0 && !mistralApi.isBusy
+                    // Disabled means the virtual keyboard inserts a new line
+                    // instead of accepting, which is the point of the setting.
+                    EnterKey.enabled: settingsManager.enterKeySends
+                                      && text.trim().length > 0 && !mistralApi.isBusy
                     EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                     EnterKey.onClicked: sendMessage()
                 }

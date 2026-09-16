@@ -935,6 +935,14 @@
         <translation>Affiche l&apos;heure sous chaque message</translation>
     </message>
     <message>
+        <source>Enter sends the message</source>
+        <translation>Entrée envoie le message</translation>
+    </message>
+    <message>
+        <source>Turn this off to type a new line with Enter and send with the message button</source>
+        <translation>Désactivez pour insérer un saut de ligne avec Entrée et envoyer avec le bouton message</translation>
+    </message>
+    <message>
         <source>Limit conversation context</source>
         <translation>Limiter le contexte</translation>
     </message>
