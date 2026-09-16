@@ -287,7 +287,8 @@ Dialog {
                             { name: "Español", value: "es" },
                             { name: "Suomi", value: "fi" },
                             { name: "Italiano", value: "it" },
-                            { name: "Norsk bokmål", value: "nb_NO" }
+                            { name: "Norsk bokmål", value: "nb_NO" },
+                            { name: "Svenska", value: "sv" }
                         ]
 
                         MenuItem {

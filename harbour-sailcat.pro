@@ -59,4 +59,5 @@ TRANSLATIONS += translations/harbour-sailcat-en.ts \
                 translations/harbour-sailcat-es.ts \
                 translations/harbour-sailcat-fi.ts \
                 translations/harbour-sailcat-it.ts \
-                translations/harbour-sailcat-nb_NO.ts
+                translations/harbour-sailcat-nb_NO.ts \
+                translations/harbour-sailcat-sv.ts

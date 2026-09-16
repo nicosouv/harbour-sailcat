@@ -2,6 +2,121 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="sv">
 <context>
+    <name>Categories</name>
+    <message>
+        <source>Code</source>
+        <translation>Kod</translation>
+    </message>
+    <message>
+        <source>Debugging</source>
+        <translation>Felsökning</translation>
+    </message>
+    <message>
+        <source>DevOps</source>
+        <translation>DevOps</translation>
+    </message>
+    <message>
+        <source>Data</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Design</source>
+        <translation>Design</translation>
+    </message>
+    <message>
+        <source>Writing</source>
+        <translation>Författarskap</translation>
+    </message>
+    <message>
+        <source>Translation</source>
+        <translation>Översättning</translation>
+    </message>
+    <message>
+        <source>Learning</source>
+        <translation>Inlärning</translation>
+    </message>
+    <message>
+        <source>Research</source>
+        <translation>Undersökning</translation>
+    </message>
+    <message>
+        <source>Maths</source>
+        <translation>Mattematik</translation>
+    </message>
+    <message>
+        <source>Science</source>
+        <translation>Forskning</translation>
+    </message>
+    <message>
+        <source>Business</source>
+        <translation>Affärer</translation>
+    </message>
+    <message>
+        <source>Finance</source>
+        <translation>Finans</translation>
+    </message>
+    <message>
+        <source>Career</source>
+        <translation>Karriär</translation>
+    </message>
+    <message>
+        <source>Legal</source>
+        <translation>Juridik</translation>
+    </message>
+    <message>
+        <source>Health</source>
+        <translation>Hälsa</translation>
+    </message>
+    <message>
+        <source>Cooking</source>
+        <translation>Matlagning</translation>
+    </message>
+    <message>
+        <source>Travel</source>
+        <translation>Resor</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>Hem</translation>
+    </message>
+    <message>
+        <source>Gaming</source>
+        <translation>Spel</translation>
+    </message>
+    <message>
+        <source>Music</source>
+        <translation>Musik</translation>
+    </message>
+    <message>
+        <source>Books &amp; Movies</source>
+        <translation>Böcker &amp; film</translation>
+    </message>
+    <message>
+        <source>Sports</source>
+        <translation>Sport</translation>
+    </message>
+    <message>
+        <source>Relationships</source>
+        <translation>Relationer</translation>
+    </message>
+    <message>
+        <source>Productivity</source>
+        <translation>Produktivitet</translation>
+    </message>
+    <message>
+        <source>Ideas</source>
+        <translation>Idéer</translation>
+    </message>
+    <message>
+        <source>Practical</source>
+        <translation>Praktiskt</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Annat</translation>
+    </message>
+</context>
+<context>
     <name>ChatPage</name>
     <message>
         <source>Settings &amp; About</source>
@@ -16,8 +131,8 @@
         <translation>Välkommen till SailCat</translation>
     </message>
     <message>
-        <source>Configure your Mistral API key to get started</source>
-        <translation>Mata in din Mistral API-nyckel till att börja med</translation>
+        <source>Pick a provider and enter its API key to get started</source>
+        <translation>Välj en leverantör och ange dess API-nyckel för att komma igång</translation>
     </message>
     <message>
         <source>Start a conversation</source>
@@ -36,12 +151,12 @@
         <translation>Sätt igång</translation>
     </message>
     <message>
-        <source>What is Mistral AI?</source>
-        <translation>Vad är Mistral AI?</translation>
+        <source>Which AI answers you?</source>
+        <translation>Vilken AI svarar dig?</translation>
     </message>
     <message>
-        <source>Mistral AI is a European AI company providing state-of-the-art language models. SailCat uses their API to bring intelligent conversations to Sailfish OS.</source>
-        <translation>Mistral AI är ett europeiskt AI-företag som erbjuder avancerade språkmodeller. SailCat använder deras API för att få smarta konversationer i Sailfish OS.</translation>
+        <source>The one you pick. SailCat talks to Mistral AI, Scaleway, OVHcloud, Groq or any OpenAI-compatible endpoint, with your own account. Several of them have a free tier, and the European ones keep your conversations on this side of the Atlantic.</source>
+        <translation>Den du väljer. SailCat pratar med Mistral AI, Scaleway, OVHcloud, Groq eller vilken OpenAI-kompatibel slutpunkt som helst, med ditt eget konto. Flera av dem har en gratisnivå, och de europeiska håller dina konversationer på den här sidan Atlanten.</translation>
     </message>
     <message>
         <source>Privacy &amp; Storage</source>
@@ -52,11 +167,11 @@
         <translation>Hur du börjar</translation>
     </message>
     <message>
-        <source>1. Get a free API key from console.mistral.ai
-2. Configure it in Settings
+        <source>1. Pick a provider in Settings
+2. Paste the API key it gives you
 3. Start chatting!</source>
-        <translation>1. Hämta en gratis API-nyckel från console.mistral.ai
-2. Konfigurera den i Inställningar
+        <translation>1. Välj en leverantör i Inställningar
+2. Klistra in API-nyckeln du får
 3. Börja chatta!</translation>
     </message>
     <message>
@@ -72,8 +187,8 @@
         <translation>Export misslyckades</translation>
     </message>
     <message>
-        <source>Model changed to %1</source>
-        <translation>Modell ändrad till %1</translation>
+        <source>This conversation now uses %1</source>
+        <translation>Den här konversationen använder nu %1</translation>
     </message>
     <message>
         <source>Pinned messages</source>
@@ -85,13 +200,13 @@
     </message>
     <message>
         <source>• Your conversations are stored locally on your device
-• No sync with Mistral&apos;s web interface
-• You need your own API key to use the app
+• No sync with any web interface
+• Each provider keeps its own key, stored scrambled
 • Your data stays on your phone</source>
         <translation>• Dina konversationer lagras lokalt på din enhet
-• Inget synkroniseras med Mistrals webbgränssnitt
-• Du behöver en egen API-nyckel för att använda den här appen
-• Din data stannar på din egen telefon</translation>
+• Ingen synkronisering med något webbgränssnitt
+• Varje leverantör har sin egen nyckel, lagrad förvrängd
+• Dina data stannar i din telefon</translation>
     </message>
     <message>
         <source>Prompt library</source>
@@ -112,6 +227,201 @@
         <source>Tokens: %1 total</source>
         <translation>Tecken: %1 totalt</translation>
     </message>
+    <message>
+        <source>Provider busy - retrying in %1 s (%2/%3)</source>
+        <translation>Leverantören är upptagen – försöker igen om %1 s (%2/%3)</translation>
+    </message>
+    <message>
+        <source>Provider busy - retrying (%1/%2)</source>
+        <translation>Leverantören är upptagen – försöker igen (%1/%2)</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationDetailPage</name>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation>
+            <numerusform>%n dag</numerusform>
+            <numerusform>%n dagar</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation>
+            <numerusform>%n timma</numerusform>
+            <numerusform>%n timmar</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n minute(s)</source>
+        <translation>
+            <numerusform>%n minut</numerusform>
+            <numerusform>%n minuter</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Assistant</source>
+        <translation>Assistent</translation>
+    </message>
+    <message>
+        <source>Conversation</source>
+        <translation>Konversation</translation>
+    </message>
+    <message>
+        <source>Conversation rhythm</source>
+        <translation>Konversationsrytm</translation>
+    </message>
+    <message>
+        <source>Less than a minute</source>
+        <translation>Mindre än en minut</translation>
+    </message>
+    <message>
+        <source>Load this conversation</source>
+        <translation>Läs in denna konversation</translation>
+    </message>
+    <message>
+        <source>Messages</source>
+        <translation>Meddelanden</translation>
+    </message>
+    <message>
+        <source>No messages</source>
+        <translation>Inga meddelanden</translation>
+    </message>
+    <message>
+        <source>Single exchange</source>
+        <translation>Enkelväxling</translation>
+    </message>
+    <message>
+        <source>This conversation is empty</source>
+        <translation>Denna konversation är tom</translation>
+    </message>
+    <message>
+        <source>You</source>
+        <translation>Du</translation>
+    </message>
+    <message>
+        <source>messages</source>
+        <translation>meddelanden</translation>
+    </message>
+    <message>
+        <source>tokens</source>
+        <translation>tecken</translation>
+    </message>
+    <message>
+        <source>written by AI</source>
+        <translation>skrivet av AI</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationHistoryPage</name>
+    <message numerus="yes">
+        <source>%n conversation(s)</source>
+        <translation>
+            <numerusform>%n konversation</numerusform>
+            <numerusform>%n konversationer</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n match(es)</source>
+        <translation>
+            <numerusform>%n träff</numerusform>
+            <numerusform>%n träffar</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%n message(s)</source>
+        <translation>
+            <numerusform>%n meddelande</numerusform>
+            <numerusform>%n meddelanden</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Activity - last 14 days</source>
+        <translation>Aktivitet - Senaste 14 dagarna</translation>
+    </message>
+    <message>
+        <source>Conversation History</source>
+        <translation>Konversationshistorik</translation>
+    </message>
+    <message>
+        <source>Copy as text</source>
+        <translation>Kopiera som text</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
+        <source>Deleting</source>
+        <translation>Tar bort</translation>
+    </message>
+    <message>
+        <source>Empty conversation</source>
+        <translation>Tom konversation</translation>
+    </message>
+    <message>
+        <source>New conversation</source>
+        <translation>Ny konversation</translation>
+    </message>
+    <message>
+        <source>No conversations</source>
+        <translation>Inga konversationer</translation>
+    </message>
+    <message>
+        <source>No results</source>
+        <translation>Inga träffar</translation>
+    </message>
+    <message>
+        <source>Purge all conversations</source>
+        <translation>Ta bort alla konversationer</translation>
+    </message>
+    <message>
+        <source>Purging all conversations</source>
+        <translation>Tar bort alla konversationer</translation>
+    </message>
+    <message>
+        <source>Search in conversations...</source>
+        <translation>Sök i konversationer...</translation>
+    </message>
+    <message>
+        <source>Start chatting to create conversations</source>
+        <translation>Börja chatta för att skapa konversationer</translation>
+    </message>
+    <message>
+        <source>Try different search terms</source>
+        <translation>Prova en annan sökterm</translation>
+    </message>
+    <message>
+        <source>View details</source>
+        <translation>Visa detaljerat</translation>
+    </message>
+    <message>
+        <source>Conversation settings</source>
+        <translation>Konversationsinställningar</translation>
+    </message>
+    <message>
+        <source>Auto-label conversations</source>
+        <translation>Etikettera konversationer automatiskt</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n conversation(s) relabelled</source>
+        <translation>
+            <numerusform>%n konversation ometiketterad</numerusform>
+            <numerusform>%n konversationer ometiketterade</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Nothing to relabel</source>
+        <translation>Inget att ometikettera</translation>
+    </message>
+    <message>
+        <source>Settings &amp; About</source>
+        <translation>Inställningar &amp; Om</translation>
+    </message>
+    <message>
+        <source>Yesterday</source>
+        <translation>Igår</translation>
+    </message>
 </context>
 <context>
     <name>ConversationManager</name>
@@ -126,6 +436,126 @@
     <message>
         <source>Untitled</source>
         <translation>Namnlös</translation>
+    </message>
+</context>
+<context>
+    <name>ConversationSettingsPage</name>
+    <message>
+        <source>Conversation settings</source>
+        <translation>Konversationsinställningar</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Rubrik</translation>
+    </message>
+    <message>
+        <source>Conversation title</source>
+        <translation>Konversationstitel</translation>
+    </message>
+    <message>
+        <source>Category</source>
+        <translation>Kategori</translation>
+    </message>
+    <message>
+        <source>Topic</source>
+        <translation>Ämne</translation>
+    </message>
+    <message>
+        <source>Used by the statistics page</source>
+        <translation>Används av statistiksidan</translation>
+    </message>
+    <message>
+        <source>Provider and model</source>
+        <translation>Leverantör och modell</translation>
+    </message>
+    <message>
+        <source>Model for this conversation</source>
+        <translation>Modell för denna konversation</translation>
+    </message>
+    <message>
+        <source>Overrides the default model of that provider</source>
+        <translation>Åsidosätter leverantörens standardmodell</translation>
+    </message>
+    <message>
+        <source>Use default (%1)</source>
+        <translation>Använd standard (%1)</translation>
+    </message>
+    <message>
+        <source>System prompt</source>
+        <translation>Systemprompt</translation>
+    </message>
+    <message>
+        <source>Custom system prompt</source>
+        <translation>Egen systemprompt</translation>
+    </message>
+    <message>
+        <source>Replaces the global system prompt for this conversation only</source>
+        <translation>Ersätter den globala systemprompten bara för den här konversationen</translation>
+    </message>
+    <message>
+        <source>Instruction</source>
+        <translation>Instruktion</translation>
+    </message>
+    <message>
+        <source>Enter a system prompt...</source>
+        <translation>Ange en systemprompt...</translation>
+    </message>
+    <message>
+        <source>Asking the model...</source>
+        <translation>Frågar modellen...</translation>
+    </message>
+    <message>
+        <source>Suggest a title</source>
+        <translation>Föreslå en rubrik</translation>
+    </message>
+    <message>
+        <source>Reads the conversation and proposes a title and a category.</source>
+        <translation>Läser konversationen och föreslår en rubrik och en kategori.</translation>
+    </message>
+    <message>
+        <source>Answers come from</source>
+        <translation>Svaren kommer från</translation>
+    </message>
+    <message>
+        <source>This conversation only. New conversations use the provider set in Settings.</source>
+        <translation>Endast den här konversationen. Nya konversationer använder leverantören som valts i Inställningar.</translation>
+    </message>
+    <message>
+        <source>The rest of this conversation goes to %1, using its own API key. The answers already received do not change.</source>
+        <translation>Resten av den här konversationen går till %1, med dess egen API-nyckel. Svaren du redan fått ändras inte.</translation>
+    </message>
+    <message>
+        <source>No API key for this provider yet - add it in Settings before sending.</source>
+        <translation>Ingen API-nyckel för den här leverantören ännu – lägg till den i Inställningar innan du skickar.</translation>
+    </message>
+</context>
+<context>
+    <name>CoverPage</name>
+    <message numerus="yes">
+        <source>%n message(s)</source>
+        <translation>
+            <numerusform>%n meddelande</numerusform>
+            <numerusform>%n meddelanden</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>No conversation</source>
+        <translation>Inga konversationer</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n conversation(s)</source>
+        <translation>
+            <numerusform>%n konversation</numerusform>
+            <numerusform>%n konversationer</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Tokens this month: %1</source>
+        <translation>Tecken denna månad: %1</translation>
+    </message>
+    <message>
+        <source>Tokens: %1</source>
+        <translation>Tecken: %1</translation>
     </message>
 </context>
 <context>
@@ -181,6 +611,126 @@
         <source>Request timed out. Please check your connection.</source>
         <translation>Tidsgränsen överskreds. Kolla din anslutning.</translation>
     </message>
+    <message>
+        <source>No endpoint configured. Please pick a provider in settings.</source>
+        <translation>Ingen slutpunkt konfigurerad. Välj en leverantör i inställningarna.</translation>
+    </message>
+    <message>
+        <source>Rate limit reached. Free tiers allow about one request per second - wait a few seconds before sending again.</source>
+        <translation>Hastighetsgränsen är nådd. Gratisnivåer tillåter ungefär en förfrågan per sekund – vänta några sekunder innan du skickar igen.</translation>
+    </message>
+</context>
+<context>
+    <name>ModelSelector</name>
+    <message>
+        <source>Select Model</source>
+        <translation>Välj modell</translation>
+    </message>
+    <message>
+        <source>Vision capable</source>
+        <translation>Synkunnig</translation>
+    </message>
+</context>
+<context>
+    <name>PinnedMessagesPage</name>
+    <message>
+        <source>Long-press a message and select Pin</source>
+        <translation>Långtryck ett meddelande och välj Fäst</translation>
+    </message>
+    <message>
+        <source>No pinned messages</source>
+        <translation>Inga fästa meddelanden</translation>
+    </message>
+    <message>
+        <source>Pinned messages</source>
+        <translation>Fästa meddelanden</translation>
+    </message>
+</context>
+<context>
+    <name>PromptLibraryPage</name>
+    <message>
+        <source>Prompt library</source>
+        <translation>Promptbibliotek</translation>
+    </message>
+    <message>
+        <source>Tap a prompt to add it to the message you are writing.</source>
+        <translation>Tryck på en prompt för att lägga till det i meddelandet du skriver.</translation>
+    </message>
+    <message>
+        <source>New prompt</source>
+        <translation>Ny prompt</translation>
+    </message>
+    <message>
+        <source>No saved prompts</source>
+        <translation>Inga sparade prompter</translation>
+    </message>
+    <message>
+        <source>Use the pulley menu to save one</source>
+        <translation>Använd toppmenyn för att spara en</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Redigera</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopiera</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Ta bort</translation>
+    </message>
+    <message>
+        <source>Deleting</source>
+        <translation>Tar bort</translation>
+    </message>
+    <message>
+        <source>Edit prompt</source>
+        <translation>Redigera prompt</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Spara</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Avbryt</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Namn</translation>
+    </message>
+    <message>
+        <source>Optional name</source>
+        <translation>Valfritt namn</translation>
+    </message>
+    <message>
+        <source>Prompt</source>
+        <translation>Prompt</translation>
+    </message>
+    <message>
+        <source>Enter the prompt text...</source>
+        <translation>Ange prompttext...</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>France (EU)</source>
+        <translation>Frankrike (EU)</translation>
+    </message>
+    <message>
+        <source>United States</source>
+        <translation>USA</translation>
+    </message>
+    <message>
+        <source>Wherever you point it</source>
+        <translation>Dit du pekar den</translation>
+    </message>
+    <message>
+        <source>Custom endpoint</source>
+        <translation>Egen slutpunkt</translation>
+    </message>
 </context>
 <context>
     <name>SettingsPage</name>
@@ -201,12 +751,12 @@
         <translation>API-konfiguration</translation>
     </message>
     <message>
-        <source>To get a free API key, visit console.mistral.ai</source>
-        <translation>Besök console.mistral.ai, för att få en gratis API-nyckel</translation>
+        <source>To get an API key, visit %1</source>
+        <translation>För att få en API-nyckel, besök %1</translation>
     </message>
     <message>
-        <source>Mistral API Key</source>
-        <translation>Mistral API-nyckel</translation>
+        <source>%1 API key</source>
+        <translation>API-nyckel för %1</translation>
     </message>
     <message>
         <source>Enter your API key</source>
@@ -237,16 +787,12 @@
         <translation>Modell</translation>
     </message>
     <message>
-        <source>Mistral Model</source>
-        <translation>Mistral-modell</translation>
-    </message>
-    <message>
         <source>Select the model to use</source>
         <translation>Välj modell att använda</translation>
     </message>
     <message>
-        <source>Powered by Mistral AI • MIT License</source>
-        <translation>Drivs av Mistral AI • MIT-licens</translation>
+        <source>Powered by %1 • MIT License</source>
+        <translation>Drivs av %1 • MIT-licens</translation>
     </message>
     <message>
         <source>Made with &lt;3 for Sailfish OS</source>
@@ -313,8 +859,8 @@
         <translation>Personlighet</translation>
     </message>
     <message>
-        <source>SailCat is an elegant client for Mistral AI Chat, specifically designed for Sailfish OS.</source>
-        <translation>SailCat är en elegant klient för Mistral AI-chatt, särskilt designad för Sailfish OS.</translation>
+        <source>SailCat is an elegant chat client for Mistral AI and other OpenAI-compatible providers, designed for Sailfish OS.</source>
+        <translation>SailCat är en elegant chattklient för Mistral AI och andra OpenAI-kompatibla leverantörer, utformad för Sailfish OS.</translation>
     </message>
     <message>
         <source>Source code on GitHub</source>
@@ -350,11 +896,11 @@
     </message>
     <message>
         <source>• Conversations stored locally
-• No sync with Mistral web
-• Requires personal API key</source>
-        <translation>• Konversationer sparas lokalt
-• Ingen synk med Mistral web
-• Kräver personlig API-nyckel</translation>
+• No sync with any web interface
+• Uses your own account with the provider</source>
+        <translation>• Konversationer lagras lokalt
+• Ingen synkronisering med något webbgränssnitt
+• Använder ditt eget konto hos leverantören</translation>
     </message>
     <message>
         <source>Prompt library</source>
@@ -365,8 +911,8 @@
         <translation>Visa API-nyckel</translation>
     </message>
     <message>
-        <source>The key is stored scrambled in an owner-only file on this device and is sent to api.mistral.ai over TLS. It never leaves the device otherwise.</source>
-        <translation>Nyckeln lagras krypterad i en fil som bara ägaren kan komma åt på den här enheten och skickas till api.mistral.ai över TLS. Den lämnar aldrig enheten annars.</translation>
+        <source>The key is stored scrambled in an owner-only file on this device and is only ever sent to %1. Each provider keeps its own key.</source>
+        <translation>Nyckeln lagras förvrängd i en fil som bara ägaren kan läsa på den här enheten och skickas aldrig till någon annan än %1. Varje leverantör har sin egen nyckel.</translation>
     </message>
     <message>
         <source>Appearance</source>
@@ -439,247 +985,73 @@
         <source>Full width rows with a tinted background on your messages.</source>
         <translation>Rader i full bredd med en tonad bakgrund på dina meddelanden.</translation>
     </message>
-</context>
-<context>
-    <name>ConversationDetailPage</name>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation>
-            <numerusform>%n timma</numerusform>
-            <numerusform>%n timmar</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n minute(s)</source>
-        <translation>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+    <message>
+        <source>Provider</source>
+        <translation>Leverantör</translation>
     </message>
     <message>
-        <source>Assistant</source>
-        <translation>Assistent</translation>
+        <source>Used by new conversations. An existing one keeps the provider it started with.</source>
+        <translation>Används av nya konversationer. En befintlig behåller leverantören den startade med.</translation>
     </message>
     <message>
-        <source>Conversation</source>
-        <translation>Konversation</translation>
+        <source>%1 - free tier</source>
+        <translation>%1 – gratisnivå</translation>
     </message>
     <message>
-        <source>Conversation rhythm</source>
-        <translation>Konversationsrytm</translation>
+        <source>Hosted in %1</source>
+        <translation>Driftas i %1</translation>
     </message>
     <message>
-        <source>Less than a minute</source>
-        <translation>Mindre än en minut</translation>
+        <source>Endpoint base URL</source>
+        <translation>Slutpunktens bas-URL</translation>
     </message>
     <message>
-        <source>Load this conversation</source>
-        <translation>Läs in denna konversation</translation>
+        <source>Anything OpenAI-compatible, up to a llama.cpp or Ollama server on your own network.</source>
+        <translation>Allt som är OpenAI-kompatibelt, ända till en llama.cpp- eller Ollama-server i ditt eget nätverk.</translation>
     </message>
     <message>
-        <source>Messages</source>
-        <translation>Meddelanden</translation>
+        <source>%1 API key (optional)</source>
+        <translation>API-nyckel för %1 (valfritt)</translation>
     </message>
     <message>
-        <source>No messages</source>
-        <translation>Inga meddelanden</translation>
+        <source>Leave empty to stay anonymous</source>
+        <translation>Lämna tomt för att förbli anonym</translation>
     </message>
     <message>
-        <source>Single exchange</source>
-        <translation>Enkelväxling</translation>
+        <source>Model identifier</source>
+        <translation>Modellidentifierare</translation>
     </message>
     <message>
-        <source>This conversation is empty</source>
-        <translation>Denna konversation är tom</translation>
+        <source>https://host/v1</source>
+        <translation>https://host/v1</translation>
     </message>
     <message>
-        <source>You</source>
-        <translation>Du</translation>
+        <source>Automatic titles</source>
+        <translation>Automatiska titlar</translation>
     </message>
     <message>
-        <source>messages</source>
-        <translation>meddelanden</translation>
+        <source>Ask the model</source>
+        <translation>Fråga modellen</translation>
     </message>
     <message>
-        <source>tokens</source>
-        <translation>tecken</translation>
+        <source>Off</source>
+        <translation>Av</translation>
     </message>
     <message>
-        <source>written by AI</source>
-        <translation>skrivet av AI</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationHistoryPage</name>
-    <message numerus="yes">
-        <source>%n conversation(s)</source>
-        <translation>
-            <numerusform>%n  konversation</numerusform>
-            <numerusform>%n konversationer</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n match(es)</source>
-        <translation>
-            <numerusform>%n träff</numerusform>
-            <numerusform>%n träffar</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n message(s)</source>
-        <translation>
-            <numerusform>%n meddelande</numerusform>
-            <numerusform>%n meddelanden</numerusform>
-        </translation>
+        <source>On device</source>
+        <translation>På enheten</translation>
     </message>
     <message>
-        <source>Activity - last 14 days</source>
-        <translation>Aktivitet - Senaste 14 dagarna</translation>
+        <source>Best titles, but one extra request per conversation. Free tiers count those.</source>
+        <translation>Bästa titlarna, men en extra förfrågan per konversation. Gratisnivåer räknar dem.</translation>
     </message>
     <message>
-        <source>Conversation History</source>
-        <translation>Konversationshistorik</translation>
+        <source>Conversations keep their first question as a title and stay uncategorized.</source>
+        <translation>Konversationer behåller sin första fråga som titel och förblir okategoriserade.</translation>
     </message>
     <message>
-        <source>Copy as text</source>
-        <translation>Kopiera som text</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Deleting</source>
-        <translation>Tar bort</translation>
-    </message>
-    <message>
-        <source>Empty conversation</source>
-        <translation>Tom konversation</translation>
-    </message>
-    <message>
-        <source>New conversation</source>
-        <translation>Ny konversation</translation>
-    </message>
-    <message>
-        <source>No conversations</source>
-        <translation>Inga konversationer</translation>
-    </message>
-    <message>
-        <source>No results</source>
-        <translation>Inga träffar</translation>
-    </message>
-    <message>
-        <source>Purge all conversations</source>
-        <translation>Ta bort alla konversationer</translation>
-    </message>
-    <message>
-        <source>Purging all conversations</source>
-        <translation>Tar bort alla konversationer</translation>
-    </message>
-    <message>
-        <source>Search in conversations...</source>
-        <translation>Sök i konversationer...</translation>
-    </message>
-    <message>
-        <source>Start chatting to create conversations</source>
-        <translation>Börja chatta för att skapa konversationer</translation>
-    </message>
-    <message>
-        <source>Storage used: %1</source>
-        <translation>Använt lagringsutrymme: %1</translation>
-    </message>
-    <message>
-        <source>Try different search terms</source>
-        <translation>Prova en annan sökterm</translation>
-    </message>
-    <message>
-        <source>View details</source>
-        <translation>Visa detaljerat</translation>
-    </message>
-    <message>
-        <source>Conversation settings</source>
-        <translation>Konversationsinställningar</translation>
-    </message>
-    <message>
-        <source>Auto-label conversations</source>
-        <translation>Etikettera konversationer automatiskt</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n conversation(s) relabelled</source>
-        <translation>
-            <numerusform>%n konversation ometiketterad</numerusform>
-            <numerusform>%n konversationer ometiketterade</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Nothing to relabel</source>
-        <translation>Inget att ometikettera</translation>
-    </message>
-    <message>
-        <source>Settings &amp; About</source>
-        <translation>Inställningar &amp; Om</translation>
-    </message>
-</context>
-<context>
-    <name>CoverPage</name>
-    <message numerus="yes">
-        <source>%n message(s)</source>
-        <translation>
-            <numerusform>%n meddelande</numerusform>
-            <numerusform>%n meddelanden</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>No conversation</source>
-        <translation>Inga konversationer</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n conversation(s)</source>
-        <translation>
-            <numerusform>%n konversation</numerusform>
-            <numerusform>%n konversationer</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Tokens this month: %1</source>
-        <translation>Tecken denna månad: %1</translation>
-    </message>
-    <message>
-        <source>Tokens: %1</source>
-        <translation>Tecken: %1</translation>
-    </message>
-</context>
-<context>
-    <name>ModelSelector</name>
-    <message>
-        <source>Select Model</source>
-        <translation>Välj modell</translation>
-    </message>
-    <message>
-        <source>Vision capable</source>
-        <translation>Synkunnig</translation>
-    </message>
-</context>
-<context>
-    <name>PinnedMessagesPage</name>
-    <message>
-        <source>Long-press a message and select Pin</source>
-        <translation>Långtryck ett meddelande och välj Fäst</translation>
-    </message>
-    <message>
-        <source>No pinned messages</source>
-        <translation>Inga fästa meddelanden</translation>
-    </message>
-    <message>
-        <source>Pinned messages</source>
-        <translation>Fästa meddelanden</translation>
+        <source>Titles and categories worked out on the phone. Costs nothing, no request sent.</source>
+        <translation>Titlar och kategorier tas fram i telefonen. Kostar ingenting, ingen förfrågan skickas.</translation>
     </message>
 </context>
 <context>
@@ -904,265 +1276,36 @@
         <translation>Totalt</translation>
     </message>
     <message>
-        <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your Mistral console for the real invoice.</source>
-        <translation>Uppskattning baserad på offentliga listpriser i amerikanska dollar. Endast den användning som registreras av den här appen räknas med – se din Mistral-konsol för den faktiska fakturan.</translation>
-    </message>
-</context>
-<context>
-    <name>Categories</name>
-    <message>
-        <source>Code</source>
-        <translation>Kod</translation>
+        <source>Estimate based on public list prices, in US dollars. Only usage recorded by this app is counted - check your provider console for the real invoice.</source>
+        <translation>Uppskattning baserad på offentliga listpriser, i US-dollar. Endast användning som registrerats av den här appen räknas – kontrollera leverantörens konsol för den verkliga fakturan.</translation>
     </message>
     <message>
-        <source>Debugging</source>
-        <translation>Felsökning</translation>
+        <source>free</source>
+        <translation>gratis</translation>
     </message>
     <message>
-        <source>DevOps</source>
-        <translation>DevOps</translation>
+        <source>Providers and models</source>
+        <translation>Leverantörer och modeller</translation>
     </message>
     <message>
-        <source>Data</source>
-        <translation>Data</translation>
+        <source>Most used provider</source>
+        <translation>Mest använda leverantör</translation>
     </message>
     <message>
-        <source>Design</source>
-        <translation>Design</translation>
+        <source>Most used model</source>
+        <translation>Mest använda modell</translation>
     </message>
     <message>
-        <source>Writing</source>
-        <translation>Författarskap</translation>
+        <source>Answers per provider</source>
+        <translation>Svar per leverantör</translation>
     </message>
     <message>
-        <source>Translation</source>
-        <translation>Översättning</translation>
+        <source>Answers per model</source>
+        <translation>Svar per modell</translation>
     </message>
     <message>
-        <source>Learning</source>
-        <translation>Inlärning</translation>
-    </message>
-    <message>
-        <source>Research</source>
-        <translation>Undersökning</translation>
-    </message>
-    <message>
-        <source>Maths</source>
-        <translation>Mattematik</translation>
-    </message>
-    <message>
-        <source>Science</source>
-        <translation>Forskning</translation>
-    </message>
-    <message>
-        <source>Business</source>
-        <translation>Affärer</translation>
-    </message>
-    <message>
-        <source>Finance</source>
-        <translation>Finans</translation>
-    </message>
-    <message>
-        <source>Career</source>
-        <translation>Karriär</translation>
-    </message>
-    <message>
-        <source>Legal</source>
-        <translation>Juridik</translation>
-    </message>
-    <message>
-        <source>Health</source>
-        <translation>Hälsa</translation>
-    </message>
-    <message>
-        <source>Cooking</source>
-        <translation>Matlagning</translation>
-    </message>
-    <message>
-        <source>Travel</source>
-        <translation>Resor</translation>
-    </message>
-    <message>
-        <source>Home</source>
-        <translation>Hem</translation>
-    </message>
-    <message>
-        <source>Gaming</source>
-        <translation>Spel</translation>
-    </message>
-    <message>
-        <source>Music</source>
-        <translation>Musik</translation>
-    </message>
-    <message>
-        <source>Books &amp; Movies</source>
-        <translation>Böcker &amp; film</translation>
-    </message>
-    <message>
-        <source>Sports</source>
-        <translation>Sport</translation>
-    </message>
-    <message>
-        <source>Relationships</source>
-        <translation>Relationer</translation>
-    </message>
-    <message>
-        <source>Productivity</source>
-        <translation>Produktivitet</translation>
-    </message>
-    <message>
-        <source>Ideas</source>
-        <translation>Idéer</translation>
-    </message>
-    <message>
-        <source>Practical</source>
-        <translation>Praktiskt</translation>
-    </message>
-    <message>
-        <source>Other</source>
-        <translation>Annat</translation>
-    </message>
-</context>
-<context>
-    <name>ConversationSettingsPage</name>
-    <message>
-        <source>Conversation settings</source>
-        <translation>Konversationsinställningar</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Rubrik</translation>
-    </message>
-    <message>
-        <source>Conversation title</source>
-        <translation>Konversationstitel</translation>
-    </message>
-    <message>
-        <source>Category</source>
-        <translation>Kategori</translation>
-    </message>
-    <message>
-        <source>Topic</source>
-        <translation>Ämne</translation>
-    </message>
-    <message>
-        <source>Used by the statistics page</source>
-        <translation>Används av statistiksidan</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation>Modell</translation>
-    </message>
-    <message>
-        <source>Model for this conversation</source>
-        <translation>Modell för denna konversation</translation>
-    </message>
-    <message>
-        <source>Overrides the model chosen in settings</source>
-        <translation>Åsidosätter modellen som valts i Inställningar</translation>
-    </message>
-    <message>
-        <source>Use default (%1)</source>
-        <translation>Använd standard (%1)</translation>
-    </message>
-    <message>
-        <source>System prompt</source>
-        <translation>Systemprompt</translation>
-    </message>
-    <message>
-        <source>Custom system prompt</source>
-        <translation>Egen systemprompt</translation>
-    </message>
-    <message>
-        <source>Replaces the global system prompt for this conversation only</source>
-        <translation>Ersätter den globala systemprompten bara för den här konversationen</translation>
-    </message>
-    <message>
-        <source>Instruction</source>
-        <translation>Instruktion</translation>
-    </message>
-    <message>
-        <source>Enter a system prompt...</source>
-        <translation>Ange en systemprompt...</translation>
-    </message>
-    <message>
-        <source>Asking the model...</source>
-        <translation>Frågar modellen...</translation>
-    </message>
-    <message>
-        <source>Suggest a title</source>
-        <translation>Föreslå en rubrik</translation>
-    </message>
-    <message>
-        <source>Reads the conversation and proposes a title and a category.</source>
-        <translation>Läser konversationen och föreslår en rubrik och en kategori.</translation>
-    </message>
-</context>
-<context>
-    <name>PromptLibraryPage</name>
-    <message>
-        <source>Prompt library</source>
-        <translation>Promptbibliotek</translation>
-    </message>
-    <message>
-        <source>Tap a prompt to add it to the message you are writing.</source>
-        <translation>Tryck på en prompt för att lägga till det i meddelandet du skriver.</translation>
-    </message>
-    <message>
-        <source>New prompt</source>
-        <translation>Ny prompt</translation>
-    </message>
-    <message>
-        <source>No saved prompts</source>
-        <translation>Inga sparade prompter</translation>
-    </message>
-    <message>
-        <source>Use the pulley menu to save one</source>
-        <translation>Använd toppmenyn för att spara en</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Redigera</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Kopiera</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Deleting</source>
-        <translation>Tar bort</translation>
-    </message>
-    <message>
-        <source>Edit prompt</source>
-        <translation>Redigera prompt</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Spara</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Avbryt</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Namn</translation>
-    </message>
-    <message>
-        <source>Optional name</source>
-        <translation>Valfritt namn</translation>
-    </message>
-    <message>
-        <source>Prompt</source>
-        <translation>Prompt</translation>
-    </message>
-    <message>
-        <source>Enter the prompt text...</source>
-        <translation>Ange prompttext...</translation>
+        <source>Counted from the answers themselves. Answers received before this app recorded models appear under their provider only.</source>
+        <translation>Räknat från svaren själva. Svar som togs emot innan appen började registrera modeller visas bara under sin leverantör.</translation>
     </message>
 </context>
 </TS>

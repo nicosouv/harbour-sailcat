@@ -624,7 +624,8 @@ QStringList SettingsManager::availableLanguages() const
         << "es"
         << "fi"
         << "it"
-        << "nb_NO";
+        << "nb_NO"
+        << "sv";
 }
 
 void SettingsManager::clearApiKey()

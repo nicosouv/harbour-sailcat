@@ -1039,7 +1039,7 @@
     </message>
     <message>
         <source>On device</source>
-        <translation>Sur l'appareil</translation>
+        <translation>Sur l&apos;appareil</translation>
     </message>
     <message>
         <source>Best titles, but one extra request per conversation. Free tiers count those.</source>
