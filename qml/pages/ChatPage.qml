@@ -429,12 +429,18 @@ Page {
                     enabled: !mistralApi.isBusy && chatPage.providerReady
                     font.pixelSize: Theme.fontSizeSmall
 
-                    // Disabled means the virtual keyboard inserts a new line
-                    // instead of accepting, which is the point of the setting.
-                    EnterKey.enabled: settingsManager.enterKeySends
-                                      && text.trim().length > 0 && !mistralApi.isBusy
-                    EnterKey.iconSource: "image://theme/icon-m-enter-accept"
-                    EnterKey.onClicked: sendMessage()
+                    // A disabled Enter key is greyed out and does nothing, it does
+                    // not fall back to a new line. In new-line mode the key stays
+                    // enabled with its default icon and the handler ignores it.
+                    EnterKey.enabled: !settingsManager.enterKeySends
+                                      || (text.trim().length > 0 && !mistralApi.isBusy)
+                    EnterKey.iconSource: settingsManager.enterKeySends
+                                         ? "image://theme/icon-m-enter-accept"
+                                         : "image://theme/icon-m-enter"
+                    EnterKey.onClicked: {
+                        if (settingsManager.enterKeySends)
+                            sendMessage()
+                    }
                 }
 
                 IconButton {

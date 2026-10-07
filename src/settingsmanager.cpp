@@ -56,7 +56,7 @@ SettingsManager::SettingsManager(QObject *parent)
     , m_chatStyle("flat")
     , m_autoTitleMode("local")
     , m_showTimestamps(true)
-    , m_enterKeySends(true)
+    , m_enterKeySends(false)
     , m_modelSwitches(0)
 {
     loadSettings();
@@ -726,7 +726,10 @@ void SettingsManager::loadSettings()
         m_autoTitleMode = "local";
     }
     m_showTimestamps = m_settings.value("ui/showTimestamps", true).toBool();
-    m_enterKeySends = m_settings.value("ui/enterKeySends", true).toBool();
+    // 2.3.1 stored "ui/enterKeySends" = true for everyone, chosen or not.
+    // A new key resets it once so Enter goes back to inserting a new line.
+    m_settings.remove("ui/enterKeySends");
+    m_enterKeySends = m_settings.value("ui/enterSends", false).toBool();
     m_modelSwitches = m_settings.value("stats/modelSwitches", 0).toInt();
 
     m_savedPrompts.clear();
@@ -879,7 +882,7 @@ void SettingsManager::saveSettings()
     m_settings.setValue("generation/autoTitleMode", m_autoTitleMode);
     m_settings.setValue("ui/chatStyle", m_chatStyle);
     m_settings.setValue("ui/showTimestamps", m_showTimestamps);
-    m_settings.setValue("ui/enterKeySends", m_enterKeySends);
+    m_settings.setValue("ui/enterSends", m_enterKeySends);
     m_settings.sync();
     secureSettingsFile();
 }
